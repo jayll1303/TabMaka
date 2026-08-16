@@ -1,5 +1,5 @@
 import "./styles/main.css";
-import { creatures, defaultCreatureId } from "./creatures/eel";
+import { creatures, defaultCreatureId } from "./creatures/index";
 import type { CreatureConfig } from "./creatures/types";
 import { createSpine, resolveSpine, type Spine } from "./engine/spine";
 import { drawCreature, resizeCanvas } from "./engine/render";
@@ -29,13 +29,13 @@ async function main(): Promise<void> {
   if (!ctx) return;
 
   const settings = await loadSettings();
-  const config: CreatureConfig =
+  let config: CreatureConfig =
     creatures[settings.creatureId] ?? creatures[defaultCreatureId];
 
   let size = resizeCanvas(canvas);
   const center: Vec = { x: size.w / 2, y: size.h / 2 };
 
-  const spine: Spine = createSpine(config, center);
+  let spine: Spine = createSpine(config, center);
   let head: Vec = { ...center };
   const blink = new Blink();
   const behavior = new Behavior({ width: size.w, height: size.h }, center);
@@ -123,6 +123,12 @@ async function main(): Promise<void> {
             : greetingFor();
         }
       },
+      onCreatureChange: (s: Settings) => {
+        config = creatures[s.creatureId] ?? creatures[defaultCreatureId];
+        spine = createSpine(config, head);
+        wake();
+        if (reduced) drawFrame(1);
+      },
     });
   }
 
@@ -142,3 +148,7 @@ async function main(): Promise<void> {
 }
 
 void main();
+
+
+
+

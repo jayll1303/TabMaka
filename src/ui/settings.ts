@@ -1,12 +1,14 @@
 import type { Settings } from "../storage";
 import { saveSettings } from "../storage";
+import { creatureList } from "../creatures/index";
 
 export interface SettingsPanelHandlers {
   onChange: (settings: Settings) => void;
+  onCreatureChange: (settings: Settings) => void;
 }
 
 /**
- * Minimal settings panel: clock toggle, 12/24h, creature name.
+ * Minimal settings panel: mascot picker, clock toggle, 12/24h, creature name.
  * Kept intentionally tiny to respect the single-purpose scope.
  */
 export function initSettings(
@@ -23,7 +25,15 @@ export function initSettings(
   panel.className = "settings-panel";
   panel.hidden = true;
 
+  const options = creatureList
+    .map((c) => `<option value="${c.id}">${c.name}</option>`)
+    .join("");
+
   panel.innerHTML = `
+    <label class="row">
+      <span>Companion</span>
+      <select id="set-creature">${options}</select>
+    </label>
     <label class="row">
       <span>Name</span>
       <input type="text" id="set-name" maxlength="24" placeholder="Name your companion" />
@@ -38,10 +48,12 @@ export function initSettings(
     </label>
   `;
 
+  const creatureInput = panel.querySelector<HTMLSelectElement>("#set-creature")!;
   const nameInput = panel.querySelector<HTMLInputElement>("#set-name")!;
   const clockInput = panel.querySelector<HTMLInputElement>("#set-clock")!;
   const h24Input = panel.querySelector<HTMLInputElement>("#set-24h")!;
 
+  creatureInput.value = settings.creatureId;
   nameInput.value = settings.name;
   clockInput.checked = settings.clock;
   h24Input.checked = !settings.hour12;
@@ -54,6 +66,13 @@ export function initSettings(
     handlers.onChange(settings);
   }
 
+  async function commitCreature(): Promise<void> {
+    settings.creatureId = creatureInput.value;
+    await saveSettings(settings);
+    handlers.onCreatureChange(settings);
+  }
+
+  creatureInput.addEventListener("change", () => void commitCreature());
   nameInput.addEventListener("input", () => void commit());
   clockInput.addEventListener("change", () => void commit());
   h24Input.addEventListener("change", () => void commit());
