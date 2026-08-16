@@ -1,0 +1,131 @@
+:root {
+  --bg: #0f1117;
+  --fg: #e7e9ee;
+  --muted: rgba(231, 233, 238, 0.6);
+  color-scheme: dark light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  overflow: hidden;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+#stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100vh;
+  padding-top: 12vh;
+  gap: 0.25rem;
+  pointer-events: none;
+}
+
+#greeting {
+  font-size: clamp(1rem, 2.5vmin, 1.5rem);
+  color: var(--muted);
+}
+
+#clock {
+  font-size: clamp(2rem, 6vmin, 4rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 300;
+}
+
+#settings-root {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+}
+
+.settings-toggle {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--fg);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.settings-toggle:hover {
+  opacity: 1;
+}
+
+.settings-panel {
+  margin-top: 0.5rem;
+  background: rgba(20, 24, 33, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  min-width: 220px;
+  backdrop-filter: blur(8px);
+}
+
+.settings-panel .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+}
+
+.settings-panel input[type="text"] {
+  width: 120px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: var(--fg);
+  padding: 0.25rem 0.5rem;
+}
+
+#onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 17, 23, 0.7);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  text-align: center;
+  padding: 2rem;
+}
+
+#onboarding p {
+  max-width: 28rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-toggle {
+    transition: none;
+  }
+}

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Tab</title>
+  </head>
+  <body>
+    <canvas id="scene" aria-hidden="true"></canvas>
+    <main id="stage">
+      <div id="companion" role="img" aria-label="An interactive companion that follows your cursor"></div>
+      <div id="greeting"></div>
+      <div id="clock" aria-live="polite"></div>
+    </main>
+    <div id="settings-root"></div>
+    <div id="onboarding" hidden>
+      <p>Meet your companion. It follows your cursor and wanders when you are away. Click anywhere to begin.</p>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

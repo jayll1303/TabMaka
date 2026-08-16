@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Companion New Tab",
+  "version": "0.1.0",
+  "description": "An interactive companion that greets you on every new tab. 100% local, no tracking.",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "permissions": ["storage"]
+}
