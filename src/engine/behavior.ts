@@ -9,7 +9,7 @@ export interface BehaviorEnv {
 }
 
 export interface BehaviorOptions {
-  /** ms without mouse input before leaving FOLLOWING. */
+  /** ms after the pointer leaves before the creature starts wandering. */
   idleDelay?: number;
   /** ms of resting before picking a new wander target. */
   restDuration?: number;
@@ -21,16 +21,17 @@ export interface BehaviorOptions {
 
 /**
  * Decides where the creature's head wants to go.
- * - FOLLOWING: chase the mouse.
- * - WANDERING: head to a random point, calmly.
+ * - FOLLOWING: chase the cursor. Stays here as long as the pointer is present
+ *   on the page, even if it is not moving.
+ * - WANDERING: head to a random point, calmly (only when the pointer is away).
  * - RESTING: pause at the last point, then wander again.
- * Any mouse movement wakes it back to FOLLOWING.
  */
 export class Behavior {
   state: BehaviorState = "RESTING";
   private target: Vec;
   private lastMouseAt: number;
   private restUntil = 0;
+  private pointerPresent = false;
   private readonly idleDelay: number;
   private readonly restDuration: number;
   private readonly arriveRadius: number;
@@ -55,7 +56,16 @@ export class Behavior {
     this.env = env;
   }
 
-  /** Report mouse activity; wakes into FOLLOWING. */
+  /** Report whether the cursor is currently over the page. */
+  setPointerPresent(present: boolean): void {
+    this.pointerPresent = present;
+    if (!present) {
+      // Start the idle countdown from the moment the pointer leaves.
+      this.lastMouseAt = this.now();
+    }
+  }
+
+  /** Report mouse activity; wakes into FOLLOWING and tracks the cursor. */
   notifyMouse(pos: Vec): void {
     this.lastMouseAt = this.now();
     this.target = { ...pos };
@@ -75,7 +85,8 @@ export class Behavior {
     const t = this.now();
 
     if (this.state === "FOLLOWING") {
-      if (t - this.lastMouseAt > this.idleDelay) {
+      // Stay glued to the cursor while it is present, even if stationary.
+      if (!this.pointerPresent && t - this.lastMouseAt > this.idleDelay) {
         this.state = "WANDERING";
         this.target = this.randomPoint();
       }
