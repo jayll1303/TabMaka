@@ -20,6 +20,11 @@ export class Blink {
     return 2000 + this.rand() * 4000;
   }
 
+  /** Current eye-open amount [0,1] without advancing state. */
+  currentOpen(): number {
+    return this.open;
+  }
+
   /** Advance blink state; dtScale is 1 at 60fps. Returns eye-open [0,1]. */
   update(dtScale: number): number {
     const t = this.now();
@@ -46,3 +51,4 @@ export class Blink {
     return this.open;
   }
 }
+

@@ -1,12 +1,8 @@
 import "./styles/main.css";
-import { creatures, defaultCreatureId } from "./creatures/index";
-import type { CreatureConfig } from "./creatures/types";
-import { createSpine, resolveSpine, type Spine } from "./engine/spine";
-import { drawCreature, resizeCanvas } from "./engine/render";
-import { stepToward } from "./engine/locomotion";
-import { Blink } from "./engine/blink";
-import { Behavior } from "./engine/behavior";
-import { type Vec, dist } from "./engine/vec";
+import { defaultMascotId } from "./creatures/index";
+import { createMascot } from "./engine/mascot-factory";
+import type { Mascot } from "./engine/mascot";
+import { resizeCanvas } from "./engine/render";
 import { Loop } from "./perf/loop";
 import { onVisibilityChange } from "./perf/visibility";
 import {
@@ -29,35 +25,22 @@ async function main(): Promise<void> {
   if (!ctx) return;
 
   const settings = await loadSettings();
-  let config: CreatureConfig =
-    creatures[settings.creatureId] ?? creatures[defaultCreatureId];
-
   let size = resizeCanvas(canvas);
-  const center: Vec = { x: size.w / 2, y: size.h / 2 };
-
-  let spine: Spine = createSpine(config, center);
-  let head: Vec = { ...center };
-  const blink = new Blink();
-  const behavior = new Behavior({ width: size.w, height: size.h }, center);
-
   let reduced = prefersReducedMotion();
 
-  // Motion allowed: idly wander until the cursor appears.
-  // Reduced motion: sit still until the cursor moves.
-  behavior.state = reduced ? "RESTING" : "WANDERING";
+  let mascot: Mascot = createMascot(
+    settings.creatureId ?? defaultMascotId,
+    size,
+    reduced,
+  );
 
   function drawFrame(dtScale: number): void {
-    const { target, state } = behavior.update(head);
-    const speed =
-      state === "FOLLOWING" ? config.followSpeed : config.wanderSpeed;
-    head = stepToward(head, target, speed, dtScale);
-    resolveSpine(spine, head);
-    const eyeOpen = reduced ? 1 : blink.update(dtScale);
+    mascot.update(dtScale, reduced);
     ctx!.clearRect(0, 0, size.w, size.h);
-    drawCreature(ctx!, spine, config, target, eyeOpen);
+    mascot.draw(ctx!, size);
 
-    // Reduced motion: glide to the cursor, then stop (no perpetual animation).
-    if (reduced && dist(head, target) < 0.5) {
+    // Reduced motion: once settled, stop the loop (no perpetual animation).
+    if (reduced && mascot.isSettled()) {
       loop.stop();
     }
   }
@@ -68,30 +51,26 @@ async function main(): Promise<void> {
     if (!loop.isRunning && !document.hidden) loop.start();
   }
 
-  // Initial paint.
-  resolveSpine(spine, head);
-  ctx.clearRect(0, 0, size.w, size.h);
-  drawCreature(ctx, spine, config, head, 1);
+  // Initial paint + run.
+  drawFrame(1);
   if (!reduced) loop.start();
 
   window.addEventListener("mousemove", (e) => {
-    behavior.setPointerPresent(true);
-    behavior.notifyMouse({ x: e.clientX, y: e.clientY });
+    mascot.setCursor({ x: e.clientX, y: e.clientY });
     wake();
   });
 
-  // When the cursor leaves the page, allow the creature to wander again.
   document.addEventListener("mouseleave", () => {
-    behavior.setPointerPresent(false);
+    mascot.setPointerPresent(false);
   });
   document.addEventListener("mouseenter", () => {
-    behavior.setPointerPresent(true);
+    mascot.setPointerPresent(true);
     wake();
   });
 
   window.addEventListener("resize", () => {
     size = resizeCanvas(canvas);
-    behavior.setEnv({ width: size.w, height: size.h });
+    mascot.setEnv(size);
     if (reduced) drawFrame(1);
   });
 
@@ -102,7 +81,6 @@ async function main(): Promise<void> {
 
   onReducedMotionChange((r) => {
     reduced = r;
-    if (!reduced) behavior.state = "WANDERING";
     wake();
   });
 
@@ -124,10 +102,9 @@ async function main(): Promise<void> {
         }
       },
       onCreatureChange: (s: Settings) => {
-        config = creatures[s.creatureId] ?? creatures[defaultCreatureId];
-        spine = createSpine(config, head);
+        mascot = createMascot(s.creatureId, size, reduced);
+        drawFrame(1);
         wake();
-        if (reduced) drawFrame(1);
       },
     });
   }
@@ -148,7 +125,4 @@ async function main(): Promise<void> {
 }
 
 void main();
-
-
-
 

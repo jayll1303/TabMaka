@@ -1,6 +1,6 @@
 import type { Settings } from "../storage";
 import { saveSettings } from "../storage";
-import { creatureList } from "../creatures/index";
+import { mascotList } from "../creatures/index";
 
 export interface SettingsPanelHandlers {
   onChange: (settings: Settings) => void;
@@ -25,7 +25,7 @@ export function initSettings(
   panel.className = "settings-panel";
   panel.hidden = true;
 
-  const options = creatureList
+  const options = mascotList
     .map((c) => `<option value="${c.id}">${c.name}</option>`)
     .join("");
 
@@ -83,3 +83,4 @@ export function initSettings(
 
   root.append(toggle, panel);
 }
+
