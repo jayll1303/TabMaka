@@ -104,6 +104,10 @@ body {
   padding: 0.25rem 0.5rem;
 }
 
+#onboarding[hidden] {
+  display: none;
+}
+
 #onboarding {
   position: fixed;
   inset: 0;
@@ -129,3 +133,4 @@ body {
     transition: none;
   }
 }
+

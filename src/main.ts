@@ -13,7 +13,7 @@ import {
   prefersReducedMotion,
   onReducedMotionChange,
 } from "./perf/reduced-motion";
-import { loadSettings, type Settings } from "./storage";
+import { loadSettings, saveSettings, type Settings } from "./storage";
 import { initClock, greetingFor } from "./ui/clock";
 import { initSettings } from "./ui/settings";
 
@@ -122,10 +122,18 @@ async function main(): Promise<void> {
   // First-run onboarding.
   if (onboardingEl && !settings.seenOnboarding) {
     onboardingEl.hidden = false;
-    onboardingEl.addEventListener("click", () => {
-      onboardingEl.hidden = true;
-    });
+    onboardingEl.addEventListener(
+      "click",
+      () => {
+        onboardingEl.hidden = true;
+        settings.seenOnboarding = true;
+        void saveSettings(settings);
+      },
+      { once: true },
+    );
   }
 }
 
 void main();
+
+
