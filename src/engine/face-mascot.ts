@@ -46,7 +46,7 @@ const eyeModeFor: Record<Expression, EyeMode> = {
   happy: "blink",
   uwu: "shut",
   surprised: "wide",
-  sleepy: "droop",
+  sleepy: "shut",
   tongue: "blink",
   kiss: "shut",
 };
@@ -326,6 +326,36 @@ export class FaceMascot implements Mascot {
       ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
     }
 
+    // 4. Draw peaceful floating 'z z Z' trail when asleep
+    if (expr === "sleepy") {
+      ctx.save();
+      ctx.fillStyle = this.config.palette.eye;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      const chars = ["z", "z", "Z"];
+      const sizeMultipliers = [0.048, 0.068, 0.092];
+      const offsetsX = [0.72, 0.81, 0.90];
+      const baseHeights = [0.08, -0.04, -0.16];
+
+      for (let i = 0; i < 3; i++) {
+        // Continuous upward floating loop with staggered phases
+        const p = (this.time * 0.35 + i * 0.33) % 1;
+        const alpha = Math.sin(p * Math.PI);
+        const floatY = p * bodyH * 0.22;
+        const driftX = Math.sin(p * Math.PI * 2) * (bodyW * 0.02);
+
+        const x = drawX + bodyW * offsetsX[i] + driftX;
+        const y = drawY + bodyH * baseHeights[i] - floatY;
+
+        ctx.globalAlpha = clamp(alpha * 0.85, 0, 1);
+        ctx.font = `bold ${Math.round(bodyW * sizeMultipliers[i])}px system-ui, -apple-system, sans-serif`;
+        ctx.fillText(chars[i], x, y);
+      }
+
+      ctx.restore();
+    }
+
     ctx.restore();
   }
 
@@ -333,6 +363,7 @@ export class FaceMascot implements Mascot {
     return (
       !this.dragging &&
       !this.mood.isBusy() &&
+      this.mood.current() === "sleepy" &&
       Math.abs(this.look.x - this.desired.x) < 0.01 &&
       Math.abs(this.look.y - this.desired.y) < 0.01
     );
