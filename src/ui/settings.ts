@@ -13,7 +13,7 @@ export interface SettingsPanelHandlers {
  * - Positioned at bottom-left corner
  * - Background color picker: 3 creamy/soothing presets + dark mode + custom color picker
  * - Companion name input
- * - Clock toggle & 12/24h format
+ * - Clock toggle & progressive 24-hour format (only visible when clock is enabled)
  */
 export function initSettings(
   root: HTMLElement,
@@ -84,7 +84,7 @@ export function initSettings(
       <span class="row-label">Show clock</span>
       <input type="checkbox" id="set-clock" />
     </label>
-    <label class="row">
+    <label class="row" id="row-24h">
       <span class="row-label">24-hour time</span>
       <input type="checkbox" id="set-24h" />
     </label>
@@ -93,6 +93,7 @@ export function initSettings(
   const creatureInput = panel.querySelector<HTMLSelectElement>("#set-creature");
   const nameInput = panel.querySelector<HTMLInputElement>("#set-name")!;
   const clockInput = panel.querySelector<HTMLInputElement>("#set-clock")!;
+  const row24h = panel.querySelector<HTMLElement>("#row-24h")!;
   const h24Input = panel.querySelector<HTMLInputElement>("#set-24h")!;
   const customBgInput = panel.querySelector<HTMLInputElement>("#set-custom-bg")!;
   const swatchButtons = panel.querySelectorAll<HTMLButtonElement>(".color-swatch[data-color]");
@@ -105,6 +106,12 @@ export function initSettings(
   nameInput.value = settings.name;
   clockInput.checked = settings.clock;
   h24Input.checked = !settings.hour12;
+
+  // Progressive Disclosure: show 24-hour toggle only when clock is enabled
+  function updateClockRowVisibility(): void {
+    row24h.style.display = clockInput.checked ? "flex" : "none";
+  }
+  updateClockRowVisibility();
 
   function updateActiveSwatch(currentColor: string): void {
     let matchedPreset = false;
@@ -153,7 +160,10 @@ export function initSettings(
   });
 
   nameInput.addEventListener("input", () => void commit());
-  clockInput.addEventListener("change", () => void commit());
+  clockInput.addEventListener("change", () => {
+    updateClockRowVisibility();
+    void commit();
+  });
   h24Input.addEventListener("change", () => void commit());
 
   toggle.addEventListener("click", (e) => {
