@@ -37,3 +37,11 @@ Distribution - noi solo dev thang/thua, KHONG phai o code. Chay song song va lie
 
 ## Risk Assessment
 - Launch chim nghim. Mitigation: GIF wow-moment lam anh hero; timing launch; chuan bi tra loi comment ky thuat.
+
+## Build-out Log
+
+### Session 3 - 2026-08-17
+Cook code artifact cua Phase 9:
+- `docs/blog-technical.md`: draft bai ky thuat ("How I built an interactive new-tab companion ... at ~0% idle CPU") - gap, procedural creatures, follow/wander FSM, loop management, a11y, privacy, stack, + y tuong GIF.
+
+Con lai (buoc thu cong): chup GIF demo, chon timing, launch Product Hunt / Show HN / subreddits, mo kenh feedback, theo doi rating.

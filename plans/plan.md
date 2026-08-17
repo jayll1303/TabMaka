@@ -61,7 +61,7 @@ KHONG (de sau): IK chan + thang lan 4 chan, nhieu creature, interact voi element
 | 5 | [Idle Behavior](./phase-05-idle-behavior.md) | Completed |
 | 6 | [Product Shell](./phase-06-product-shell.md) | Completed |
 | 7 | [Performance and A11y](./phase-07-performance-and-a11y.md) | Completed |
-| 8 | [Package and Publish](./phase-08-package-and-publish.md) | Pending |
+| 8 | [Package and Publish](./phase-08-package-and-publish.md) | In-progress |
 | 9 | [Launch](./phase-09-launch.md) | Pending |
 
 ## Dependency Graph (noi bo)
@@ -116,3 +116,4 @@ Propagation: phase-01 (creature config), phase-03 (Canvas + spine + skin), phase
 - Khong con mau thuan chua giai quyet.
 
 Ket luan: PROCEED. San sang cook Phase 1 -> Phase 3.
+
