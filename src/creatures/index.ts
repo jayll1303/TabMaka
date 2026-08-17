@@ -1,6 +1,5 @@
 import type { CreatureConfig } from "./types";
 import type { FaceConfig } from "./face-types";
-import { tadpole } from "./tadpole";
 import { frog } from "./frog";
 
 export type MascotConfig = CreatureConfig | FaceConfig;
@@ -12,16 +11,14 @@ export function isFaceConfig(c: MascotConfig): c is FaceConfig {
 
 /** All available mascots, keyed by id. */
 export const mascotConfigs: Record<string, MascotConfig> = {
-  tadpole,
   frog,
 };
 
 /** Stable display order for the picker. */
 export const mascotList: MascotConfig[] = [
-  tadpole,
   frog,
 ];
 
-export const defaultMascotId = "tadpole";
+export const defaultMascotId = "frog";
 
 export type { CreatureConfig, FaceConfig };

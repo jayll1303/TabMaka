@@ -42,6 +42,5 @@ describe("mascot registry", () => {
 
   it("recognizes face mascots", () => {
     expect(isFaceConfig(mascotConfigs.frog)).toBe(true);
-    expect(isFaceConfig(mascotConfigs.tadpole)).toBe(false);
   });
 });

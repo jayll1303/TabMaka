@@ -1,24 +1,36 @@
 import type { FaceConfig } from "./face-types";
 
+/**
+ * Exact Kawaii Frog Loaf (Doodle Sticker Style from user reference image):
+ * - Chunky avocado green body (#7eb94f)
+ * - Thick black cartoon outline (#111111)
+ * - Signature 2-bump head (front eye dome & rear eye dome)
+ * - Solid black bead eye with subtle cursor tracking
+ * - Squiggly :3 / w mouth
+ * - 2 front stubby legs with arch gap
+ * - Dark olive green fold/shadow markings (#66993e)
+ */
 export const frog: FaceConfig = {
   id: "frog",
   name: "Frog",
   kind: "face",
-  size: 90,
+  size: 110,
   body: "frog",
   palette: {
-    body: "#6ab04c",
-    outline: "#3d6b28",
-    belly: "#d6f0b8",
-    eye: "#ffffff",
-    pupil: "#1a1a1a",
+    body: "#82c355",
+    outline: "#121212",
+    belly: "#679d3f", // used for shadow / crease patches
+    eye: "#121212",
+    pupil: "#ffffff",
+    blush: "rgba(255, 140, 150, 0.4)",
+    fin: "#679d3f",
+    highlight: "#ffffff",
   },
   eye: {
-    // Frog eyes sit high and wide, like bulging domes on top of the head.
-    separation: 0.55,
-    top: -0.62,
-    radius: 0.34,
-    pupil: 0.15,
-    travel: 0.55,
+    separation: 0,
+    top: -0.32,
+    radius: 0.19,
+    pupil: 0.08,
+    travel: 0.35,
   },
 };

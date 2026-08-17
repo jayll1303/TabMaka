@@ -9,8 +9,7 @@ import type { Mascot, Size } from "./mascot";
 import { ParticleSystem } from "./particles";
 
 /**
- * A moving spine creature (e.g. tadpole). The head chases the
- * cursor while present and wanders when the cursor leaves.
+ * A moving spine creature driven by inverse-kinematics distance constraints.
  */
 export class SpineMascot implements Mascot {
   private spine: Spine;

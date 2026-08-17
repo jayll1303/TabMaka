@@ -30,10 +30,14 @@ export function initSettings(
     .join("");
 
   panel.innerHTML = `
-    <label class="row">
+    ${
+      mascotList.length > 1
+        ? `<label class="row">
       <span>Companion</span>
       <select id="set-creature">${options}</select>
-    </label>
+    </label>`
+        : ""
+    }
     <label class="row">
       <span>Name</span>
       <input type="text" id="set-name" maxlength="24" placeholder="Name your companion" />
@@ -48,12 +52,15 @@ export function initSettings(
     </label>
   `;
 
-  const creatureInput = panel.querySelector<HTMLSelectElement>("#set-creature")!;
+  const creatureInput = panel.querySelector<HTMLSelectElement>("#set-creature");
   const nameInput = panel.querySelector<HTMLInputElement>("#set-name")!;
   const clockInput = panel.querySelector<HTMLInputElement>("#set-clock")!;
   const h24Input = panel.querySelector<HTMLInputElement>("#set-24h")!;
 
-  creatureInput.value = settings.creatureId;
+  if (creatureInput) {
+    creatureInput.value = settings.creatureId;
+    creatureInput.addEventListener("change", () => void commitCreature());
+  }
   nameInput.value = settings.name;
   clockInput.checked = settings.clock;
   h24Input.checked = !settings.hour12;
@@ -67,12 +74,11 @@ export function initSettings(
   }
 
   async function commitCreature(): Promise<void> {
+    if (!creatureInput) return;
     settings.creatureId = creatureInput.value;
     await saveSettings(settings);
     handlers.onCreatureChange(settings);
   }
-
-  creatureInput.addEventListener("change", () => void commitCreature());
   nameInput.addEventListener("input", () => void commit());
   clockInput.addEventListener("change", () => void commit());
   h24Input.addEventListener("change", () => void commit());
