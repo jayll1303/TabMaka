@@ -68,7 +68,7 @@ const eyeWidthFactor: Record<Expression, number> = {
  * - Pixel-perfect body sprite; baked eye bead is repainted so the eye is drawn
  *   entirely in code and never conflicts with expression eyes.
  * - Expression/mood system: neutral, happy, uwu, surprised, sleepy, tongue, kiss.
- * - Cursor-driven reactions (fast approach -> surprised, gentle hover -> content,
+ * - Cursor-driven reactions (drag & drop -> surprised, gentle hover -> content,
  *   click -> playful) plus an idle drift into sleepy.
  * - Procedural eye: black bead scaled by openness + white specular glint that
  *   tracks the cursor; smile-arc closed eyes for shut expressions.
@@ -85,7 +85,6 @@ export class FaceMascot implements Mascot {
   private look: Vec = { x: 0, y: 0 };
   private desired: Vec = { x: 0, y: 0 };
   private time = 0;
-  private lastCursorAt = 0;
 
   // Dragging state
   private dragging = false;
@@ -106,20 +105,14 @@ export class FaceMascot implements Mascot {
   }
 
   setCursor(pos: Vec): void {
-    const now = performance.now();
-    const dt = Math.max(1, now - this.lastCursorAt);
-    const speed = len(sub(pos, this.cursor)) / dt; // px per ms
-    this.lastCursorAt = now;
-
     this.present = true;
     this.cursor = pos;
     this.mood.notifyActivity();
 
-    // React based on how the cursor moves near the frog.
+    // Gentle hover near the frog triggers content reactions (happy / uwu).
     const near = len(sub(pos, this.center)) < this.config.size * 1.6;
-    if (near) {
-      if (speed > 1.5) this.mood.startle();
-      else this.mood.pet();
+    if (near && !this.dragging) {
+      this.mood.pet();
     }
   }
 
@@ -175,6 +168,7 @@ export class FaceMascot implements Mascot {
       x: this.center.x / Math.max(1, this.screenSize.w),
       y: this.center.y / Math.max(1, this.screenSize.h),
     };
+    this.mood.startle();
   }
 
   endDrag(): Vec {

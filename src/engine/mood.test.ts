@@ -18,18 +18,18 @@ describe("Mood state machine", () => {
     expect(m.current()).toBe("neutral");
   });
 
-  it("drifts to sleepy after a long idle", () => {
+  it("drifts to sleepy after 5s idle by default", () => {
     const clock = makeClock(0);
-    const m = new Mood({ now: clock.now, rand: () => 0.5, sleepAfter: 5000 });
-    clock.advance(4000);
+    const m = new Mood({ now: clock.now, rand: () => 0.5 });
+    clock.advance(4500);
     expect(m.current()).toBe("neutral");
-    clock.advance(1500);
+    clock.advance(600);
     expect(m.current()).toBe("sleepy");
   });
 
   it("activity wakes it from sleepy", () => {
     const clock = makeClock(0);
-    const m = new Mood({ now: clock.now, rand: () => 0.5, sleepAfter: 5000 });
+    const m = new Mood({ now: clock.now, rand: () => 0.5 });
     clock.advance(6000);
     expect(m.current()).toBe("sleepy");
     m.notifyActivity();
@@ -79,11 +79,11 @@ describe("Mood state machine", () => {
     expect(m.current()).toBe("tongue");
   });
 
-  it("startle overrides an active pet", () => {
+  it("startle (drag) overrides active poke and pet", () => {
     const clock = makeClock(0);
-    const m = new Mood({ now: clock.now, rand: () => 0.2 });
-    m.pet();
-    expect(m.current()).toBe("happy");
+    const m = new Mood({ now: clock.now, rand: () => 0.2, pokeHold: 1000 });
+    m.poke();
+    expect(m.current()).toBe("tongue");
     m.startle();
     expect(m.current()).toBe("surprised");
   });

@@ -10,14 +10,14 @@ export class Blink {
 
   constructor(
     private now = () => performance.now(),
-    private rand: () => number = Math.random,
+    _rand?: () => number,
   ) {
     this.nextBlinkAt = this.now() + this.scheduleGap();
   }
 
   private scheduleGap(): number {
-    // Blink every 2-6 seconds.
-    return 2000 + this.rand() * 4000;
+    // Blink every 2 seconds.
+    return 2000;
   }
 
   /** Current eye-open amount [0,1] without advancing state. */

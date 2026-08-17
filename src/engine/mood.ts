@@ -20,10 +20,10 @@ export interface MoodOptions {
   sleepAfter?: number;
 }
 
-/** Priority so a low-key hover cannot stomp a click reaction. */
+/** Priority: hover (pet) < click (poke) < drag & drop (startle/surprise). */
 const PET_PRIORITY = 1;
-const STARTLE_PRIORITY = 2;
-const POKE_PRIORITY = 3;
+const POKE_PRIORITY = 2;
+const STARTLE_PRIORITY = 3;
 
 /**
  * Decides which facial expression the frog wears.
@@ -51,7 +51,7 @@ export class Mood {
     this.startleHold = opts.startleHold ?? 900;
     this.pokeHold = opts.pokeHold ?? 1200;
     this.petHold = opts.petHold ?? 500;
-    this.sleepAfter = opts.sleepAfter ?? 12_000;
+    this.sleepAfter = opts.sleepAfter ?? 5_000;
     this.lastInteractAt = this.now();
   }
 
@@ -82,7 +82,7 @@ export class Mood {
     this.activePriority = PET_PRIORITY;
   }
 
-  /** Cursor rushing in -> surprised. */
+  /** Drag & drop -> surprised. */
   startle(): void {
     const t = this.now();
     this.lastInteractAt = t;
@@ -96,6 +96,7 @@ export class Mood {
   poke(): void {
     const t = this.now();
     this.lastInteractAt = t;
+    if (this.reactionActive(t) && this.activePriority > POKE_PRIORITY) return;
     this.reaction = this.rand() < 0.5 ? "tongue" : "kiss";
     this.reactionUntil = t + this.pokeHold;
     this.activePriority = POKE_PRIORITY;

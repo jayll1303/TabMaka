@@ -58,11 +58,18 @@ async function main(): Promise<void> {
   drawFrame(1);
   if (!reduced) loop.start();
 
+  let pointerDownPos: { x: number; y: number } | null = null;
+  let hasDragged = false;
+
   window.addEventListener("pointermove", (e) => {
     const pos = { x: e.clientX, y: e.clientY };
     mascot.setCursor(pos);
 
     if (mascot.isDragging?.()) {
+      if (pointerDownPos && !hasDragged) {
+        const d = Math.hypot(pos.x - pointerDownPos.x, pos.y - pointerDownPos.y);
+        if (d > 3) hasDragged = true;
+      }
       mascot.dragTo?.(pos);
       document.body.style.cursor = "grabbing";
     } else {
@@ -77,7 +84,8 @@ async function main(): Promise<void> {
     if (e.button !== 0) return;
     const pos = { x: e.clientX, y: e.clientY };
     if (mascot.hitTest?.(pos)) {
-      mascot.poke?.();
+      pointerDownPos = pos;
+      hasDragged = false;
       mascot.startDrag?.(pos);
       document.body.style.cursor = "grabbing";
       wake();
@@ -87,6 +95,9 @@ async function main(): Promise<void> {
   window.addEventListener("pointerup", (e) => {
     if (mascot.isDragging?.()) {
       const newPos = mascot.endDrag?.();
+      if (!hasDragged) {
+        mascot.poke?.();
+      }
       if (newPos) {
         settings.posX = newPos.x;
         settings.posY = newPos.y;
@@ -94,6 +105,8 @@ async function main(): Promise<void> {
       }
       const isOver = mascot.hitTest?.({ x: e.clientX, y: e.clientY }) ?? false;
       document.body.style.cursor = isOver ? "grab" : "";
+      pointerDownPos = null;
+      hasDragged = false;
       wake();
     }
   });
@@ -102,6 +115,8 @@ async function main(): Promise<void> {
     if (mascot.isDragging?.()) {
       mascot.endDrag?.();
       document.body.style.cursor = "";
+      pointerDownPos = null;
+      hasDragged = false;
       wake();
     }
   });
