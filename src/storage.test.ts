@@ -28,9 +28,15 @@ describe("storage (localStorage fallback)", () => {
   });
 
   it("merges partial stored data over defaults", async () => {
-    localStorage.setItem("companion.settings", JSON.stringify({ name: "Solo" }));
+    localStorage.setItem("tabmaka.settings", JSON.stringify({ name: "Solo" }));
     const s = await loadSettings();
     expect(s.name).toBe("Solo");
     expect(s.clock).toBe(defaultSettings.clock);
+  });
+
+  it("supports legacy companion.settings key", async () => {
+    localStorage.setItem("companion.settings", JSON.stringify({ name: "OldBuddy" }));
+    const s = await loadSettings();
+    expect(s.name).toBe("OldBuddy");
   });
 });

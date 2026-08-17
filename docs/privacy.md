@@ -1,10 +1,10 @@
 # Privacy Policy
 
-Companion New Tab is designed to run entirely on your device.
+TabMaka is designed to run entirely on your device.
 
 ## What we collect
 
-Nothing. Companion New Tab does not collect, transmit, or sell any personal
+Nothing. TabMaka does not collect, transmit, or sell any personal
 data. There is no analytics, no telemetry, no advertising, and no network
 requests to any server.
 

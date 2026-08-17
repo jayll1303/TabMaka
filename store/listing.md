@@ -4,7 +4,7 @@ Copy and metadata for Chrome Web Store and Microsoft Edge Add-ons.
 
 ## Name
 
-Companion New Tab
+TabMaka - Interactive Companion New Tab
 
 ## Category
 
@@ -16,7 +16,7 @@ An interactive companion that follows your cursor and wanders when you're away. 
 
 ## Detailed description
 
-Meet a little companion that lives on your new-tab page. It's a procedural
+Meet TabMaka, a little companion that lives on your new-tab page. It's a procedural
 creature, animated entirely with math, so it moves organically as it swims
 after your cursor and wanders on its own when you step away.
 
@@ -37,7 +37,7 @@ Open source (MIT). Build it from source or read the code on GitHub.
 
 ## Single-purpose statement (required by Chrome for new-tab overrides)
 
-Companion New Tab has a single purpose: to replace the browser's new-tab page
+TabMaka has a single purpose: to replace the browser's new-tab page
 with an interactive animated companion and an optional clock. It does not
 perform any other function.
 
@@ -53,7 +53,7 @@ Host docs/privacy.md (e.g., on GitHub Pages or the repo) and paste the URL here.
 
 ## Homepage / support URL
 
-The GitHub repository URL.
+https://github.com/jayll1303/TabMaka
 
 ## Assets checklist
 

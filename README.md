@@ -1,7 +1,6 @@
-# Companion New Tab
+# TabMaka
 
-An interactive companion that greets you on every new tab. A procedural
-creature swims after your cursor and wanders on its own when you step away.
+TabMaka is an interactive procedural creature that greets you on every new tab. A creature swims after your cursor and wanders on its own when you step away.
 100% local, no tracking, no accounts.
 
 Built for Chrome and Edge (Manifest V3). Vanilla TypeScript + Canvas 2D, no

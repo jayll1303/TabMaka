@@ -1,4 +1,4 @@
-# How I built an interactive new-tab companion (mouse tracking + idle AI) at ~0% idle CPU
+# How I built TabMaka: an interactive new-tab companion at ~0% idle CPU
 
 _Draft. Part build log, part portfolio piece._
 
@@ -72,7 +72,7 @@ instantly. The production bundle is ~15KB JS (~5.5KB gzipped). Pure math
 ## Try it / read it
 
 - Install: [Chrome Web Store link] / [Edge Add-ons link]
-- Source (MIT): [GitHub link]
+- Source (MIT): [https://github.com/jayll1303/TabMaka](https://github.com/jayll1303/TabMaka)
 
 ## GIF ideas for social
 
