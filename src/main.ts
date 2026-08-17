@@ -12,6 +12,7 @@ import {
 import { loadSettings, saveSettings, type Settings } from "./storage";
 import { initClock, greetingFor } from "./ui/clock";
 import { initSettings } from "./ui/settings";
+import { applyTheme, DEFAULT_BG } from "./ui/theme";
 
 const canvas = document.getElementById("scene") as HTMLCanvasElement | null;
 const clockEl = document.getElementById("clock");
@@ -25,6 +26,7 @@ async function main(): Promise<void> {
   if (!ctx) return;
 
   const settings = await loadSettings();
+  applyTheme(settings.bg || DEFAULT_BG);
   let size = resizeCanvas(canvas);
   let reduced = prefersReducedMotion();
 
