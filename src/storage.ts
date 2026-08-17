@@ -15,7 +15,6 @@ export const defaultSettings: Settings = {
 };
 
 const KEY = "tabmaka.settings";
-const LEGACY_KEY = "companion.settings";
 
 interface ChromeLike {
   storage?: {
@@ -36,8 +35,8 @@ export async function loadSettings(): Promise<Settings> {
   const local = chromeLocal();
   try {
     if (local) {
-      const got = await local.get([KEY, LEGACY_KEY]);
-      const raw = got[KEY] ?? got[LEGACY_KEY];
+      const got = await local.get(KEY);
+      const raw = got[KEY];
       if (raw && typeof raw === "object") {
         return { ...defaultSettings, ...(raw as Partial<Settings>) };
       }
@@ -47,7 +46,7 @@ export async function loadSettings(): Promise<Settings> {
     // fall through to localStorage
   }
   try {
-    const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY);
+    const raw = localStorage.getItem(KEY);
     if (raw) return { ...defaultSettings, ...(JSON.parse(raw) as Partial<Settings>) };
   } catch {
     // ignore

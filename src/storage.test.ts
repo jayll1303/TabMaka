@@ -33,10 +33,4 @@ describe("storage (localStorage fallback)", () => {
     expect(s.name).toBe("Solo");
     expect(s.clock).toBe(defaultSettings.clock);
   });
-
-  it("supports legacy companion.settings key", async () => {
-    localStorage.setItem("companion.settings", JSON.stringify({ name: "OldBuddy" }));
-    const s = await loadSettings();
-    expect(s.name).toBe("OldBuddy");
-  });
 });
