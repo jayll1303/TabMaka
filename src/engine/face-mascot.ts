@@ -1,31 +1,78 @@
 import type { FaceConfig } from "../creatures/face-types";
 import { type Vec, clamp, lerp, normalize, sub, len } from "./vec";
 import { Blink } from "./blink";
+import { Mood, type Expression } from "./mood";
 import type { Mascot, Size } from "./mascot";
 
-// Load sprite images
+// Load body sprite. The baked-in black eye bead has been removed from the
+// source PNG (see scripts/clean-frog-eye.mjs); the eye is drawn entirely in
+// code so the mood system has full control (blink, wide, sleepy, closed, ...).
 const bodyImg = new Image();
 bodyImg.src = "./sprites/frog/frog_body.png";
 
-const eyeHalfImg = new Image();
-eyeHalfImg.src = "./sprites/frog/eye_left_half.png";
+// Natural eye geometry on the 566x450 body sprite.
+const EYE_NAT = { x: 313.3, y: 85.8, r: 38.8 };
 
-const eyeClosedImg = new Image();
-eyeClosedImg.src = "./sprites/frog/eye_left_closed.png";
+/** A mouth sprite with its natural pixel dimensions and a target width. */
+interface MouthSprite {
+  img: HTMLImageElement;
+  natW: number;
+  natH: number;
+  /** Rendered width as a fraction of the body width. */
+  widthFactor: number;
+}
 
-const mouthNormalImg = new Image();
-mouthNormalImg.src = "./sprites/frog/mouth_normal.png";
+function mouth(file: string, natW: number, natH: number, widthFactor: number): MouthSprite {
+  const img = new Image();
+  img.src = `./sprites/frog/${file}`;
+  return { img, natW, natH, widthFactor };
+}
+
+// One sprite per expression, keeping each drawing's own aspect ratio.
+const mouths: Record<Expression, MouthSprite> = {
+  neutral: mouth("mouth_normal.png", 157, 87, 0.14),
+  happy: mouth("mouth_happy.png", 140, 105, 0.16),
+  uwu: mouth("mouth_uwu.png", 123, 50, 0.15),
+  surprised: mouth("mouth_surprised.png", 90, 92, 0.095),
+  sleepy: mouth("mouth_straight.png", 113, 32, 0.12),
+  tongue: mouth("mouth_tongue.png", 135, 71, 0.15),
+  kiss: mouth("mouth_kiss.png", 79, 80, 0.085),
+};
+
+/** How each expression drives the eye. */
+type EyeMode = "blink" | "wide" | "droop" | "shut";
+const eyeModeFor: Record<Expression, EyeMode> = {
+  neutral: "blink",
+  happy: "blink",
+  uwu: "shut",
+  surprised: "wide",
+  sleepy: "droop",
+  tongue: "blink",
+  kiss: "shut",
+};
+
+// Horizontal eye size relative to the baked bead, per expression.
+const eyeWidthFactor: Record<Expression, number> = {
+  neutral: 1,
+  happy: 1,
+  uwu: 1,
+  surprised: 1.18,
+  sleepy: 1,
+  tongue: 1,
+  kiss: 1,
+};
 
 /**
  * Sprite-Based Kawaii Frog Loaf Mascot.
  * Features:
- * - 100% pixel-perfect sprite from user artwork
- * - Drag-and-drop interactive repositioning with boundary constraints
- * - Exact mathematically centered eye anchor (313.3, 85.8 on 566x450)
- * - Scaled relative ratios: 100% responsive and distortion-free on any screen size
- * - Interactive white specular glint tracking cursor smoothly within the black eye
- * - 3-stage eyelid blinking (open -> half -> closed)
- * - Gentle idle breathing
+ * - Pixel-perfect body sprite; baked eye bead is repainted so the eye is drawn
+ *   entirely in code and never conflicts with expression eyes.
+ * - Expression/mood system: neutral, happy, uwu, surprised, sleepy, tongue, kiss.
+ * - Cursor-driven reactions (fast approach -> surprised, gentle hover -> content,
+ *   click -> playful) plus an idle drift into sleepy.
+ * - Procedural eye: black bead scaled by openness + white specular glint that
+ *   tracks the cursor; smile-arc closed eyes for shut expressions.
+ * - Gentle idle breathing and drag-and-drop repositioning.
  */
 export class FaceMascot implements Mascot {
   private cursor: Vec;
@@ -34,9 +81,11 @@ export class FaceMascot implements Mascot {
   private normPos: Vec;
   private screenSize: Size;
   private readonly blink = new Blink();
+  private readonly mood = new Mood();
   private look: Vec = { x: 0, y: 0 };
   private desired: Vec = { x: 0, y: 0 };
   private time = 0;
+  private lastCursorAt = 0;
 
   // Dragging state
   private dragging = false;
@@ -57,8 +106,26 @@ export class FaceMascot implements Mascot {
   }
 
   setCursor(pos: Vec): void {
+    const now = performance.now();
+    const dt = Math.max(1, now - this.lastCursorAt);
+    const speed = len(sub(pos, this.cursor)) / dt; // px per ms
+    this.lastCursorAt = now;
+
     this.present = true;
     this.cursor = pos;
+    this.mood.notifyActivity();
+
+    // React based on how the cursor moves near the frog.
+    const near = len(sub(pos, this.center)) < this.config.size * 1.6;
+    if (near) {
+      if (speed > 1.5) this.mood.startle();
+      else this.mood.pet();
+    }
+  }
+
+  /** Click / tap on the frog. */
+  poke(): void {
+    this.mood.poke();
   }
 
   setPointerPresent(present: boolean): void {
@@ -149,12 +216,86 @@ export class FaceMascot implements Mascot {
     }
   }
 
+  /** Resolve eye-open amount, letting the current expression override blink. */
+  private eyeOpen(mode: EyeMode): number {
+    switch (mode) {
+      case "wide":
+        return 1;
+      case "droop":
+        return 0.35;
+      case "shut":
+        return 0;
+      default:
+        return this.blink.currentOpen();
+    }
+  }
+
+  /** Draw the procedural eye (bead + glint, or a cute closed arc). */
+  private drawEye(
+    ctx: CanvasRenderingContext2D,
+    expr: Expression,
+    baseX: number,
+    baseY: number,
+    eyeR: number,
+  ): void {
+    const mode = eyeModeFor[expr];
+    const palette = this.config.palette;
+
+    if (mode === "shut") {
+      // Cute closed "smile" eye.
+      const r = eyeR * 0.95;
+      ctx.beginPath();
+      ctx.arc(baseX, baseY - r * 0.35, r, Math.PI * 0.18, Math.PI * 0.82);
+      ctx.lineWidth = eyeR * 0.3;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = palette.eye;
+      ctx.stroke();
+      return;
+    }
+
+    const openness = clamp(this.eyeOpen(mode), 0, 1);
+    const rx = eyeR * eyeWidthFactor[expr];
+    const ry = rx * clamp(openness, 0.06, 1);
+
+    // Black eye bead (shrinks vertically as it closes).
+    ctx.beginPath();
+    ctx.ellipse(baseX, baseY, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fillStyle = palette.eye;
+    ctx.fill();
+
+    // White specular glint fades/shrinks as the lid lowers.
+    if (openness > 0.2) {
+      const fade = clamp((openness - 0.2) / 0.8, 0, 1);
+      const glintR = rx * 0.38 * (0.6 + 0.4 * fade);
+      const maxTravel = rx * 0.42;
+      const gx = baseX + this.look.x * maxTravel;
+      const gy = baseY + this.look.y * maxTravel;
+
+      ctx.beginPath();
+      ctx.arc(gx, gy, glintR, 0, Math.PI * 2);
+      ctx.fillStyle = palette.pupil;
+      ctx.fill();
+
+      // Secondary sparkle only while wide open.
+      if (fade > 0.5) {
+        const g2 = glintR * 0.42;
+        const g2x = baseX + this.look.x * (maxTravel * 0.5) + rx * 0.34;
+        const g2y = baseY + this.look.y * (maxTravel * 0.5) + ry * 0.32;
+        ctx.beginPath();
+        ctx.arc(g2x, g2y, g2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.9 * fade})`;
+        ctx.fill();
+      }
+    }
+  }
+
   draw(ctx: CanvasRenderingContext2D, _size: Size): void {
     void _size;
     const { size } = this.config;
     const cx = this.center.x;
     const cy = this.center.y;
 
+    const expr = this.mood.current();
     const breath = Math.sin(this.time) * 0.02;
 
     // Body aspect ratio: 566 x 450
@@ -169,66 +310,26 @@ export class FaceMascot implements Mascot {
     const drawX = -bodyW / 2;
     const drawY = -bodyH / 2;
 
-    // 1. Draw original frog body (with solid black eye baked in)
+    // 1. Draw the frog body (cleaned of the baked eye when ready).
     if (bodyImg.complete && bodyImg.naturalWidth > 0) {
       ctx.drawImage(bodyImg, drawX, drawY, bodyW, bodyH);
     }
 
-    // Exact geometric eye center verified on 566x450 sprite: (313.3, 85.8), radius: 38.8px
-    const eyeBaseX = drawX + (313.3 / 566) * bodyW;
-    const eyeBaseY = drawY + (85.8 / 450) * bodyH;
-    const eyeRadius = bodyW * (38.8 / 566);
-    const eyeOpen = this.blink.currentOpen();
+    // 2. Draw the eye at the exact baked-bead anchor.
+    const eyeBaseX = drawX + (EYE_NAT.x / 566) * bodyW;
+    const eyeBaseY = drawY + (EYE_NAT.y / 450) * bodyH;
+    const eyeR = bodyW * (EYE_NAT.r / 566);
+    this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
 
-    // 2. Specular white glint / Blinking
-    if (eyeOpen > 0.6) {
-      // Main white specular bead: sized to fit comfortably inside black eye
-      const glintRadius = eyeRadius * 0.36;
-      // Max travel constrained so glint stays cleanly inside black bead
-      const maxTravel = eyeRadius * 0.48;
-
-      const gx = eyeBaseX + this.look.x * maxTravel;
-      const gy = eyeBaseY + this.look.y * maxTravel;
-
-      // Primary shiny glint
-      ctx.beginPath();
-      ctx.arc(gx, gy, glintRadius, 0, Math.PI * 2);
-      ctx.fillStyle = "#ffffff";
-      ctx.fill();
-
-      // Secondary tiny sparkle on opposite diagonal
-      const g2Radius = glintRadius * 0.42;
-      const g2x = eyeBaseX + this.look.x * (maxTravel * 0.5) + eyeRadius * 0.36;
-      const g2y = eyeBaseY + this.look.y * (maxTravel * 0.5) + eyeRadius * 0.30;
-
-      ctx.beginPath();
-      ctx.arc(g2x, g2y, g2Radius, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-      ctx.fill();
-    } else if (eyeOpen > 0.25) {
-      // Half-closed eyelid
-      const eW = bodyW * 0.22;
-      const eH = eW * (108 / 144);
-      if (eyeHalfImg.complete && eyeHalfImg.naturalWidth > 0) {
-        ctx.drawImage(eyeHalfImg, eyeBaseX - eW / 2, eyeBaseY - eH / 2, eW, eH);
-      }
-    } else {
-      // Fully closed eyelid slit
-      const eW = bodyW * 0.16;
-      const eH = eW * (25 / 104);
-      if (eyeClosedImg.complete && eyeClosedImg.naturalWidth > 0) {
-        ctx.drawImage(eyeClosedImg, eyeBaseX - eW / 2, eyeBaseY - eH / 2 + 4, eW, eH);
-      }
-    }
-
-    // 3. Draw exact squiggly mouth PNG
+    // 3. Draw the mouth sprite for the current expression.
+    const m = mouths[expr] ?? mouths.neutral;
     const mouthX = drawX + (405 / 566) * bodyW;
     const mouthY = drawY + (100 / 450) * bodyH;
-    const mW = bodyW * 0.14;
-    const mH = mW * (87 / 157);
+    const mW = bodyW * m.widthFactor;
+    const mH = mW * (m.natH / m.natW);
 
-    if (mouthNormalImg.complete && mouthNormalImg.naturalWidth > 0) {
-      ctx.drawImage(mouthNormalImg, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
+    if (m.img.complete && m.img.naturalWidth > 0) {
+      ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
     }
 
     ctx.restore();
@@ -237,8 +338,11 @@ export class FaceMascot implements Mascot {
   isSettled(): boolean {
     return (
       !this.dragging &&
+      !this.mood.isBusy() &&
       Math.abs(this.look.x - this.desired.x) < 0.01 &&
       Math.abs(this.look.y - this.desired.y) < 0.01
     );
   }
 }
+
+

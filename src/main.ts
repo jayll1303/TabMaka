@@ -77,6 +77,7 @@ async function main(): Promise<void> {
     if (e.button !== 0) return;
     const pos = { x: e.clientX, y: e.clientY };
     if (mascot.hitTest?.(pos)) {
+      mascot.poke?.();
       mascot.startDrag?.(pos);
       document.body.style.cursor = "grabbing";
       wake();
@@ -164,3 +165,4 @@ async function main(): Promise<void> {
 }
 
 void main();
+

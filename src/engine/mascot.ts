@@ -3,6 +3,8 @@ import type { Vec } from "./vec";
 export interface Size {
   w: number;
   h: number;
+  /** A tap/click landed on the mascot. */
+  poke?(): void;
 }
 
 /**
@@ -34,4 +36,7 @@ export interface Mascot {
   isDragging?(): boolean;
   /** Set mascot's normalized screen position (0..1). */
   setNormalizedPos?(pos: Vec): void;
+  /** A tap/click landed on the mascot. */
+  poke?(): void;
 }
+
