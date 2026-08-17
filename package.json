@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "TabMaka - Interactive companion new tab for Chrome and Edge",
+  "description": "TabMaka - Cozy new tab pet for Chrome and Edge",
   "license": "MIT",
   "scripts": {
     "dev": "vite",

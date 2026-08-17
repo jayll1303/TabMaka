@@ -4,7 +4,7 @@ Copy and metadata for Chrome Web Store and Microsoft Edge Add-ons.
 
 ## Name
 
-TabMaka - Interactive Companion New Tab
+TabMaka - Cozy New Tab Pet
 
 ## Category
 
@@ -12,11 +12,11 @@ Fun / Productivity (choose Fun on Chrome; Productivity works on Edge)
 
 ## Summary (short description, <= 132 chars)
 
-An adorable interactive frog companion on your new tab. Eye tracking, drag & drop, 100% local, no tracking, no accounts.
+An adorable cozy frog pet on your new tab. Eye tracking, drag & drop, 100% local, no tracking, no accounts.
 
 ## Detailed description
 
-Meet TabMaka, an adorable interactive companion that lives on your new-tab page. Designed as a cute kawaii frog loaf, it warmly greets you every time you open a new tab.
+Meet TabMaka, an adorable cozy companion that lives on your new-tab page. Designed as a cute kawaii frog loaf, it warmly greets you every time you open a new tab.
 
 What you get:
 - An interactive kawaii frog companion with real-time cursor-following eye tracking, expressive blinking, and breathing animations

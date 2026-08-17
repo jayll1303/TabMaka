@@ -1,6 +1,6 @@
-# TabMaka
+# TabMaka - Cozy New Tab Pet
 
-TabMaka is an interactive companion that greets you on every new tab. An adorable kawaii frog loaf companion that tracks your cursor with its eyes, reacts to clicks, and can be placed anywhere on your screen.
+TabMaka is an adorable cozy frog companion that greets you on every new tab. It tracks your cursor with its eyes, reacts to clicks, and can be placed anywhere on your screen.
 100% local, no tracking, no accounts.
 
 Built for Chrome and Edge (Manifest V3). Vanilla TypeScript + Canvas 2D, no runtime framework, loads instantly.
