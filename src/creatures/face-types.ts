@@ -1,7 +1,7 @@
 import type { Palette } from "../creatures/types";
 
 /**
- * A stationary character (dog, frog) drawn as a simple body with two large
+ * A stationary character (frog) drawn as a simple body with two large
  * round eyes whose pupils track the cursor. No spine, no locomotion.
  */
 export interface FaceConfig {
@@ -11,7 +11,7 @@ export interface FaceConfig {
   /** Overall scale in px (body radius baseline). */
   size: number;
   /** Body silhouette. */
-  body: "dog" | "frog";
+  body: "frog";
   palette: Palette;
   /** Eye layout, relative to body center (fractions of `size`). */
   eye: {

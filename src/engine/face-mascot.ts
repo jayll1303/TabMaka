@@ -61,13 +61,11 @@ export class FaceMascot implements Mascot {
 
   draw(ctx: CanvasRenderingContext2D, _size: Size): void {
     void _size;
-    const { palette, size, body } = this.config;
+    const { palette, size } = this.config;
     const cx = this.center.x;
     const cy = this.center.y;
 
-    if (body === "dog") this.drawDogBody(ctx, cx, cy, size, palette);
-    else this.drawFrogBody(ctx, cx, cy, size, palette);
-
+    this.drawFrogBody(ctx, cx, cy, size, palette);
     this.drawEyes(ctx, cx, cy);
   }
 
@@ -77,41 +75,6 @@ export class FaceMascot implements Mascot {
       Math.abs(this.look.x - this.desired.x) < 0.01 &&
       Math.abs(this.look.y - this.desired.y) < 0.01
     );
-  }
-
-  private drawDogBody(
-    ctx: CanvasRenderingContext2D,
-    cx: number,
-    cy: number,
-    s: number,
-    palette: FaceConfig["palette"],
-  ): void {
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = palette.outline;
-    // Ears (drawn first, behind the head).
-    ctx.fillStyle = palette.outline;
-    for (const dir of [-1, 1]) {
-      ctx.beginPath();
-      ctx.ellipse(cx + dir * s * 0.85, cy - s * 0.1, s * 0.28, s * 0.6, dir * 0.4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    // Head.
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, s, s * 0.9, 0, 0, Math.PI * 2);
-    ctx.fillStyle = palette.body;
-    ctx.fill();
-    ctx.stroke();
-    // Snout.
-    ctx.beginPath();
-    ctx.ellipse(cx, cy + s * 0.45, s * 0.5, s * 0.38, 0, 0, Math.PI * 2);
-    ctx.fillStyle = palette.belly;
-    ctx.fill();
-    ctx.stroke();
-    // Nose.
-    ctx.beginPath();
-    ctx.ellipse(cx, cy + s * 0.32, s * 0.13, s * 0.1, 0, 0, Math.PI * 2);
-    ctx.fillStyle = palette.pupil;
-    ctx.fill();
   }
 
   private drawFrogBody(

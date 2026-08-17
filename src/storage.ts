@@ -7,7 +7,7 @@ export interface Settings {
 }
 
 export const defaultSettings: Settings = {
-  creatureId: "eel",
+  creatureId: "tadpole",
   name: "",
   clock: true,
   hour12: false,

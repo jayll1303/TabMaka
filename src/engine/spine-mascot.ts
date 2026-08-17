@@ -8,7 +8,7 @@ import { type Vec, dist } from "./vec";
 import type { Mascot, Size } from "./mascot";
 
 /**
- * A moving spine creature (eel, fish, snake, tadpole). The head chases the
+ * A moving spine creature (e.g. tadpole). The head chases the
  * cursor while present and wanders when the cursor leaves.
  */
 export class SpineMascot implements Mascot {

@@ -11,7 +11,7 @@ runtime framework, so it loads instantly.
 - Procedural creature animation (spine chain + organic skinning), not hand-drawn sprites
 - Head follows the cursor in real time; eyes track the pointer
 - Wandering idle behavior when you are not interacting
-- Six companions to choose from (eel, fish, snake, tadpole, dog, frog)
+- Companions to choose from: Tadpole (swimming spine creature) and Frog (interactive face mascot)
 - Name your companion and toggle a 12/24h clock
 - Settings persisted to `chrome.storage.local` (falls back to `localStorage`)
 - Respects `prefers-reduced-motion`: settles to a static frame and stops the loop
