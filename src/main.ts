@@ -34,6 +34,7 @@ async function main(): Promise<void> {
     settings.creatureId ?? defaultMascotId,
     size,
     reduced,
+    { x: settings.posX ?? 0.5, y: settings.posY ?? 0.5 },
   );
 
   function drawFrame(dtScale: number): void {
@@ -57,9 +58,51 @@ async function main(): Promise<void> {
   drawFrame(1);
   if (!reduced) loop.start();
 
-  window.addEventListener("mousemove", (e) => {
-    mascot.setCursor({ x: e.clientX, y: e.clientY });
+  window.addEventListener("pointermove", (e) => {
+    const pos = { x: e.clientX, y: e.clientY };
+    mascot.setCursor(pos);
+
+    if (mascot.isDragging?.()) {
+      mascot.dragTo?.(pos);
+      document.body.style.cursor = "grabbing";
+    } else {
+      const isOver = mascot.hitTest?.(pos) ?? false;
+      document.body.style.cursor = isOver ? "grab" : "";
+    }
     wake();
+  });
+
+  window.addEventListener("pointerdown", (e) => {
+    // Only primary mouse button (left-click)
+    if (e.button !== 0) return;
+    const pos = { x: e.clientX, y: e.clientY };
+    if (mascot.hitTest?.(pos)) {
+      mascot.startDrag?.(pos);
+      document.body.style.cursor = "grabbing";
+      wake();
+    }
+  });
+
+  window.addEventListener("pointerup", (e) => {
+    if (mascot.isDragging?.()) {
+      const newPos = mascot.endDrag?.();
+      if (newPos) {
+        settings.posX = newPos.x;
+        settings.posY = newPos.y;
+        void saveSettings(settings);
+      }
+      const isOver = mascot.hitTest?.({ x: e.clientX, y: e.clientY }) ?? false;
+      document.body.style.cursor = isOver ? "grab" : "";
+      wake();
+    }
+  });
+
+  window.addEventListener("pointercancel", () => {
+    if (mascot.isDragging?.()) {
+      mascot.endDrag?.();
+      document.body.style.cursor = "";
+      wake();
+    }
   });
 
   document.addEventListener("mouseleave", () => {
@@ -104,7 +147,10 @@ async function main(): Promise<void> {
         }
       },
       onCreatureChange: (s: Settings) => {
-        mascot = createMascot(s.creatureId, size, reduced);
+        mascot = createMascot(s.creatureId, size, reduced, {
+          x: s.posX ?? 0.5,
+          y: s.posY ?? 0.5,
+        });
         drawFrame(1);
         wake();
       },
@@ -127,4 +173,3 @@ async function main(): Promise<void> {
 }
 
 void main();
-

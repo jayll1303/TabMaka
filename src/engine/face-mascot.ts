@@ -20,6 +20,7 @@ mouthNormalImg.src = "./sprites/frog/mouth_normal.png";
  * Sprite-Based Kawaii Frog Loaf Mascot.
  * Features:
  * - 100% pixel-perfect sprite from user artwork
+ * - Drag-and-drop interactive repositioning with boundary constraints
  * - Exact mathematically centered eye anchor (313.3, 85.8 on 566x450)
  * - Scaled relative ratios: 100% responsive and distortion-free on any screen size
  * - Interactive white specular glint tracking cursor smoothly within the black eye
@@ -30,16 +31,28 @@ export class FaceMascot implements Mascot {
   private cursor: Vec;
   private present = false;
   private center: Vec;
+  private normPos: Vec;
+  private screenSize: Size;
   private readonly blink = new Blink();
   private look: Vec = { x: 0, y: 0 };
   private desired: Vec = { x: 0, y: 0 };
   private time = 0;
 
+  // Dragging state
+  private dragging = false;
+  private dragOffset: Vec = { x: 0, y: 0 };
+
   constructor(
     private config: FaceConfig,
     size: Size,
+    normPos?: Vec,
   ) {
-    this.center = { x: size.w / 2, y: size.h / 2 };
+    this.screenSize = size;
+    this.normPos = normPos ? { ...normPos } : { x: 0.5, y: 0.5 };
+    this.center = {
+      x: this.normPos.x * size.w,
+      y: this.normPos.y * size.h,
+    };
     this.cursor = { ...this.center };
   }
 
@@ -53,7 +66,62 @@ export class FaceMascot implements Mascot {
   }
 
   setEnv(size: Size): void {
-    this.center = { x: size.w / 2, y: size.h / 2 };
+    this.screenSize = size;
+    const bodyW = this.config.size * 2.2;
+    const bodyH = bodyW * (450 / 566);
+    const padX = bodyW * 0.5 + 16;
+    const padY = bodyH * 0.5 + 16;
+
+    this.center = {
+      x: clamp(this.normPos.x * size.w, padX, Math.max(padX, size.w - padX)),
+      y: clamp(this.normPos.y * size.h, padY, Math.max(padY, size.h - padY)),
+    };
+  }
+
+  hitTest(pos: Vec): boolean {
+    const bodyW = this.config.size * 2.2;
+    const bodyH = bodyW * (450 / 566);
+    const dx = (pos.x - this.center.x) / (bodyW * 0.52);
+    const dy = (pos.y - this.center.y) / (bodyH * 0.52);
+    return dx * dx + dy * dy <= 1.0;
+  }
+
+  startDrag(pos: Vec): void {
+    this.dragging = true;
+    this.dragOffset = {
+      x: pos.x - this.center.x,
+      y: pos.y - this.center.y,
+    };
+  }
+
+  dragTo(pos: Vec): void {
+    if (!this.dragging) return;
+    const bodyW = this.config.size * 2.2;
+    const bodyH = bodyW * (450 / 566);
+    const padX = bodyW * 0.5 + 16;
+    const padY = bodyH * 0.5 + 16;
+
+    this.center.x = clamp(pos.x - this.dragOffset.x, padX, Math.max(padX, this.screenSize.w - padX));
+    this.center.y = clamp(pos.y - this.dragOffset.y, padY, Math.max(padY, this.screenSize.h - padY));
+
+    this.normPos = {
+      x: this.center.x / Math.max(1, this.screenSize.w),
+      y: this.center.y / Math.max(1, this.screenSize.h),
+    };
+  }
+
+  endDrag(): Vec {
+    this.dragging = false;
+    return { ...this.normPos };
+  }
+
+  isDragging(): boolean {
+    return this.dragging;
+  }
+
+  setNormalizedPos(pos: Vec): void {
+    this.normPos = { ...pos };
+    this.setEnv(this.screenSize);
   }
 
   update(dtScale: number, reduced: boolean): void {
@@ -168,6 +236,7 @@ export class FaceMascot implements Mascot {
 
   isSettled(): boolean {
     return (
+      !this.dragging &&
       Math.abs(this.look.x - this.desired.x) < 0.01 &&
       Math.abs(this.look.y - this.desired.y) < 0.01
     );

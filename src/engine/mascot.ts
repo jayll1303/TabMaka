@@ -6,9 +6,7 @@ export interface Size {
 }
 
 /**
- * A mascot is anything that reacts to the cursor and renders itself. Two kinds
- * exist: moving spine creatures (SpineMascot) and stationary characters whose
- * eyes track the cursor (FaceMascot). main.ts stays kind-agnostic.
+ * A mascot is anything that reacts to the cursor and renders itself.
  */
 export interface Mascot {
   /** Cursor moved to this page position. */
@@ -23,4 +21,17 @@ export interface Mascot {
   draw(ctx: CanvasRenderingContext2D, size: Size): void;
   /** True when nothing is animating (lets the loop stop under reduced motion). */
   isSettled(): boolean;
+
+  /** Hit test for clicking/dragging on the mascot. */
+  hitTest?(pos: Vec): boolean;
+  /** Start dragging the mascot. */
+  startDrag?(pos: Vec): void;
+  /** Drag mascot to a new screen coordinate. */
+  dragTo?(pos: Vec): void;
+  /** End drag and return normalized screen position (0..1). */
+  endDrag?(): Vec;
+  /** Check if mascot is currently being dragged. */
+  isDragging?(): boolean;
+  /** Set mascot's normalized screen position (0..1). */
+  setNormalizedPos?(pos: Vec): void;
 }

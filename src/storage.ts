@@ -5,6 +5,8 @@ export interface Settings {
   hour12: boolean;
   seenOnboarding: boolean;
   bg: string;
+  posX: number;
+  posY: number;
 }
 
 export const defaultSettings: Settings = {
@@ -14,6 +16,8 @@ export const defaultSettings: Settings = {
   hour12: false,
   seenOnboarding: false,
   bg: "#FAF6EE",
+  posX: 0.5,
+  posY: 0.5,
 };
 
 const KEY = "tabmaka.settings";
