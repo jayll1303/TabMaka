@@ -88,123 +88,114 @@ body {
   transition: color 0.35s ease;
 }
 
-/* Bottom-Left Settings */
-#settings-root {
+/* Top-Left Clock Toggle Button */
+#clock-control {
+  position: fixed;
+  top: 1.25rem;
+  left: 1.25rem;
+  z-index: 2;
+}
+
+.clock-toggle-btn {
+  background: var(--toggle-bg);
+  color: var(--fg);
+  border: 1px solid var(--panel-border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.38;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
+  user-select: none;
+}
+
+.clock-toggle-btn:hover {
+  opacity: 0.95;
+  transform: scale(1.1) rotate(10deg);
+  background: var(--toggle-hover-bg);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.clock-toggle-btn .clock-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.clock-toggle-btn.mode-off {
+  opacity: 0.22;
+}
+
+.clock-toggle-btn.mode-off:hover {
+  opacity: 0.85;
+  transform: scale(1.08);
+}
+
+/* Bottom-Left Ambient Color Bar */
+#ambient-palette {
   position: fixed;
   bottom: 1.25rem;
   left: 1.25rem;
   z-index: 2;
 }
 
-.settings-toggle {
-  background: var(--toggle-bg);
-  color: var(--fg);
-  border: 1px solid var(--panel-border);
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
+.ambient-color-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
-  backdrop-filter: blur(8px);
-}
-
-.settings-toggle:hover {
-  opacity: 1;
-  transform: rotate(30deg) scale(1.05);
-  background: var(--toggle-hover-bg);
-}
-
-.settings-panel {
-  position: absolute;
-  bottom: calc(100% + 0.6rem);
-  left: 0;
+  gap: 8px;
+  padding: 6px 10px;
   background: var(--panel-bg);
-  color: var(--fg);
   border: 1px solid var(--panel-border);
-  border-radius: 14px;
-  padding: 0.85rem 1.1rem;
-  min-width: 250px;
+  border-radius: 9999px;
   backdrop-filter: blur(16px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
-  animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  opacity: 0.25;
+  transform: translateY(2px);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s ease;
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.settings-header {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-  margin-bottom: 0.6rem;
-  padding-bottom: 0.4rem;
-  border-bottom: 1px solid var(--panel-border);
-}
-
-.settings-panel .row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.35rem 0;
-  font-size: 0.88rem;
-}
-
-.settings-panel .row.column {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.4rem;
-}
-
-.row-label {
-  color: var(--fg);
-  font-weight: 500;
-}
-
-/* Color Swatches */
-.color-palette-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.2rem 0;
+.ambient-color-bar:hover {
+  opacity: 0.95;
+  transform: translateY(0);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .color-swatch {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   border: 2px solid var(--swatch-border);
   cursor: pointer;
   position: relative;
   outline: none;
   padding: 0;
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.18s ease,
+              box-shadow 0.18s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .color-swatch:hover {
-  transform: scale(1.12);
+  transform: scale(1.22);
 }
 
 .color-swatch.active {
   border-color: #5b9e32;
   box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px #5b9e32;
-  transform: scale(1.08);
+  transform: scale(1.14);
 }
 
 .color-swatch.custom-picker {
@@ -220,14 +211,14 @@ body {
 
 .color-swatch.custom-picker:hover {
   border-color: var(--fg);
-  transform: scale(1.12);
+  transform: scale(1.22);
 }
 
 .color-swatch.custom-picker.active {
   border-style: solid;
   border-color: #5b9e32;
   box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px #5b9e32;
-  transform: scale(1.08);
+  transform: scale(1.14);
 }
 
 .color-swatch.custom-picker input[type="color"] {
@@ -254,38 +245,6 @@ body {
 .color-swatch.custom-picker:hover .custom-icon {
   opacity: 1;
   transform: scale(1.1);
-}
-
-.settings-panel input[type="text"] {
-  width: 130px;
-  background: var(--panel-input-bg);
-  border: 1px solid var(--panel-input-border);
-  border-radius: 6px;
-  color: var(--fg);
-  padding: 0.3rem 0.5rem;
-  font-size: 0.85rem;
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-.settings-panel input[type="text"]:focus {
-  border-color: #5b9e32;
-}
-
-.settings-panel input[type="checkbox"] {
-  cursor: pointer;
-  accent-color: #5b9e32;
-  width: 16px;
-  height: 16px;
-}
-
-.settings-panel select {
-  background: var(--panel-input-bg);
-  border: 1px solid var(--panel-input-border);
-  border-radius: 6px;
-  color: var(--fg);
-  padding: 0.25rem 0.5rem;
-  outline: none;
 }
 
 #onboarding[hidden] {

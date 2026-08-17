@@ -9,15 +9,15 @@ import {
   prefersReducedMotion,
   onReducedMotionChange,
 } from "./perf/reduced-motion";
-import { loadSettings, saveSettings, type Settings } from "./storage";
-import { initClock, initGreeting } from "./ui/clock";
-import { initSettings } from "./ui/settings";
-import { applyTheme, DEFAULT_BG } from "./ui/theme";
+import { loadSettings, saveSettings } from "./storage";
+import { initClock, initGreeting, initClockToggle } from "./ui/clock";
+import { applyTheme, DEFAULT_BG, initAmbientPalette } from "./ui/theme";
 
 const canvas = document.getElementById("scene") as HTMLCanvasElement | null;
 const clockEl = document.getElementById("clock");
 const greetingEl = document.getElementById("greeting");
-const settingsRoot = document.getElementById("settings-root");
+const clockControlEl = document.getElementById("clock-control");
+const ambientPaletteEl = document.getElementById("ambient-palette");
 const onboardingEl = document.getElementById("onboarding");
 
 async function main(): Promise<void> {
@@ -145,23 +145,16 @@ async function main(): Promise<void> {
     wake();
   });
 
-  // Shell: clock, greeting, settings.
+  // Shell: clock, greeting, clock control, ambient palette.
   if (clockEl) initClock(clockEl, settings);
   if (greetingEl) initGreeting(greetingEl, settings);
-  if (settingsRoot) {
-    initSettings(settingsRoot, settings, {
-      onChange: (s: Settings) => {
-        if (clockEl) initClock(clockEl, s);
-      },
-      onCreatureChange: (s: Settings) => {
-        mascot = createMascot(s.creatureId, size, reduced, {
-          x: s.posX ?? 0.5,
-          y: s.posY ?? 0.5,
-        });
-        drawFrame(1);
-        wake();
-      },
+  if (clockControlEl && clockEl) {
+    initClockToggle(clockControlEl, settings, (s) => {
+      initClock(clockEl, s);
     });
+  }
+  if (ambientPaletteEl) {
+    initAmbientPalette(ambientPaletteEl, settings, () => {});
   }
 
   // First-run onboarding.

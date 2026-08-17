@@ -7,12 +7,17 @@
   </head>
   <body>
     <canvas id="scene" aria-hidden="true"></canvas>
+    <!-- Top-Left 3-State Clock Toggle -->
+    <div id="clock-control"></div>
+
     <main id="stage">
       <div id="companion" role="img" aria-label="An interactive companion that follows your cursor"></div>
       <div id="greeting"></div>
       <div id="clock" aria-live="polite"></div>
     </main>
-    <div id="settings-root"></div>
+
+    <!-- Bottom-Left Ambient Color Bar -->
+    <div id="ambient-palette"></div>
     <div id="onboarding" hidden>
       <p>Meet your companion. It follows your cursor and wanders when you are away. Click anywhere to begin.</p>
     </div>

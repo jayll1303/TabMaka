@@ -1,3 +1,6 @@
+import type { Settings } from "../storage";
+import { saveSettings } from "../storage";
+
 export interface ThemePreset {
   id: string;
   name: string;
@@ -5,10 +8,10 @@ export interface ThemePreset {
 }
 
 export const THEME_PRESETS: ThemePreset[] = [
-  { id: "oat-cream", name: "Oat Cream", color: "#FAF6EE" },
-  { id: "matcha-mist", name: "Matcha Mist", color: "#EAF0E6" },
-  { id: "blossom-peach", name: "Blossom Peach", color: "#FBF0EB" },
-  { id: "dark-slate", name: "Dark Slate", color: "#0F1117" },
+  { id: "oat-cream", name: "Kem", color: "#FAF6EE" },
+  { id: "matcha-mist", name: "Matcha", color: "#EAF0E6" },
+  { id: "lavender-mist", name: "Lavender", color: "#EDE8F5" },
+  { id: "dark-slate", name: "Đêm", color: "#0F1117" },
 ];
 
 export const DEFAULT_BG = "#FAF6EE";
@@ -65,4 +68,93 @@ export function isDarkColor(hex: string): boolean {
   // Standard luminance formula
   const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
   return lum < 0.48;
+}
+
+/**
+ * Initialize ambient color palette dock at bottom of the screen.
+ * Idle: low opacity; Hover: frosted glass dock with 1-click theme selection.
+ */
+export function initAmbientPalette(
+  root: HTMLElement,
+  settings: Settings,
+  onColorChange: (s: Settings) => void,
+): void {
+  const container = document.createElement("div");
+  container.className = "ambient-color-bar";
+  container.setAttribute("role", "toolbar");
+  container.setAttribute("aria-label", "Chọn màu nền");
+
+  const swatchesHtml = THEME_PRESETS.map((p) => {
+    const isSelected = (settings.bg || "").toLowerCase() === p.color.toLowerCase();
+    return `
+      <button
+        type="button"
+        class="color-swatch ${isSelected ? "active" : ""}"
+        data-color="${p.color}"
+        title="${p.name}"
+        style="background-color: ${p.color};"
+        aria-label="${p.name}"
+      ></button>
+    `;
+  }).join("");
+
+  const isCustom = !THEME_PRESETS.some(
+    (p) => p.color.toLowerCase() === (settings.bg || "").toLowerCase(),
+  );
+
+  container.innerHTML = `
+    ${swatchesHtml}
+    <label class="color-swatch custom-picker ${isCustom ? "active" : ""}" title="Tùy chọn màu" aria-label="Tùy chọn màu" ${isCustom ? `style="background-color: ${settings.bg};"` : ""}>
+      <input type="color" id="custom-bg-input" value="${settings.bg || "#FAF6EE"}" />
+      <svg class="custom-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+        <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+        <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+        <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+      </svg>
+    </label>
+  `;
+
+  const swatchButtons = container.querySelectorAll<HTMLButtonElement>(".color-swatch[data-color]");
+  const customLabel = container.querySelector<HTMLLabelElement>(".custom-picker")!;
+  const customBgInput = container.querySelector<HTMLInputElement>("#custom-bg-input")!;
+
+  function updateActiveSwatch(currentColor: string): void {
+    let matchedPreset = false;
+    swatchButtons.forEach((btn) => {
+      const match = (btn.dataset.color || "").toLowerCase() === currentColor.toLowerCase();
+      btn.classList.toggle("active", match);
+      if (match) matchedPreset = true;
+    });
+    customLabel.classList.toggle("active", !matchedPreset);
+    if (!matchedPreset) {
+      customLabel.style.backgroundColor = currentColor;
+    } else {
+      customLabel.style.backgroundColor = "";
+    }
+    customBgInput.value = currentColor;
+  }
+
+  async function setBackground(color: string): Promise<void> {
+    settings.bg = color;
+    applyTheme(color);
+    updateActiveSwatch(color);
+    await saveSettings(settings);
+    onColorChange(settings);
+  }
+
+  swatchButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const color = btn.dataset.color;
+      if (color) void setBackground(color);
+    });
+  });
+
+  customBgInput.addEventListener("input", (e) => {
+    const val = (e.target as HTMLInputElement).value;
+    if (val) void setBackground(val);
+  });
+
+  root.replaceChildren(container);
 }
