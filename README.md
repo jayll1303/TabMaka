@@ -5,6 +5,11 @@ TabMaka is an adorable cozy frog companion that greets you on every new tab. It 
 
 Built for Chrome and Edge (Manifest V3). Vanilla TypeScript + Canvas 2D, no runtime framework, loads instantly.
 
+<p align="center">
+  <img src="store/assets/screenshot-1.jpeg" alt="TabMaka Preview 1" width="48%" />
+  <img src="store/assets/screenshot-2.jpeg" alt="TabMaka Preview 2" width="48%" />
+</p>
+
 ## Features
 
 - **Interactive Kawaii Frog Mascot**: Doodle loaf with real-time cursor-following eye tracking, expressive blinking, and natural breathing.
