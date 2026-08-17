@@ -4,6 +4,12 @@ export interface Palette {
   belly: string;
   eye: string;
   pupil: string;
+  /** Optional soft blush color for cheeks. */
+  blush?: string;
+  /** Optional translucent fin color. */
+  fin?: string;
+  /** Optional specular highlight on the body/head. */
+  highlight?: string;
 }
 
 export interface EyeConfig {
