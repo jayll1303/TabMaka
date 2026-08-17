@@ -13,8 +13,9 @@ requests to any server.
 The extension saves a small set of preferences using `chrome.storage.local`
 (with a `localStorage` fallback):
 
-- The companion you selected
-- The name you gave your companion
+- Companion position (`posX`, `posY`)
+- Custom greeting message
+- Background color / ambient theme choice
 - Whether the clock is shown and the 12/24-hour setting
 - Whether you have seen the first-run onboarding
 

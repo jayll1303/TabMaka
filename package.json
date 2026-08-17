@@ -13,7 +13,7 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{ts,css}\"",
-    "gen:icons": "node scripts/gen-icons.mjs"
+    "zip": "npm run build && powershell Compress-Archive -Path dist/* -DestinationPath tabmaka-v0.1.0.zip -Force"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

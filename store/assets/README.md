@@ -1,37 +1,31 @@
 # Store Assets Checklist
 
-Prepare these before submitting. Reuse the in-product companion for a
-consistent look.
+Prepare these before submitting to Chrome Web Store and Edge Add-ons.
 
-## Icon (done)
+## Icons (Done)
 
-- 128x128 store icon: use `public/icons/icon-128.png` (generated via `npm run gen:icons`).
-- Manifest icons (16/32/48/128) are already wired in `manifest.json`.
+- 128x128 store icon: `public/icons/icon-128.png`
+- Extension manifest icons: `public/icons/icon-16.png`, `icon-32.png`, `icon-48.png`, `icon-128.png`
 
 ## Screenshots
 
 Chrome Web Store: 1280x800 or 640x400 PNG/JPEG, 1-5 images.
 Edge Add-ons: 1280x800 PNG recommended, up to 10 images.
 
-Shot list:
-1. Hero: companion mid-follow, cursor visible, clock shown.
-2. Idle: companion wandering, no cursor.
-3. Settings panel open showing the companion picker and name field.
-4. A different companion (e.g., fish or frog) for variety.
+Shot list suggestions:
+1. **Hero**: Cute frog mascot on the new-tab screen with eye tracking towards cursor and minimalist clock.
+2. **Interactive Drag & Poke**: Demonstrating dragging the frog to a custom spot or poke reaction.
+3. **Ambient Themes**: Showcasing different background pastel colors using the bottom-left palette.
+4. **Distraction-Free**: Clean state with clock toggled off or 24h mode.
 
-## Promotional / hero GIF (optional but high-impact)
-
-- Short (3-6s) loop of the companion following the cursor, then wandering.
-- Use as the primary marketing image on social and in the README.
-- Keep under a few MB; trim to the "wow" moment (cursor chase).
-
-## Promo tiles (Chrome, optional)
+## Promo Tiles (Chrome Web Store, Optional)
 
 - Small promo tile: 440x280 PNG/JPEG.
-- Marquee: 1400x560 PNG/JPEG.
+- Marquee promo tile: 1400x560 PNG/JPEG.
 
 ## How to capture
 
-1. `npm run build` and load `dist/` unpacked (see README).
-2. Open a new tab, move the cursor to trigger follow, then hold still to see wandering.
-3. Capture at 1280x800. Save PNGs into this folder before uploading.
+1. Run `npm run build` and load the unpacked `dist/` extension in Chrome.
+2. Open a new tab, adjust window/viewport to 1280x800.
+3. Capture clean screenshots and save them before uploading to the Developer Dashboard.
+
