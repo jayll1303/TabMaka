@@ -10,7 +10,7 @@ import {
   onReducedMotionChange,
 } from "./perf/reduced-motion";
 import { loadSettings, saveSettings, type Settings } from "./storage";
-import { initClock, greetingFor } from "./ui/clock";
+import { initClock, initGreeting } from "./ui/clock";
 import { initSettings } from "./ui/settings";
 import { applyTheme, DEFAULT_BG } from "./ui/theme";
 
@@ -131,20 +131,11 @@ async function main(): Promise<void> {
 
   // Shell: clock, greeting, settings.
   if (clockEl) initClock(clockEl, settings);
-  if (greetingEl) {
-    greetingEl.textContent = settings.name
-      ? `${greetingFor()}, ${settings.name}`
-      : greetingFor();
-  }
+  if (greetingEl) initGreeting(greetingEl, settings);
   if (settingsRoot) {
     initSettings(settingsRoot, settings, {
       onChange: (s: Settings) => {
         if (clockEl) initClock(clockEl, s);
-        if (greetingEl) {
-          greetingEl.textContent = s.name
-            ? `${greetingFor()}, ${s.name}`
-            : greetingFor();
-        }
       },
       onCreatureChange: (s: Settings) => {
         mascot = createMascot(s.creatureId, size, reduced, {

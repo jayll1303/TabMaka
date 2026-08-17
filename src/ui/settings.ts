@@ -12,7 +12,6 @@ export interface SettingsPanelHandlers {
  * Settings panel:
  * - Positioned at bottom-left corner
  * - Background color picker: 3 creamy/soothing presets + dark mode + custom color picker
- * - Companion name input
  * - Clock toggle & progressive 24-hour format (only visible when clock is enabled)
  */
 export function initSettings(
@@ -83,10 +82,6 @@ export function initSettings(
         : ""
     }
     <label class="row">
-      <span class="row-label">Name</span>
-      <input type="text" id="set-name" maxlength="24" placeholder="Name your companion" />
-    </label>
-    <label class="row">
       <span class="row-label">Show clock</span>
       <input type="checkbox" id="set-clock" />
     </label>
@@ -97,7 +92,6 @@ export function initSettings(
   `;
 
   const creatureInput = panel.querySelector<HTMLSelectElement>("#set-creature");
-  const nameInput = panel.querySelector<HTMLInputElement>("#set-name")!;
   const clockInput = panel.querySelector<HTMLInputElement>("#set-clock")!;
   const row24h = panel.querySelector<HTMLElement>("#row-24h")!;
   const h24Input = panel.querySelector<HTMLInputElement>("#set-24h")!;
@@ -109,7 +103,6 @@ export function initSettings(
     creatureInput.value = settings.creatureId;
     creatureInput.addEventListener("change", () => void commitCreature());
   }
-  nameInput.value = settings.name;
   clockInput.checked = settings.clock;
   h24Input.checked = !settings.hour12;
 
@@ -136,7 +129,6 @@ export function initSettings(
   }
 
   async function commit(): Promise<void> {
-    settings.name = nameInput.value.trim();
     settings.clock = clockInput.checked;
     settings.hour12 = !h24Input.checked;
     await saveSettings(settings);
@@ -170,7 +162,6 @@ export function initSettings(
     if (val) void setBackground(val);
   });
 
-  nameInput.addEventListener("input", () => void commit());
   clockInput.addEventListener("change", () => {
     updateClockRowVisibility();
     void commit();

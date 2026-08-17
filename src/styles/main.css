@@ -50,11 +50,33 @@ body {
 }
 
 #greeting {
-  font-size: clamp(1rem, 2.5vmin, 1.4rem);
-  color: var(--muted);
+  font-size: clamp(1.4rem, 3.8vmin, 2.2rem);
+  color: var(--fg);
   font-weight: 400;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
   transition: color 0.35s ease;
+  pointer-events: auto;
+  cursor: text;
+  padding: 0.1rem 0.4rem;
+  max-width: 90vw;
+  text-align: center;
+  outline: none;
+  border: none;
+  background: transparent;
+  user-select: text;
+  caret-color: var(--fg);
+}
+
+#greeting:hover {
+  background: transparent;
+  border: none;
+}
+
+#greeting:focus {
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 
 #clock {

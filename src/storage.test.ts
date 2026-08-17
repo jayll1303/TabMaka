@@ -21,16 +21,16 @@ describe("storage (localStorage fallback)", () => {
   });
 
   it("round-trips saved settings", async () => {
-    await saveSettings({ ...defaultSettings, name: "Wiggles", hour12: true });
+    await saveSettings({ ...defaultSettings, customGreeting: "Good morning Nam", hour12: true });
     const s = await loadSettings();
-    expect(s.name).toBe("Wiggles");
+    expect(s.customGreeting).toBe("Good morning Nam");
     expect(s.hour12).toBe(true);
   });
 
   it("merges partial stored data over defaults", async () => {
-    localStorage.setItem("tabmaka.settings", JSON.stringify({ name: "Solo" }));
+    localStorage.setItem("tabmaka.settings", JSON.stringify({ customGreeting: "Hello world" }));
     const s = await loadSettings();
-    expect(s.name).toBe("Solo");
+    expect(s.customGreeting).toBe("Hello world");
     expect(s.clock).toBe(defaultSettings.clock);
   });
 });

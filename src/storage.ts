@@ -1,23 +1,24 @@
 export interface Settings {
   creatureId: string;
-  name: string;
+  name?: string;
   clock: boolean;
   hour12: boolean;
   seenOnboarding: boolean;
   bg: string;
   posX: number;
   posY: number;
+  customGreeting: string;
 }
 
 export const defaultSettings: Settings = {
   creatureId: "frog",
-  name: "",
   clock: true,
   hour12: false,
   seenOnboarding: false,
   bg: "#FAF6EE",
   posX: 0.5,
   posY: 0.5,
+  customGreeting: "",
 };
 
 const KEY = "tabmaka.settings";
