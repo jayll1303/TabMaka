@@ -120,11 +120,16 @@ export class FaceMascot implements Mascot {
 
   // Dragging state
   private dragging = false;
+  private dragMoved = false;
   private dragOffset: Vec = { x: 0, y: 0 };
 
   // Jump animation state
   private jumpProgress = -1; // -1 = idle, 0..1 = jumping
   private readonly jumpDuration = 680; // ms
+
+  // Landing squash animation state (after drag drop)
+  private landProgress = -1; // -1 = idle, 0..1 = landing squash
+  private readonly landDuration = 180; // ms
 
   constructor(
     private config: FaceConfig,
@@ -156,6 +161,7 @@ export class FaceMascot implements Mascot {
   jump(): void {
     if (this.jumpProgress < 0 && !this.dragging) {
       this.jumpProgress = 0;
+      this.landProgress = -1;
       this.mood.poke();
     }
   }
@@ -193,6 +199,9 @@ export class FaceMascot implements Mascot {
 
   startDrag(pos: Vec): void {
     this.dragging = true;
+    this.dragMoved = false;
+    this.jumpProgress = -1;
+    this.landProgress = -1;
     this.dragOffset = {
       x: pos.x - this.center.x,
       y: pos.y - this.center.y,
@@ -201,6 +210,7 @@ export class FaceMascot implements Mascot {
 
   dragTo(pos: Vec): void {
     if (!this.dragging) return;
+    this.dragMoved = true;
     const bodyW = this.config.size * 2.2;
     const bodyH = bodyW * (450 / 566);
     const padX = bodyW * 0.5 + 16;
@@ -218,6 +228,10 @@ export class FaceMascot implements Mascot {
 
   endDrag(): Vec {
     this.dragging = false;
+    if (this.dragMoved) {
+      // Step 3: Trigger landing impact squash on release
+      this.landProgress = 0;
+    }
     return { ...this.normPos };
   }
 
@@ -261,6 +275,14 @@ export class FaceMascot implements Mascot {
       this.jumpProgress += dtMs / this.jumpDuration;
       if (this.jumpProgress >= 1) {
         this.jumpProgress = -1;
+      }
+    }
+
+    if (this.landProgress >= 0) {
+      const dtMs = dtScale * (1000 / 60);
+      this.landProgress += dtMs / this.landDuration;
+      if (this.landProgress >= 1) {
+        this.landProgress = -1;
       }
     }
   }
@@ -358,39 +380,44 @@ export class FaceMascot implements Mascot {
     let frameIdx = -1;
     let yJump = 0;
 
-    if (this.jumpProgress >= 0) {
-      // --- Jump Animation Branch ---
+    if (this.dragging) {
+      if (!this.dragMoved) {
+        // Step 1: Crouch anticipation on grab
+        frameIdx = 0;
+        yJump = 0;
+      } else {
+        // Step 2: Apex flight while dragging across the screen
+        frameIdx = 2;
+        yJump = -bodyH * 0.16; // Lifted slightly into the air
+      }
+    } else if (this.jumpProgress >= 0) {
+      // In-place Jump Animation Branch
       const p = clamp(this.jumpProgress, 0, 1);
 
       if (p < 0.16) {
-        // Phase 1: Crouch anticipation on ground (0ms..108ms)
         frameIdx = 0;
         yJump = 0;
       } else if (p < 0.76) {
-        // Phase 2 & 3: Air flight parabola (108ms..516ms)
         const u = (p - 0.16) / (0.76 - 0.16);
         yJump = -Math.sin(u * Math.PI) * maxHeight;
-
-        if (p < 0.46) {
-          frameIdx = 1; // Launch / Ascent
-        } else {
-          frameIdx = 2; // Apex / Glide
-        }
+        frameIdx = p < 0.46 ? 1 : 2;
       } else if (p < 0.94) {
-        // Phase 4: Land squash impact on ground (516ms..639ms)
         frameIdx = 3;
         yJump = 0;
       } else {
-        // Phase 5: Rebound back to normal loaf (639ms..680ms)
         frameIdx = -1;
         yJump = 0;
       }
+    } else if (this.landProgress >= 0) {
+      // Step 3: Land squash impact on drop
+      frameIdx = 3;
+      yJump = 0;
     }
 
-    // 1. Dynamic ground drop shadow (Always rendered in both idle and jump!)
+    // 1. Dynamic ground drop shadow
     const airRatio = clamp(-yJump / maxHeight, 0, 1);
-    const shadowScale =
-      (1 - airRatio * 0.45) * (this.jumpProgress < 0 ? 1 + breath * 0.2 : 1);
+    const isIdle = !this.dragging && this.jumpProgress < 0 && this.landProgress < 0;
+    const shadowScale = (1 - airRatio * 0.45) * (isIdle ? 1 + breath * 0.2 : 1);
     const shadowAlpha = 0.22 * (1 - airRatio * 0.70);
 
     ctx.save();
@@ -408,77 +435,52 @@ export class FaceMascot implements Mascot {
     ctx.fill();
     ctx.restore();
 
-    if (this.jumpProgress >= 0) {
-      if (frameIdx >= 0) {
-        // Active Jump Frame
-        const frame = jumpFrames[frameIdx];
-        const curW = bodyW * (frame.natW / 566);
-        const curH = curW * (frame.natH / frame.natW);
-        const drawX = -curW / 2;
-        const drawY = bodyH / 2 + yJump - curH;
+    if (frameIdx >= 0) {
+      // Active Jump / Drag Frame (0: crouch, 1: launch, 2: apex, 3: land)
+      const frame = jumpFrames[frameIdx];
+      const curW = bodyW * (frame.natW / 566);
+      const curH = curW * (frame.natH / frame.natW);
+      const drawX = -curW / 2;
+      const drawY = bodyH / 2 + yJump - curH;
 
-        if (frame.img.complete && frame.img.naturalWidth > 0) {
-          ctx.drawImage(frame.img, drawX, drawY, curW, curH);
-        } else if (bodyImg.complete && bodyImg.naturalWidth > 0) {
-          ctx.drawImage(bodyImg, -bodyW / 2, -bodyH / 2 + yJump, bodyW, bodyH);
-        }
+      if (frame.img.complete && frame.img.naturalWidth > 0) {
+        ctx.drawImage(frame.img, drawX, drawY, curW, curH);
+      } else if (bodyImg.complete && bodyImg.naturalWidth > 0) {
+        ctx.drawImage(bodyImg, -bodyW / 2, -bodyH / 2 + yJump, bodyW, bodyH);
+      }
 
-        // Procedural tracking eye anchored to frame
-        const eyeBaseX = drawX + (frame.eyeAnchor.x / frame.natW) * curW;
-        const eyeBaseY = drawY + (frame.eyeAnchor.y / frame.natH) * curH;
-        const eyeR = curW * (frame.eyeAnchor.r / frame.natW);
-        this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
+      // Procedural tracking eye anchored to frame
+      const eyeBaseX = drawX + (frame.eyeAnchor.x / frame.natW) * curW;
+      const eyeBaseY = drawY + (frame.eyeAnchor.y / frame.natH) * curH;
+      const eyeR = curW * (frame.eyeAnchor.r / frame.natW);
+      this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
 
-        // Mouth anchored to frame
-        const m = mouths[expr] ?? mouths.neutral;
-        const mouthX = drawX + (frame.mouthAnchor.x / frame.natW) * curW;
-        const mouthY = drawY + (frame.mouthAnchor.y / frame.natH) * curH;
-        const mW = curW * m.widthFactor;
-        const mH = mW * (m.natH / m.natW);
+      // Mouth anchored to frame
+      const m = mouths[expr] ?? mouths.neutral;
+      const mouthX = drawX + (frame.mouthAnchor.x / frame.natW) * curW;
+      const mouthY = drawY + (frame.mouthAnchor.y / frame.natH) * curH;
+      const mW = curW * m.widthFactor;
+      const mH = mW * (m.natH / m.natW);
 
-        if (m.img.complete && m.img.naturalWidth > 0) {
-          ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
-        }
-      } else {
-        // Rebound frame (bodyImg)
-        const drawX = -bodyW / 2;
-        const drawY = -bodyH / 2;
-        if (bodyImg.complete && bodyImg.naturalWidth > 0) {
-          ctx.drawImage(bodyImg, drawX, drawY, bodyW, bodyH);
-        }
-        const eyeBaseX = drawX + (EYE_NAT.x / 566) * bodyW;
-        const eyeBaseY = drawY + (EYE_NAT.y / 450) * bodyH;
-        const eyeR = bodyW * (EYE_NAT.r / 566);
-        this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
-
-        const m = mouths[expr] ?? mouths.neutral;
-        const mouthX = drawX + (405 / 566) * bodyW;
-        const mouthY = drawY + (100 / 450) * bodyH;
-        const mW = bodyW * m.widthFactor;
-        const mH = mW * (m.natH / m.natW);
-        if (m.img.complete && m.img.naturalWidth > 0) {
-          ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
-        }
+      if (m.img.complete && m.img.naturalWidth > 0) {
+        ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
       }
     } else {
-      // --- Standard Idle Branch ---
+      // Standard Idle Resting Body
       ctx.scale(1 + breath * 0.4, 1 - breath * 0.5);
 
       const drawX = -bodyW / 2;
       const drawY = -bodyH / 2;
 
-      // 1. Draw the frog body
       if (bodyImg.complete && bodyImg.naturalWidth > 0) {
         ctx.drawImage(bodyImg, drawX, drawY, bodyW, bodyH);
       }
 
-      // 2. Draw procedural eye at exact baked-bead anchor
       const eyeBaseX = drawX + (EYE_NAT.x / 566) * bodyW;
       const eyeBaseY = drawY + (EYE_NAT.y / 450) * bodyH;
       const eyeR = bodyW * (EYE_NAT.r / 566);
       this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
 
-      // 3. Draw mouth sprite for the current expression
       const m = mouths[expr] ?? mouths.neutral;
       const mouthX = drawX + (405 / 566) * bodyW;
       const mouthY = drawY + (100 / 450) * bodyH;
@@ -489,7 +491,6 @@ export class FaceMascot implements Mascot {
         ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
       }
 
-      // 4. Draw peaceful floating 'z z Z' trail when asleep
       if (expr === "sleepy") {
         ctx.save();
         ctx.fillStyle = this.config.palette.eye;
@@ -526,6 +527,7 @@ export class FaceMascot implements Mascot {
     return (
       !this.dragging &&
       this.jumpProgress < 0 &&
+      this.landProgress < 0 &&
       !this.mood.isBusy() &&
       this.mood.current() === "sleepy" &&
       Math.abs(this.look.x - this.desired.x) < 0.01 &&
