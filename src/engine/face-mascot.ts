@@ -381,15 +381,9 @@ export class FaceMascot implements Mascot {
     let yJump = 0;
 
     if (this.dragging) {
-      if (!this.dragMoved) {
-        // Step 1: Crouch anticipation on grab
-        frameIdx = 0;
-        yJump = 0;
-      } else {
-        // Step 2: Apex flight while dragging across the screen
-        frameIdx = 2;
-        yJump = -bodyH * 0.16; // Lifted slightly into the air
-      }
+      // Normal body with startled/surprised expression while dragging
+      frameIdx = -1;
+      yJump = 0;
     } else if (this.jumpProgress >= 0) {
       // In-place Jump Animation Branch
       const p = clamp(this.jumpProgress, 0, 1);
@@ -409,7 +403,7 @@ export class FaceMascot implements Mascot {
         yJump = 0;
       }
     } else if (this.landProgress >= 0) {
-      // Step 3: Land squash impact on drop
+      // Land squash impact on drop
       frameIdx = 3;
       yJump = 0;
     }
