@@ -51,9 +51,9 @@ jobs:
       - name: Upload & Submit to Chrome Web Store
         uses: mnao305/chrome-extension-upload@v5.0.0
         with:
-          file-name: ${{ steps.pack.outputs.zip_name }}
+          file-path: ${{ steps.pack.outputs.zip_name }}
           extension-id: ${{ secrets.EXTENSION_ID }}
           client-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
           refresh-token: ${{ secrets.REFRESH_TOKEN }}
-          deploy: true # Tự động submit review bản mới lên Web Store
+          publish: true
