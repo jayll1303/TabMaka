@@ -1,3 +1,19 @@
+@font-face {
+  font-family: "Silkscreen";
+  src: url("/fonts/Silkscreen-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gaegu";
+  src: url("/fonts/Gaegu-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg: #FAF6EE;
   --fg: #1f2421;
@@ -84,13 +100,100 @@ body {
 }
 
 #clock {
-  font-size: clamp(2.2rem, 6.5vmin, 4.2rem);
   font-variant-numeric: tabular-nums;
-  font-weight: 300;
   letter-spacing: -0.02em;
-  transition: color 0.35s ease;
+  transition: color 0.35s ease, transform 0.25s ease, background 0.3s ease, border-color 0.3s ease;
   user-select: none;
   -webkit-user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 1. Minimal Digital */
+#clock.style-minimal {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: clamp(2.2rem, 6.5vmin, 4.2rem);
+  font-weight: 300;
+}
+
+/* 2. Pixel Arcade Box */
+#clock.style-pixel-box {
+  font-family: "Silkscreen", monospace, sans-serif;
+  font-size: clamp(1.5rem, 4.5vmin, 2.8rem);
+  font-weight: 400;
+  padding: 0.5rem 1.25rem;
+  background: var(--panel-input-bg);
+  border: 3px solid var(--fg);
+  border-radius: 8px;
+  box-shadow: 4px 4px 0px var(--fg);
+  letter-spacing: 0.08em;
+  margin-top: 0.25rem;
+}
+
+/* 3. Cozy Handwritten */
+#clock.style-cozy-hand {
+  font-family: "Gaegu", cursive, sans-serif;
+  font-size: clamp(2.6rem, 7.5vmin, 4.8rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transform: rotate(-1.5deg);
+  line-height: 1.1;
+}
+
+/* 4. Analog Round Dial */
+#clock.style-analog-round {
+  padding: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.analog-clock-face {
+  width: clamp(92px, 16vmin, 130px);
+  height: clamp(92px, 16vmin, 130px);
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.08));
+}
+
+.analog-dial-bg {
+  fill: var(--panel-bg);
+  stroke: var(--panel-border);
+  stroke-width: 2.5;
+  backdrop-filter: blur(12px);
+}
+
+.analog-tick-main {
+  fill: var(--fg);
+  opacity: 0.85;
+}
+
+.analog-tick-sub {
+  fill: var(--muted);
+  opacity: 0.45;
+}
+
+.analog-hand {
+  stroke-linecap: round;
+  transform-origin: 50px 50px;
+  transition: transform 0.25s cubic-bezier(0.4, 2.08, 0.55, 0.44);
+}
+
+.analog-hour {
+  stroke: var(--fg);
+  stroke-width: 3.5;
+}
+
+.analog-minute {
+  stroke: var(--fg);
+  stroke-width: 2.5;
+  opacity: 0.88;
+}
+
+.analog-second {
+  stroke: #e06c75;
+  stroke-width: 1.5;
+}
+
+.analog-center-dot {
+  fill: #e06c75;
 }
 
 /* Top-Left Clock Toggle Button */

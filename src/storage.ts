@@ -1,7 +1,14 @@
+export type ClockStyle =
+  | "minimal"
+  | "pixel-box"
+  | "cozy-hand"
+  | "analog-round";
+
 export interface Settings {
   creatureId: string;
   name?: string;
   clock: boolean;
+  clockStyle: ClockStyle;
   hour12: boolean;
   seenOnboarding: boolean;
   bg: string;
@@ -13,6 +20,7 @@ export interface Settings {
 export const defaultSettings: Settings = {
   creatureId: "frog",
   clock: true,
+  clockStyle: "minimal",
   hour12: false,
   seenOnboarding: false,
   bg: "#FAF6EE",

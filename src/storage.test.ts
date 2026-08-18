@@ -20,11 +20,17 @@ describe("storage (localStorage fallback)", () => {
     expect(s).toEqual(defaultSettings);
   });
 
-  it("round-trips saved settings", async () => {
-    await saveSettings({ ...defaultSettings, customGreeting: "Good morning Nam", hour12: true });
+  it("round-trips saved settings including clockStyle", async () => {
+    await saveSettings({
+      ...defaultSettings,
+      customGreeting: "Good morning Nam",
+      hour12: true,
+      clockStyle: "pixel-box",
+    });
     const s = await loadSettings();
     expect(s.customGreeting).toBe("Good morning Nam");
     expect(s.hour12).toBe(true);
+    expect(s.clockStyle).toBe("pixel-box");
   });
 
   it("merges partial stored data over defaults", async () => {
@@ -32,5 +38,6 @@ describe("storage (localStorage fallback)", () => {
     const s = await loadSettings();
     expect(s.customGreeting).toBe("Hello world");
     expect(s.clock).toBe(defaultSettings.clock);
+    expect(s.clockStyle).toBe("minimal");
   });
 });
