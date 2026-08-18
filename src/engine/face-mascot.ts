@@ -126,6 +126,9 @@ export class FaceMascot implements Mascot {
   // Jump animation state
   private jumpProgress = -1; // -1 = idle, 0..1 = jumping
   private readonly jumpDuration = 680; // ms
+  private jumpStart: Vec = { x: 0, y: 0 };
+  private jumpTarget: Vec = { x: 0, y: 0 };
+  private facing: 1 | -1 = 1; // 1 = right, -1 = left
 
   // Landing squash animation state (after drag drop)
   private landProgress = -1; // -1 = idle, 0..1 = landing squash
@@ -157,12 +160,47 @@ export class FaceMascot implements Mascot {
     }
   }
 
-  /** Trigger a joyful in-place hop! */
+  /** Trigger a joyful hop to a random nearby position! */
   jump(): void {
     if (this.jumpProgress < 0 && !this.dragging) {
       this.jumpProgress = 0;
       this.landProgress = -1;
       this.mood.poke();
+
+      this.jumpStart = { ...this.center };
+
+      // Safe screen boundaries with padding
+      const bodyW = this.config.size * 2.2;
+      const bodyH = bodyW * (450 / 566);
+      const padX = bodyW * 0.5 + 24;
+      const padY = bodyH * 0.5 + 24;
+      const minX = padX;
+      const maxX = Math.max(padX, this.screenSize.w - padX);
+      const minY = padY;
+      const maxY = Math.max(padY, this.screenSize.h - padY);
+
+      // Random hop distance (100px - 220px)
+      const dist = 100 + Math.random() * 120;
+      let angle = Math.random() * Math.PI * 2;
+
+      // Turn inward if near screen edges
+      if (this.center.x > maxX - 80) {
+        angle = Math.PI * 0.65 + Math.random() * Math.PI * 0.7;
+      } else if (this.center.x < minX + 80) {
+        angle = -Math.PI * 0.35 + Math.random() * Math.PI * 0.7;
+      }
+
+      const tx = clamp(this.jumpStart.x + Math.cos(angle) * dist, minX, maxX);
+      const ty = clamp(this.jumpStart.y + Math.sin(angle) * (dist * 0.6), minY, maxY);
+
+      this.jumpTarget = { x: tx, y: ty };
+
+      // Face the direction of the hop
+      if (tx < this.jumpStart.x - 8) {
+        this.facing = -1; // Face left
+      } else if (tx > this.jumpStart.x + 8) {
+        this.facing = 1; // Face right
+      }
     }
   }
 
@@ -216,8 +254,14 @@ export class FaceMascot implements Mascot {
     const padX = bodyW * 0.5 + 16;
     const padY = bodyH * 0.5 + 16;
 
-    this.center.x = clamp(pos.x - this.dragOffset.x, padX, Math.max(padX, this.screenSize.w - padX));
-    this.center.y = clamp(pos.y - this.dragOffset.y, padY, Math.max(padY, this.screenSize.h - padY));
+    const newX = clamp(pos.x - this.dragOffset.x, padX, Math.max(padX, this.screenSize.w - padX));
+    const newY = clamp(pos.y - this.dragOffset.y, padY, Math.max(padY, this.screenSize.h - padY));
+
+    if (newX < this.center.x - 3) this.facing = -1;
+    else if (newX > this.center.x + 3) this.facing = 1;
+
+    this.center.x = newX;
+    this.center.y = newY;
 
     this.normPos = {
       x: this.center.x / Math.max(1, this.screenSize.w),
@@ -229,7 +273,7 @@ export class FaceMascot implements Mascot {
   endDrag(): Vec {
     this.dragging = false;
     if (this.dragMoved) {
-      // Step 3: Trigger landing impact squash on release
+      // Trigger landing impact squash on release
       this.landProgress = 0;
     }
     return { ...this.normPos };
@@ -275,6 +319,11 @@ export class FaceMascot implements Mascot {
       this.jumpProgress += dtMs / this.jumpDuration;
       if (this.jumpProgress >= 1) {
         this.jumpProgress = -1;
+        this.center = { ...this.jumpTarget };
+        this.normPos = {
+          x: this.center.x / Math.max(1, this.screenSize.w),
+          y: this.center.y / Math.max(1, this.screenSize.h),
+        };
       }
     }
 
@@ -339,7 +388,8 @@ export class FaceMascot implements Mascot {
       const fade = clamp((openness - 0.2) / 0.8, 0, 1);
       const glintR = rx * 0.38 * (0.6 + 0.4 * fade);
       const maxTravel = rx * 0.42;
-      const gx = baseX + this.look.x * maxTravel;
+      const lookX = this.look.x * this.facing;
+      const gx = baseX + lookX * maxTravel;
       const gy = baseY + this.look.y * maxTravel;
 
       ctx.beginPath();
@@ -350,7 +400,7 @@ export class FaceMascot implements Mascot {
       // Secondary sparkle only while wide open.
       if (fade > 0.5) {
         const g2 = glintR * 0.42;
-        const g2x = baseX + this.look.x * (maxTravel * 0.5) + rx * 0.34;
+        const g2x = baseX + lookX * (maxTravel * 0.5) + rx * 0.34;
         const g2y = baseY + this.look.y * (maxTravel * 0.5) + ry * 0.32;
         ctx.beginPath();
         ctx.arc(g2x, g2y, g2, 0, Math.PI * 2);
@@ -363,8 +413,6 @@ export class FaceMascot implements Mascot {
   draw(ctx: CanvasRenderingContext2D, _size: Size): void {
     void _size;
     const { size } = this.config;
-    const cx = this.center.x;
-    const cy = this.center.y;
 
     const expr = this.mood.current();
     const breath = Math.sin(this.time) * 0.02;
@@ -373,9 +421,8 @@ export class FaceMascot implements Mascot {
     const bodyW = size * 2.2;
     const bodyH = bodyW * (450 / 566);
 
-    ctx.save();
-    ctx.translate(cx, cy);
-
+    let curCenterX = this.center.x;
+    let curCenterY = this.center.y;
     const maxHeight = bodyH * 0.85;
     let frameIdx = -1;
     let yJump = 0;
@@ -385,20 +432,28 @@ export class FaceMascot implements Mascot {
       frameIdx = 0;
       yJump = 0;
     } else if (this.jumpProgress >= 0) {
-      // In-place Jump Animation Branch
+      // Hopping Jump Animation Branch
       const p = clamp(this.jumpProgress, 0, 1);
 
       if (p < 0.16) {
+        curCenterX = this.jumpStart.x;
+        curCenterY = this.jumpStart.y;
         frameIdx = 0;
         yJump = 0;
       } else if (p < 0.76) {
         const u = (p - 0.16) / (0.76 - 0.16);
+        curCenterX = lerp(this.jumpStart.x, this.jumpTarget.x, u);
+        curCenterY = lerp(this.jumpStart.y, this.jumpTarget.y, u);
         yJump = -Math.sin(u * Math.PI) * maxHeight;
         frameIdx = p < 0.46 ? 1 : 2;
       } else if (p < 0.94) {
+        curCenterX = this.jumpTarget.x;
+        curCenterY = this.jumpTarget.y;
         frameIdx = 3;
         yJump = 0;
       } else {
+        curCenterX = this.jumpTarget.x;
+        curCenterY = this.jumpTarget.y;
         frameIdx = -1;
         yJump = 0;
       }
@@ -406,6 +461,12 @@ export class FaceMascot implements Mascot {
       // Land squash impact on drop
       frameIdx = 3;
       yJump = 0;
+    }
+
+    ctx.save();
+    ctx.translate(curCenterX, curCenterY);
+    if (this.facing === -1) {
+      ctx.scale(-1, 1);
     }
 
     // 1. Dynamic ground drop shadow
