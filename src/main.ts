@@ -30,7 +30,7 @@ async function main(): Promise<void> {
   let size = resizeCanvas(canvas);
   let reduced = prefersReducedMotion();
 
-  let mascot: Mascot = createMascot(
+  const mascot: Mascot = createMascot(
     settings.creatureId ?? defaultMascotId,
     size,
     reduced,
@@ -68,7 +68,7 @@ async function main(): Promise<void> {
     if (mascot.isDragging?.()) {
       if (pointerDownPos && !hasDragged) {
         const d = Math.hypot(pos.x - pointerDownPos.x, pos.y - pointerDownPos.y);
-        if (d > 3) hasDragged = true;
+        if (d > 8) hasDragged = true;
       }
       mascot.dragTo?.(pos);
       document.body.style.cursor = "grabbing";
@@ -108,6 +108,25 @@ async function main(): Promise<void> {
       pointerDownPos = null;
       hasDragged = false;
       wake();
+    }
+  });
+
+  window.addEventListener("dblclick", (e) => {
+    const pos = { x: e.clientX, y: e.clientY };
+    if (mascot.hitTest?.(pos)) {
+      mascot.jump?.();
+      wake();
+    }
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && !e.repeat) {
+      const tag = (document.activeElement?.tagName ?? "").toLowerCase();
+      if (tag !== "input" && tag !== "textarea") {
+        e.preventDefault();
+        mascot.jump?.();
+        wake();
+      }
     }
   });
 

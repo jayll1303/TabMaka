@@ -13,6 +13,38 @@ bodyImg.src = "./sprites/frog/frog_body.png";
 // Natural eye geometry on the 566x450 body sprite.
 const EYE_NAT = { x: 313.3, y: 85.8, r: 38.8 };
 
+/** Jump animation keyframe specification. */
+interface JumpFrame {
+  img: HTMLImageElement;
+  natW: number;
+  natH: number;
+  eyeAnchor: { x: number; y: number; r: number };
+  mouthAnchor: { x: number; y: number };
+}
+
+function loadJumpFrame(
+  file: string,
+  natW: number,
+  natH: number,
+  eyeAnchor: { x: number; y: number; r: number },
+  mouthAnchor: { x: number; y: number },
+): JumpFrame {
+  const img = new Image();
+  img.src = `./sprites/frog/jump/${file}`;
+  return { img, natW, natH, eyeAnchor, mouthAnchor };
+}
+
+const jumpFrames: JumpFrame[] = [
+  // 0: Crouch / Anticipation (637x329)
+  loadJumpFrame("jump_1_crouch.png", 637, 329, { x: 370, y: 110, r: 36 }, { x: 440, y: 155 }),
+  // 1: Launch / Takeoff (571x511)
+  loadJumpFrame("jump_2_launch.png", 571, 511, { x: 465, y: 125, r: 34 }, { x: 475, y: 190 }),
+  // 2: Apex Peak Flight (473x397)
+  loadJumpFrame("jump_3_apex.png", 473, 397, { x: 305, y: 85, r: 32 }, { x: 340, y: 140 }),
+  // 3: Land Impact / Squash (647x304)
+  loadJumpFrame("jump_4_land.png", 647, 304, { x: 410, y: 105, r: 35 }, { x: 475, y: 150 }),
+];
+
 /** A mouth sprite with its natural pixel dimensions and a target width. */
 interface MouthSprite {
   img: HTMLImageElement;
@@ -90,6 +122,10 @@ export class FaceMascot implements Mascot {
   private dragging = false;
   private dragOffset: Vec = { x: 0, y: 0 };
 
+  // Jump animation state
+  private jumpProgress = -1; // -1 = idle, 0..1 = jumping
+  private readonly jumpDuration = 680; // ms
+
   constructor(
     private config: FaceConfig,
     size: Size,
@@ -116,9 +152,18 @@ export class FaceMascot implements Mascot {
     }
   }
 
+  /** Trigger a joyful in-place hop! */
+  jump(): void {
+    if (this.jumpProgress < 0 && !this.dragging) {
+      this.jumpProgress = 0;
+      this.mood.poke();
+    }
+  }
+
   /** Click / tap on the frog. */
   poke(): void {
     this.mood.poke();
+    this.jump();
   }
 
   setPointerPresent(present: boolean): void {
@@ -207,6 +252,16 @@ export class FaceMascot implements Mascot {
     if (!reduced) {
       this.blink.update(dtScale);
       this.time += dtScale * 0.035;
+    }
+
+    // Advance the jump regardless of reduced motion; a triggered hop must
+    // always finish (otherwise it freezes mid-air and blocks isSettled()).
+    if (this.jumpProgress >= 0) {
+      const dtMs = dtScale * (1000 / 60);
+      this.jumpProgress += dtMs / this.jumpDuration;
+      if (this.jumpProgress >= 1) {
+        this.jumpProgress = -1;
+      }
     }
   }
 
@@ -298,62 +353,167 @@ export class FaceMascot implements Mascot {
 
     ctx.save();
     ctx.translate(cx, cy);
-    // Subtle idle breathing
-    ctx.scale(1 + breath * 0.4, 1 - breath * 0.5);
 
-    const drawX = -bodyW / 2;
-    const drawY = -bodyH / 2;
+    if (this.jumpProgress >= 0) {
+      // --- Jump Animation Branch ---
+      const p = clamp(this.jumpProgress, 0, 1);
+      const maxHeight = bodyH * 0.85;
 
-    // 1. Draw the frog body (cleaned of the baked eye when ready).
-    if (bodyImg.complete && bodyImg.naturalWidth > 0) {
-      ctx.drawImage(bodyImg, drawX, drawY, bodyW, bodyH);
-    }
+      let frameIdx = 0;
+      let yJump = 0;
 
-    // 2. Draw the eye at the exact baked-bead anchor.
-    const eyeBaseX = drawX + (EYE_NAT.x / 566) * bodyW;
-    const eyeBaseY = drawY + (EYE_NAT.y / 450) * bodyH;
-    const eyeR = bodyW * (EYE_NAT.r / 566);
-    this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
+      if (p < 0.16) {
+        // Phase 1: Crouch anticipation on ground (0ms..108ms)
+        frameIdx = 0;
+        yJump = 0;
+      } else if (p < 0.76) {
+        // Phase 2 & 3: Air flight parabola (108ms..516ms)
+        const u = (p - 0.16) / (0.76 - 0.16);
+        yJump = -Math.sin(u * Math.PI) * maxHeight;
 
-    // 3. Draw the mouth sprite for the current expression.
-    const m = mouths[expr] ?? mouths.neutral;
-    const mouthX = drawX + (405 / 566) * bodyW;
-    const mouthY = drawY + (100 / 450) * bodyH;
-    const mW = bodyW * m.widthFactor;
-    const mH = mW * (m.natH / m.natW);
-
-    if (m.img.complete && m.img.naturalWidth > 0) {
-      ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
-    }
-
-    // 4. Draw peaceful floating 'z z Z' trail when asleep
-    if (expr === "sleepy") {
-      ctx.save();
-      ctx.fillStyle = this.config.palette.eye;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      const chars = ["z", "z", "Z"];
-      const sizeMultipliers = [0.048, 0.068, 0.092];
-      const offsetsX = [0.72, 0.81, 0.90];
-      const baseHeights = [0.08, -0.04, -0.16];
-
-      for (let i = 0; i < 3; i++) {
-        // Continuous upward floating loop with staggered phases
-        const p = (this.time * 0.35 + i * 0.33) % 1;
-        const alpha = Math.sin(p * Math.PI);
-        const floatY = p * bodyH * 0.22;
-        const driftX = Math.sin(p * Math.PI * 2) * (bodyW * 0.02);
-
-        const x = drawX + bodyW * offsetsX[i] + driftX;
-        const y = drawY + bodyH * baseHeights[i] - floatY;
-
-        ctx.globalAlpha = clamp(alpha * 0.85, 0, 1);
-        ctx.font = `bold ${Math.round(bodyW * sizeMultipliers[i])}px system-ui, -apple-system, sans-serif`;
-        ctx.fillText(chars[i], x, y);
+        if (p < 0.46) {
+          frameIdx = 1; // Launch / Ascent
+        } else {
+          frameIdx = 2; // Apex / Glide
+        }
+      } else if (p < 0.94) {
+        // Phase 4: Land squash impact on ground (516ms..639ms)
+        frameIdx = 3;
+        yJump = 0;
+      } else {
+        // Phase 5: Rebound back to normal loaf (639ms..680ms)
+        frameIdx = -1;
+        yJump = 0;
       }
 
+      // 1. Dynamic ground drop shadow
+      const airRatio = clamp(-yJump / maxHeight, 0, 1);
+      const shadowScale = 1 - airRatio * 0.45;
+      const shadowAlpha = 0.22 * (1 - airRatio * 0.70);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(
+        0,
+        bodyH / 2 - 2,
+        bodyW * 0.38 * shadowScale,
+        bodyH * 0.09 * shadowScale,
+        0,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fillStyle = `rgba(18, 18, 18, ${shadowAlpha})`;
+      ctx.fill();
       ctx.restore();
+
+      if (frameIdx >= 0) {
+        // Active Jump Frame
+        const frame = jumpFrames[frameIdx];
+        const curW = bodyW * (frame.natW / 566);
+        const curH = curW * (frame.natH / frame.natW);
+        const drawX = -curW / 2;
+        const drawY = bodyH / 2 + yJump - curH;
+
+        if (frame.img.complete && frame.img.naturalWidth > 0) {
+          ctx.drawImage(frame.img, drawX, drawY, curW, curH);
+        } else if (bodyImg.complete && bodyImg.naturalWidth > 0) {
+          ctx.drawImage(bodyImg, -bodyW / 2, -bodyH / 2 + yJump, bodyW, bodyH);
+        }
+
+        // Procedural tracking eye anchored to frame
+        const eyeBaseX = drawX + (frame.eyeAnchor.x / frame.natW) * curW;
+        const eyeBaseY = drawY + (frame.eyeAnchor.y / frame.natH) * curH;
+        const eyeR = curW * (frame.eyeAnchor.r / frame.natW);
+        this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
+
+        // Mouth anchored to frame
+        const m = mouths[expr] ?? mouths.neutral;
+        const mouthX = drawX + (frame.mouthAnchor.x / frame.natW) * curW;
+        const mouthY = drawY + (frame.mouthAnchor.y / frame.natH) * curH;
+        const mW = curW * m.widthFactor;
+        const mH = mW * (m.natH / m.natW);
+
+        if (m.img.complete && m.img.naturalWidth > 0) {
+          ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
+        }
+      } else {
+        // Rebound frame (bodyImg)
+        const drawX = -bodyW / 2;
+        const drawY = -bodyH / 2;
+        if (bodyImg.complete && bodyImg.naturalWidth > 0) {
+          ctx.drawImage(bodyImg, drawX, drawY, bodyW, bodyH);
+        }
+        const eyeBaseX = drawX + (EYE_NAT.x / 566) * bodyW;
+        const eyeBaseY = drawY + (EYE_NAT.y / 450) * bodyH;
+        const eyeR = bodyW * (EYE_NAT.r / 566);
+        this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
+
+        const m = mouths[expr] ?? mouths.neutral;
+        const mouthX = drawX + (405 / 566) * bodyW;
+        const mouthY = drawY + (100 / 450) * bodyH;
+        const mW = bodyW * m.widthFactor;
+        const mH = mW * (m.natH / m.natW);
+        if (m.img.complete && m.img.naturalWidth > 0) {
+          ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
+        }
+      }
+    } else {
+      // --- Standard Idle Branch ---
+      ctx.scale(1 + breath * 0.4, 1 - breath * 0.5);
+
+      const drawX = -bodyW / 2;
+      const drawY = -bodyH / 2;
+
+      // 1. Draw the frog body
+      if (bodyImg.complete && bodyImg.naturalWidth > 0) {
+        ctx.drawImage(bodyImg, drawX, drawY, bodyW, bodyH);
+      }
+
+      // 2. Draw procedural eye at exact baked-bead anchor
+      const eyeBaseX = drawX + (EYE_NAT.x / 566) * bodyW;
+      const eyeBaseY = drawY + (EYE_NAT.y / 450) * bodyH;
+      const eyeR = bodyW * (EYE_NAT.r / 566);
+      this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
+
+      // 3. Draw mouth sprite for the current expression
+      const m = mouths[expr] ?? mouths.neutral;
+      const mouthX = drawX + (405 / 566) * bodyW;
+      const mouthY = drawY + (100 / 450) * bodyH;
+      const mW = bodyW * m.widthFactor;
+      const mH = mW * (m.natH / m.natW);
+
+      if (m.img.complete && m.img.naturalWidth > 0) {
+        ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
+      }
+
+      // 4. Draw peaceful floating 'z z Z' trail when asleep
+      if (expr === "sleepy") {
+        ctx.save();
+        ctx.fillStyle = this.config.palette.eye;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        const chars = ["z", "z", "Z"];
+        const sizeMultipliers = [0.048, 0.068, 0.092];
+        const offsetsX = [0.72, 0.81, 0.90];
+        const baseHeights = [0.08, -0.04, -0.16];
+
+        for (let i = 0; i < 3; i++) {
+          const p = (this.time * 0.35 + i * 0.33) % 1;
+          const alpha = Math.sin(p * Math.PI);
+          const floatY = p * bodyH * 0.22;
+          const driftX = Math.sin(p * Math.PI * 2) * (bodyW * 0.02);
+
+          const x = drawX + bodyW * offsetsX[i] + driftX;
+          const y = drawY + bodyH * baseHeights[i] - floatY;
+
+          ctx.globalAlpha = clamp(alpha * 0.85, 0, 1);
+          ctx.font = `bold ${Math.round(bodyW * sizeMultipliers[i])}px system-ui, -apple-system, sans-serif`;
+          ctx.fillText(chars[i], x, y);
+        }
+
+        ctx.restore();
+      }
     }
 
     ctx.restore();
@@ -362,6 +522,7 @@ export class FaceMascot implements Mascot {
   isSettled(): boolean {
     return (
       !this.dragging &&
+      this.jumpProgress < 0 &&
       !this.mood.isBusy() &&
       this.mood.current() === "sleepy" &&
       Math.abs(this.look.x - this.desired.x) < 0.01 &&

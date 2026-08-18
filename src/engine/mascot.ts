@@ -34,9 +34,9 @@ export interface Mascot {
   endDrag?(): Vec;
   /** Check if mascot is currently being dragged. */
   isDragging?(): boolean;
-  /** Set mascot's normalized screen position (0..1). */
-  setNormalizedPos?(pos: Vec): void;
   /** A tap/click landed on the mascot. */
   poke?(): void;
+  /** Trigger a jump animation on the mascot. */
+  jump?(): void;
 }
 

@@ -14,6 +14,12 @@ export default tseslint.config(
         setInterval: "readonly",
       },
     },
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+    },
   },
   {
     files: ["scripts/**/*.mjs"],
