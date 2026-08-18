@@ -5,6 +5,17 @@ All notable changes to TabMaka will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-08-18
+
+### Added
+- **Frog Jump Hop Animations**: The frog now playfully hops to nearby random positions on click/tap with realistic parabolic arc, directional facing, and multi-stage jump poses (crouch, apex, landing squash).
+- **Drag & Drop Jump Poses**: Frog enters a jump crouch pose while being dragged and executes a satisfying landing squash on drop.
+- **Curated Clock Styles & Offline Custom Fonts**: Added beautiful typography options for the clock with fully offline fonts (clean sans, retro serif, digital monospace, and playful rounded).
+- **CI/CD Auto-Publishing**: Automated pipeline with GitHub Actions and Chrome Web Store API.
+
+### Fixed
+- Prevented accidental text selection on the clock and background when dragging the mascot.
+
 ## [0.1.0] - 2026-08-17
 
 ### Added
