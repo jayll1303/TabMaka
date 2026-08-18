@@ -84,6 +84,7 @@ async function main(): Promise<void> {
     if (e.button !== 0) return;
     const pos = { x: e.clientX, y: e.clientY };
     if (mascot.hitTest?.(pos)) {
+      e.preventDefault();
       pointerDownPos = pos;
       hasDragged = false;
       mascot.startDrag?.(pos);

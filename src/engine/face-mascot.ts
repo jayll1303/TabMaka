@@ -354,13 +354,13 @@ export class FaceMascot implements Mascot {
     ctx.save();
     ctx.translate(cx, cy);
 
+    const maxHeight = bodyH * 0.85;
+    let frameIdx = -1;
+    let yJump = 0;
+
     if (this.jumpProgress >= 0) {
       // --- Jump Animation Branch ---
       const p = clamp(this.jumpProgress, 0, 1);
-      const maxHeight = bodyH * 0.85;
-
-      let frameIdx = 0;
-      let yJump = 0;
 
       if (p < 0.16) {
         // Phase 1: Crouch anticipation on ground (0ms..108ms)
@@ -385,27 +385,30 @@ export class FaceMascot implements Mascot {
         frameIdx = -1;
         yJump = 0;
       }
+    }
 
-      // 1. Dynamic ground drop shadow
-      const airRatio = clamp(-yJump / maxHeight, 0, 1);
-      const shadowScale = 1 - airRatio * 0.45;
-      const shadowAlpha = 0.22 * (1 - airRatio * 0.70);
+    // 1. Dynamic ground drop shadow (Always rendered in both idle and jump!)
+    const airRatio = clamp(-yJump / maxHeight, 0, 1);
+    const shadowScale =
+      (1 - airRatio * 0.45) * (this.jumpProgress < 0 ? 1 + breath * 0.2 : 1);
+    const shadowAlpha = 0.22 * (1 - airRatio * 0.70);
 
-      ctx.save();
-      ctx.beginPath();
-      ctx.ellipse(
-        0,
-        bodyH / 2 - 2,
-        bodyW * 0.38 * shadowScale,
-        bodyH * 0.09 * shadowScale,
-        0,
-        0,
-        Math.PI * 2,
-      );
-      ctx.fillStyle = `rgba(18, 18, 18, ${shadowAlpha})`;
-      ctx.fill();
-      ctx.restore();
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(
+      0,
+      bodyH / 2 - 2,
+      bodyW * 0.38 * shadowScale,
+      bodyH * 0.09 * shadowScale,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fillStyle = `rgba(18, 18, 18, ${shadowAlpha})`;
+    ctx.fill();
+    ctx.restore();
 
+    if (this.jumpProgress >= 0) {
       if (frameIdx >= 0) {
         // Active Jump Frame
         const frame = jumpFrames[frameIdx];

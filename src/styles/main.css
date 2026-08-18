@@ -48,6 +48,8 @@ body {
   padding-top: 12vh;
   gap: 0.25rem;
   pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #greeting {
@@ -65,6 +67,7 @@ body {
   border: none;
   background: transparent;
   user-select: text;
+  -webkit-user-select: text;
   caret-color: var(--fg);
 }
 
@@ -86,6 +89,8 @@ body {
   font-weight: 300;
   letter-spacing: -0.02em;
   transition: color 0.35s ease;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Top-Left Clock Toggle Button */
