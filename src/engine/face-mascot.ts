@@ -381,8 +381,8 @@ export class FaceMascot implements Mascot {
     let yJump = 0;
 
     if (this.dragging) {
-      // Normal body with startled/surprised expression while dragging
-      frameIdx = -1;
+      // Crouch pose while holding & dragging across the screen
+      frameIdx = 0;
       yJump = 0;
     } else if (this.jumpProgress >= 0) {
       // In-place Jump Animation Branch
