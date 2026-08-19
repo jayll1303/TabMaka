@@ -31,18 +31,18 @@ export const MainVideo: React.FC<VideoProps> = ({ layout }) => {
         <Scene1DesktopLaunch layout={layout} />
       </Sequence>
 
-      {/* Scene 2: Browsing YouTube Lo-fi Music (Frames 135 - 225 / 3.0s) */}
-      <Sequence from={135} durationInFrames={90} name="Scene 2 - YouTube Lo-fi Tab">
+      {/* Scene 2: Zoom Address Bar -> Type Rickroll URL -> YouTube (Frames 135 - 240 / 3.5s) */}
+      <Sequence from={135} durationInFrames={105} name="Scene 2 - YouTube Lo-fi Tab">
         <Scene2YouTube layout={layout} />
       </Sequence>
 
-      {/* Scene 3: Open Second New Tab -> Mascot Already Vibing (Frames 225 - 315 / 3.0s) */}
-      <Sequence from={225} durationInFrames={90} name="Scene 3 - Smart New Tab Vibe">
+      {/* Scene 3: Open Second New Tab -> Mascot Already Vibing (Frames 240 - 330 / 3.0s) */}
+      <Sequence from={240} durationInFrames={90} name="Scene 3 - Smart New Tab Vibe">
         <Scene3NewTabVibe layout={layout} />
       </Sequence>
 
-      {/* Scene 4: Outro & Call to Action (Frames 315 - 390 / 2.5s) */}
-      <Sequence from={315} durationInFrames={75} name="Scene 4 - Outro & CTA">
+      {/* Scene 4: Outro & Call to Action (Frames 330 - 405 / 2.5s) */}
+      <Sequence from={330} durationInFrames={75} name="Scene 4 - Outro & CTA">
         <Scene4CTA layout={layout} />
       </Sequence>
     </div>

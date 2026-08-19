@@ -17,6 +17,9 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
   const { fps, width, height } = useVideoConfig();
   const isPortrait = layout === "portrait";
 
+  // Rickroll easter egg URL
+  const targetUrl = "https://youtu.be/dQw4w9WgXcQ?si=PrklYN1pskm0CBAc";
+
   // Coordinates for the Address Bar and Tab Bar
   const addressBarX = isPortrait ? width * 0.48 : width * 0.44;
   const addressBarY = isPortrait ? 120 : 92;
@@ -24,54 +27,67 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
   const newTabPlusX = isPortrait ? 385 : 435;
   const newTabPlusY = isPortrait ? 78 : 64;
 
-  // Camera Zoom on Address Bar during URL navigation (Frames 0 - 24)
-  const navZoomIn = interpolate(frame, [0, 14], [1.0, isPortrait ? 1.25 : 1.18], {
-    extrapolateRight: "clamp",
-  });
-
-  const navZoomOutSpring = spring({
-    frame: Math.max(0, frame - 18),
-    fps,
-    config: { damping: 14, stiffness: 120 },
-  });
-
+  // Smooth, gradual Camera Zoom on Address Bar during URL navigation
+  // Zoom in from frame 0 to 20, stay zoomed while typing, then zoom out from frame 56 to 78
+  const maxZoom = isPortrait ? 1.25 : 1.2;
   const cameraScale =
-    frame < 18 ? navZoomIn : interpolate(navZoomOutSpring, [0, 1], [isPortrait ? 1.25 : 1.18, 1.0]);
+    frame <= 20
+      ? interpolate(frame, [0, 20], [1.0, maxZoom], { extrapolateRight: "clamp" })
+      : frame <= 56
+      ? maxZoom
+      : interpolate(frame, [56, 78], [maxZoom, 1.0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
 
   // Dynamic Cursor movements:
-  // 1. Move to Address Bar (0 - 15), click/type at 16
-  // 2. Float around video while music plays (25 - 60)
-  // 3. Move to `+` (New Tab) button (60 - 80), click at 80
+  // 1. Move to Address Bar (0 - 18), click at 19
+  // 2. Stay near address bar while URL types (20 - 54)
+  // 3. Glide across video while music plays (56 - 82)
+  // 4. Move to `+` (New Tab) button (82 - 96), click at 96
   const cursorX = interpolate(
     frame,
-    [0, 15, 25, 45, 60, 78, 88],
+    [0, 18, 54, 75, 96, 104],
     isPortrait
-      ? [width * 0.5, addressBarX, addressBarX, width * 0.5, width * 0.45, newTabPlusX, newTabPlusX]
-      : [width * 0.52, addressBarX, addressBarX, width * 0.6, width * 0.55, newTabPlusX, newTabPlusX],
+      ? [width * 0.5, addressBarX, addressBarX, width * 0.5, newTabPlusX, newTabPlusX]
+      : [width * 0.52, addressBarX, addressBarX, width * 0.6, newTabPlusX, newTabPlusX],
     { extrapolateRight: "clamp" }
   );
 
   const cursorY = interpolate(
     frame,
-    [0, 15, 25, 45, 60, 78, 88],
+    [0, 18, 54, 75, 96, 104],
     isPortrait
-      ? [height * 0.6, addressBarY, addressBarY, height * 0.5, height * 0.35, newTabPlusY, newTabPlusY]
-      : [height * 0.55, addressBarY, addressBarY, height * 0.5, height * 0.35, newTabPlusY, newTabPlusY],
+      ? [height * 0.6, addressBarY, addressBarY, height * 0.5, newTabPlusY, newTabPlusY]
+      : [height * 0.55, addressBarY, addressBarY, height * 0.5, newTabPlusY, newTabPlusY],
     { extrapolateRight: "clamp" }
   );
 
-  const isNavClick = frame >= 14 && frame <= 19;
-  const isPlusClicked = frame >= 76 && frame <= 83;
+  const isNavClick = frame >= 17 && frame <= 22;
+  const isPlusClicked = frame >= 94 && frame <= 100;
 
-  // Page state: 'newtab' before frame 20, 'youtube' from frame 20 onwards
-  const isYouTubeLoaded = frame >= 20;
+  // Page state: 'newtab' before frame 58, 'youtube' from frame 58 onwards
+  const isYouTubeLoaded = frame >= 58;
+
+  // URL typing effect
+  let currentUrl = "chrome://newtab";
+  if (frame >= 20 && frame < 56) {
+    const charsCount = Math.min(
+      targetUrl.length,
+      Math.floor((frame - 20) * 1.4)
+    );
+    const cursorBlink = Math.floor(frame / 6) % 2 === 0 ? "|" : "";
+    currentUrl = targetUrl.slice(0, charsCount) + cursorBlink;
+  } else if (frame >= 56) {
+    currentUrl = targetUrl;
+  }
 
   // Dynamic Browser Tabs definition
   const tabs: BrowserTab[] = isYouTubeLoaded
     ? [
         {
           id: "youtube",
-          title: "lofi hip hop radio ☕",
+          title: "Rick Astley - Never Gonna Give You Up 🎵",
           icon: "▶️",
           isPlayingAudio: true,
         },
@@ -83,13 +99,6 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
           icon: "🐸",
         },
       ];
-
-  const currentUrl =
-    frame < 6
-      ? "chrome://newtab"
-      : frame < 20
-      ? "youtube.com/lofi-hip-hop"
-      : "https://youtube.com/watch?v=jfKfPfyJRdk";
 
   return (
     <div
@@ -109,8 +118,8 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
         style={{
           width: "100%",
           height: "100%",
-          transform: `scale(${cameraScale})`,
-          transformOrigin: isPortrait ? "50% 12%" : "50% 10%",
+          transform: `scale(${cameraScale}) translateY(${(cameraScale - 1.0) * 160}px)`,
+          transformOrigin: "center top",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -126,7 +135,7 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
           isPlusClicked={isPlusClicked}
         >
           {isYouTubeLoaded ? (
-            /* YouTube Lo-Fi Player View */
+            /* YouTube Player View */
             <YouTubeMockup layout={layout} />
           ) : (
             /* New Tab transitioning out */
@@ -137,7 +146,7 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                opacity: interpolate(frame, [14, 20], [1, 0]),
+                opacity: interpolate(frame, [54, 58], [1, 0]),
               }}
             >
               <ClockWidget style="minimal" scale={isPortrait ? 0.9 : 1.1} showSubtitle={false} />
@@ -153,7 +162,7 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
         <VirtualCursor
           x={cursorX}
           y={cursorY}
-          clickFrame={isNavClick ? 16 : isPlusClicked ? 78 : undefined}
+          clickFrame={isNavClick ? 19 : isPlusClicked ? 96 : undefined}
         />
       </div>
     </div>
