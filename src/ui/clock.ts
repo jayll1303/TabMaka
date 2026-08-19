@@ -5,12 +5,24 @@ let timer: number | undefined;
 
 export const CLOCK_STYLES: { id: ClockStyle; name: string; desc: string }[] = [
   { id: "minimal", name: "Minimal Digital", desc: "Chữ số hiện đại tối giản" },
-  { id: "pixel-box", name: "Pixel Arcade", desc: "Font pixel 8-bit khung retro" },
-  { id: "cozy-hand", name: "Cozy Handwritten", desc: "Font nét viết tay ấm áp" },
+  {
+    id: "pixel-box",
+    name: "Pixel Arcade",
+    desc: "Font pixel 8-bit khung retro",
+  },
+  {
+    id: "cozy-hand",
+    name: "Cozy Handwritten",
+    desc: "Font nét viết tay ấm áp",
+  },
   { id: "analog-round", name: "Analog Dial", desc: "Đồng hồ kim tròn cổ điển" },
 ];
 
-function formatDigitalTime(now: Date, settings: Settings, showSeconds = false): string {
+function formatDigitalTime(
+  now: Date,
+  settings: Settings,
+  showSeconds = false,
+): string {
   if (showSeconds) {
     return now.toLocaleTimeString([], {
       hour: "2-digit",
@@ -158,7 +170,10 @@ export function initClockToggle(
     btn.className = "clock-toggle-btn";
     if (!settings.clock) {
       btn.classList.add("mode-off");
-      btn.setAttribute("title", `Đồng hồ: Đang tắt (Click để bật ${CLOCK_STYLES[0].name} • Chuột phải đổi 12/24h)`);
+      btn.setAttribute(
+        "title",
+        `Đồng hồ: Đang tắt (Click để bật ${CLOCK_STYLES[0].name} • Chuột phải đổi 12/24h)`,
+      );
       btn.setAttribute("aria-label", "Bật đồng hồ");
       btn.innerHTML = getStyleIcon("minimal", true);
       return;
@@ -189,7 +204,9 @@ export function initClockToggle(
       settings.clock = true;
       settings.clockStyle = CLOCK_STYLES[0].id;
     } else {
-      const currentIndex = CLOCK_STYLES.findIndex((s) => s.id === (settings.clockStyle || "minimal"));
+      const currentIndex = CLOCK_STYLES.findIndex(
+        (s) => s.id === (settings.clockStyle || "minimal"),
+      );
       if (currentIndex >= 0 && currentIndex < CLOCK_STYLES.length - 1) {
         settings.clockStyle = CLOCK_STYLES[currentIndex + 1].id;
       } else {

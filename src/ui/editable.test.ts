@@ -21,7 +21,11 @@ class MockDomElement {
 
   closest(selector: string): MockDomElement | null {
     if (selector.includes("contenteditable")) {
-      if (this.isContentEditable || this.attributes.contenteditable === "true" || this.attributes.contenteditable === "") {
+      if (
+        this.isContentEditable ||
+        this.attributes.contenteditable === "true" ||
+        this.attributes.contenteditable === ""
+      ) {
         return this;
       }
       return this.parent?.closest(selector) ?? null;
@@ -57,7 +61,10 @@ describe("isEditableTarget", () => {
   });
 
   it("returns true for contenteditable greeting element", () => {
-    const greetingEl = new MockDomElement("div", true) as unknown as HTMLElement;
+    const greetingEl = new MockDomElement(
+      "div",
+      true,
+    ) as unknown as HTMLElement;
     expect(isEditableTarget(greetingEl, null)).toBe(true);
     expect(isEditableTarget(null, greetingEl)).toBe(true);
   });

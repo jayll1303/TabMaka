@@ -14,10 +14,14 @@ function makeClock(start = 0) {
 describe("behavior FSM", () => {
   it("wakes to FOLLOWING on mouse and targets the mouse", () => {
     const clock = makeClock(10_000);
-    const b = new Behavior({ width: 800, height: 600 }, { x: 100, y: 100 }, {
-      now: clock.now,
-      rand: () => 0.5,
-    });
+    const b = new Behavior(
+      { width: 800, height: 600 },
+      { x: 100, y: 100 },
+      {
+        now: clock.now,
+        rand: () => 0.5,
+      },
+    );
     b.notifyMouse({ x: 400, y: 300 });
     expect(b.state).toBe("FOLLOWING");
     const r = b.update({ x: 100, y: 100 });
@@ -27,11 +31,15 @@ describe("behavior FSM", () => {
 
   it("leaves FOLLOWING for WANDERING after idle delay", () => {
     const clock = makeClock(10_000);
-    const b = new Behavior({ width: 800, height: 600 }, { x: 100, y: 100 }, {
-      idleDelay: 2000,
-      now: clock.now,
-      rand: () => 0.5,
-    });
+    const b = new Behavior(
+      { width: 800, height: 600 },
+      { x: 100, y: 100 },
+      {
+        idleDelay: 2000,
+        now: clock.now,
+        rand: () => 0.5,
+      },
+    );
     b.notifyMouse({ x: 400, y: 300 });
     clock.advance(2500);
     const r = b.update({ x: 400, y: 300 });
@@ -40,12 +48,16 @@ describe("behavior FSM", () => {
 
   it("rests on arrival then wanders again", () => {
     const clock = makeClock(0);
-    const b = new Behavior({ width: 800, height: 600 }, { x: 100, y: 100 }, {
-      restDuration: 1000,
-      arriveRadius: 30,
-      now: clock.now,
-      rand: () => 0.5,
-    });
+    const b = new Behavior(
+      { width: 800, height: 600 },
+      { x: 100, y: 100 },
+      {
+        restDuration: 1000,
+        arriveRadius: 30,
+        now: clock.now,
+        rand: () => 0.5,
+      },
+    );
     // Force into WANDERING with a known target near the head.
     b.notifyMouse({ x: 100, y: 100 });
     clock.advance(5000);
@@ -64,10 +76,14 @@ describe("behavior FSM", () => {
 
   it("keeps wander targets inside the environment margins", () => {
     const clock = makeClock(0);
-    const b = new Behavior({ width: 800, height: 600 }, { x: 100, y: 100 }, {
-      now: clock.now,
-      rand: () => 0,
-    });
+    const b = new Behavior(
+      { width: 800, height: 600 },
+      { x: 100, y: 100 },
+      {
+        now: clock.now,
+        rand: () => 0,
+      },
+    );
     b.notifyMouse({ x: 100, y: 100 });
     clock.advance(5000);
     const r = b.update({ x: 100, y: 100 });

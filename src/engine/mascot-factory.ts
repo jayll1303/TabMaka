@@ -16,7 +16,8 @@ export function createMascot(
   reduced: boolean,
   normPos?: Vec,
 ): Mascot {
-  const config: MascotConfig = mascotConfigs[id] ?? mascotConfigs[defaultMascotId];
+  const config: MascotConfig =
+    mascotConfigs[id] ?? mascotConfigs[defaultMascotId];
   if (isFaceConfig(config)) {
     return new FaceMascot(config, size, normPos);
   }

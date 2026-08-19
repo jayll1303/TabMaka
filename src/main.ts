@@ -58,7 +58,7 @@ async function main(): Promise<void> {
 
   // Initial paint + run.
   drawFrame(1);
-  if (!reduced) loop.start();
+  loop.start();
 
   let pointerDownPos: { x: number; y: number } | null = null;
   let hasDragged = false;
@@ -69,7 +69,10 @@ async function main(): Promise<void> {
 
     if (mascot.isDragging?.()) {
       if (pointerDownPos && !hasDragged) {
-        const d = Math.hypot(pos.x - pointerDownPos.x, pos.y - pointerDownPos.y);
+        const d = Math.hypot(
+          pos.x - pointerDownPos.x,
+          pos.y - pointerDownPos.y,
+        );
         if (d > 8) hasDragged = true;
       }
       mascot.dragTo?.(pos);
@@ -129,8 +132,12 @@ async function main(): Promise<void> {
 
   // Expose to window for dev convenience
   if (typeof window !== "undefined") {
-    (window as unknown as { audioDetector?: AudioDetector; mascot?: Mascot }).audioDetector = audioDetector;
-    (window as unknown as { audioDetector?: AudioDetector; mascot?: Mascot }).mascot = mascot;
+    (
+      window as unknown as { audioDetector?: AudioDetector; mascot?: Mascot }
+    ).audioDetector = audioDetector;
+    (
+      window as unknown as { audioDetector?: AudioDetector; mascot?: Mascot }
+    ).mascot = mascot;
   }
 
   window.addEventListener("keydown", (e) => {
@@ -144,6 +151,10 @@ async function main(): Promise<void> {
       // Toggle vibe mode manually for quick preview & delight
       const next = audioDetector.toggle();
       mascot.setVibing?.(next);
+      wake();
+    } else if ((e.key === "e" || e.key === "E") && !e.repeat) {
+      // Replay entrance jump animation
+      mascot.playEntryAnimation?.();
       wake();
     }
   });
@@ -210,4 +221,3 @@ async function main(): Promise<void> {
 }
 
 void main();
-

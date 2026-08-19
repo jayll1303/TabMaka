@@ -12,7 +12,7 @@ export const YouTubeMockup: React.FC<YouTubeMockupProps> = ({
   const isPortrait = layout === "portrait";
 
   // 80s Synthwave Beat Animation timings
-  const beat = Math.sin(frame * 0.45);
+  const _beat = Math.sin(frame * 0.45);
   const danceSway = Math.sin(frame * 0.35) * 12;
   const armSwing = Math.cos(frame * 0.35) * 18;
   const headBob = Math.abs(Math.sin(frame * 0.45)) * 6;

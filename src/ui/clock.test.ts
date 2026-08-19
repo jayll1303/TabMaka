@@ -47,7 +47,13 @@ class MockElement {
 
   querySelector(selector: string): MockElement | null {
     if (selector === "button") {
-      return this.children.find((c) => c.type === "button" || c.className.includes("btn")) ?? this.children[0] ?? null;
+      return (
+        this.children.find(
+          (c) => c.type === "button" || c.className.includes("btn"),
+        ) ??
+        this.children[0] ??
+        null
+      );
     }
     return null;
   }
@@ -89,7 +95,11 @@ describe("initClock", () => {
 
   it("renders analog SVG when style is analog-round", () => {
     const el = new MockElement() as unknown as HTMLElement;
-    initClock(el, { ...defaultSettings, clock: true, clockStyle: "analog-round" });
+    initClock(el, {
+      ...defaultSettings,
+      clock: true,
+      clockStyle: "analog-round",
+    });
     expect(el.className).toContain("style-analog-round");
     expect(el.innerHTML).toContain("analog-clock-face");
   });
@@ -111,7 +121,11 @@ describe("initClockToggle", () => {
 
   it("cycles styles on click and turns off at the end", () => {
     const root = new MockElement() as unknown as HTMLElement;
-    let currentSettings: Settings = { ...defaultSettings, clock: true, clockStyle: "minimal" };
+    let currentSettings: Settings = {
+      ...defaultSettings,
+      clock: true,
+      clockStyle: "minimal",
+    };
     initClockToggle(root, currentSettings, (updated) => {
       currentSettings = { ...updated };
     });

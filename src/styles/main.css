@@ -15,7 +15,7 @@
 }
 
 :root {
-  --bg: #FAF6EE;
+  --bg: #faf6ee;
   --fg: #1f2421;
   --muted: rgba(31, 36, 33, 0.62);
   --panel-bg: rgba(255, 255, 255, 0.94);
@@ -41,9 +41,16 @@ body {
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   overflow: hidden;
-  transition: background-color 0.35s ease, color 0.35s ease;
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
 }
 
 #scene {
@@ -102,7 +109,11 @@ body {
 #clock {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
-  transition: color 0.35s ease, transform 0.25s ease, background 0.3s ease, border-color 0.3s ease;
+  transition:
+    color 0.35s ease,
+    transform 0.25s ease,
+    background 0.3s ease,
+    border-color 0.3s ease;
   user-select: none;
   -webkit-user-select: none;
   display: flex;
@@ -112,7 +123,12 @@ body {
 
 /* 1. Minimal Digital */
 #clock.style-minimal {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   font-size: clamp(2.2rem, 6.5vmin, 4.2rem);
   font-weight: 300;
 }
@@ -219,11 +235,12 @@ body {
   opacity: 0.38;
   backdrop-filter: blur(12px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              background-color 0.2s ease,
-              border-color 0.2s ease,
-              box-shadow 0.2s ease;
+  transition:
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   user-select: none;
 }
 
@@ -270,9 +287,10 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   opacity: 0.25;
   transform: translateY(2px);
-  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.3s ease;
+  transition:
+    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s ease;
 }
 
 .ambient-color-bar:hover {
@@ -290,9 +308,10 @@ body {
   position: relative;
   outline: none;
   padding: 0;
-  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.18s ease,
-              box-shadow 0.18s ease;
+  transition:
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
@@ -302,7 +321,9 @@ body {
 
 .color-swatch.active {
   border-color: #5b9e32;
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px #5b9e32;
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px #5b9e32;
   transform: scale(1.14);
 }
 
@@ -325,7 +346,9 @@ body {
 .color-swatch.custom-picker.active {
   border-style: solid;
   border-color: #5b9e32;
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px #5b9e32;
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px #5b9e32;
   transform: scale(1.14);
 }
 
@@ -346,7 +369,9 @@ body {
 .color-swatch.custom-picker .custom-icon {
   color: var(--fg);
   opacity: 0.75;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
   pointer-events: none;
 }
 

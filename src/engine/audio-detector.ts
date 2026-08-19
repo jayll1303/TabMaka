@@ -99,7 +99,11 @@ export class AudioDetector {
       this.timer = null;
     }
 
-    if (this.listenersAttached && typeof chrome !== "undefined" && chrome.tabs) {
+    if (
+      this.listenersAttached &&
+      typeof chrome !== "undefined" &&
+      chrome.tabs
+    ) {
       try {
         chrome.tabs.onUpdated.removeListener(this.onUpdateListener);
         chrome.tabs.onRemoved.removeListener(this.onRemovedListener);

@@ -1,13 +1,5 @@
 import type { CreatureConfig } from "../creatures/types";
-import {
-  type Vec,
-  add,
-  angle,
-  angleDiff,
-  clamp,
-  fromAngle,
-  sub,
-} from "./vec";
+import { type Vec, add, angle, angleDiff, clamp, fromAngle, sub } from "./vec";
 
 /**
  * A spine is an ordered list of joints. joints[0] is the head. Each joint is
@@ -49,11 +41,7 @@ export function resolveSpine(spine: Spine, head: Vec): void {
     let heading = desired;
     if (i >= 2) {
       const prevHeading = angle(sub(joints[i - 1], joints[i - 2]));
-      const delta = clamp(
-        angleDiff(desired, prevHeading),
-        -maxAngle,
-        maxAngle,
-      );
+      const delta = clamp(angleDiff(desired, prevHeading), -maxAngle, maxAngle);
       heading = prevHeading + delta;
     }
 

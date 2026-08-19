@@ -188,7 +188,10 @@ function drawEyes(
       const p2 = add(center, scale(perp, eyes.radius * 0.9));
       const mid = add(
         center,
-        scale({ x: Math.cos(heading), y: Math.sin(heading) }, eyes.radius * 0.4),
+        scale(
+          { x: Math.cos(heading), y: Math.sin(heading) },
+          eyes.radius * 0.4,
+        ),
       );
       ctx.moveTo(p1.x, p1.y);
       ctx.quadraticCurveTo(mid.x, mid.y, p2.x, p2.y);
@@ -250,7 +253,10 @@ function drawEyes(
 }
 
 /** Setup a crisp canvas for the current devicePixelRatio; returns CSS-pixel size. */
-export function resizeCanvas(canvas: HTMLCanvasElement): { w: number; h: number } {
+export function resizeCanvas(canvas: HTMLCanvasElement): {
+  w: number;
+  h: number;
+} {
   const dpr = window.devicePixelRatio || 1;
   const w = window.innerWidth;
   const h = window.innerHeight;

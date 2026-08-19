@@ -1,11 +1,5 @@
 export type Expression =
-  | "neutral"
-  | "happy"
-  | "uwu"
-  | "surprised"
-  | "sleepy"
-  | "tongue"
-  | "kiss";
+  "neutral" | "happy" | "uwu" | "surprised" | "sleepy" | "tongue" | "kiss";
 
 export interface MoodOptions {
   now?: () => number;
@@ -86,7 +80,8 @@ export class Mood {
   startle(): void {
     const t = this.now();
     this.lastInteractAt = t;
-    if (this.reactionActive(t) && this.activePriority > STARTLE_PRIORITY) return;
+    if (this.reactionActive(t) && this.activePriority > STARTLE_PRIORITY)
+      return;
     this.reaction = "surprised";
     this.reactionUntil = t + this.startleHold;
     this.activePriority = STARTLE_PRIORITY;

@@ -51,4 +51,3 @@ export class Blink {
     return this.open;
   }
 }
-

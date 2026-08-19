@@ -15,9 +15,7 @@ export const mascotConfigs: Record<string, MascotConfig> = {
 };
 
 /** Stable display order for the picker. */
-export const mascotList: MascotConfig[] = [
-  frog,
-];
+export const mascotList: MascotConfig[] = [frog];
 
 export const defaultMascotId = "frog";
 

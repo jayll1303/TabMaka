@@ -5,11 +5,24 @@ import { Mood, type Expression } from "./mood";
 import type { Mascot, Size } from "./mascot";
 import { ParticleSystem } from "./particles";
 
+function createImage(src: string): HTMLImageElement {
+  if (typeof Image !== "undefined") {
+    const img = new Image();
+    img.src = src;
+    return img;
+  }
+  return {
+    src,
+    complete: false,
+    naturalWidth: 0,
+    naturalHeight: 0,
+  } as HTMLImageElement;
+}
+
 // Load body sprite. The baked-in black eye bead has been removed from the
 // source PNG (see scripts/clean-frog-eye.mjs); the eye is drawn entirely in
 // code so the mood system has full control (blink, wide, sleepy, closed, ...).
-const bodyImg = new Image();
-bodyImg.src = "./sprites/frog/frog_body.png";
+const bodyImg = createImage("./sprites/frog/frog_body.png");
 
 // Natural eye geometry on the 566x450 body sprite.
 const EYE_NAT = { x: 313.3, y: 85.8, r: 38.8 };
@@ -30,20 +43,43 @@ function loadJumpFrame(
   eyeAnchor: { x: number; y: number; r: number },
   mouthAnchor: { x: number; y: number },
 ): JumpFrame {
-  const img = new Image();
-  img.src = `./sprites/frog/jump/${file}`;
+  const img = createImage(`./sprites/frog/jump/${file}`);
   return { img, natW, natH, eyeAnchor, mouthAnchor };
 }
 
 const jumpFrames: JumpFrame[] = [
   // 0: Crouch / Anticipation (637x329)
-  loadJumpFrame("jump_1_crouch.png", 637, 329, { x: 370, y: 110, r: 36 }, { x: 440, y: 155 }),
+  loadJumpFrame(
+    "jump_1_crouch.png",
+    637,
+    329,
+    { x: 370, y: 110, r: 36 },
+    { x: 440, y: 155 },
+  ),
   // 1: Launch / Takeoff (571x511)
-  loadJumpFrame("jump_2_launch.png", 571, 511, { x: 465, y: 125, r: 34 }, { x: 475, y: 190 }),
+  loadJumpFrame(
+    "jump_2_launch.png",
+    571,
+    511,
+    { x: 465, y: 125, r: 34 },
+    { x: 475, y: 190 },
+  ),
   // 2: Apex Peak Flight (473x397)
-  loadJumpFrame("jump_3_apex.png", 473, 397, { x: 305, y: 85, r: 32 }, { x: 340, y: 140 }),
+  loadJumpFrame(
+    "jump_3_apex.png",
+    473,
+    397,
+    { x: 305, y: 85, r: 32 },
+    { x: 340, y: 140 },
+  ),
   // 3: Land Impact / Squash (647x304)
-  loadJumpFrame("jump_4_land.png", 647, 304, { x: 410, y: 105, r: 35 }, { x: 475, y: 150 }),
+  loadJumpFrame(
+    "jump_4_land.png",
+    647,
+    304,
+    { x: 410, y: 105, r: 35 },
+    { x: 475, y: 150 },
+  ),
 ];
 
 /** Vibe / Music chill headphone animation keyframe specification. */
@@ -62,16 +98,27 @@ function loadVibeFrame(
   eyeAnchor: { x: number; y: number; r: number },
   mouthAnchor: { x: number; y: number },
 ): VibeFrame {
-  const img = new Image();
-  img.src = `./sprites/frog/vibe/${file}`;
+  const img = createImage(`./sprites/frog/vibe/${file}`);
   return { img, natW, natH, eyeAnchor, mouthAnchor };
 }
 
 const vibeFrames: VibeFrame[] = [
   // 0: Sway / relaxed groove with headphones (529x521)
-  loadVibeFrame("vibe_1_sway.png", 529, 521, { x: 315, y: 140, r: 34 }, { x: 370, y: 230 }),
+  loadVibeFrame(
+    "vibe_1_sway.png",
+    529,
+    521,
+    { x: 315, y: 140, r: 34 },
+    { x: 370, y: 230 },
+  ),
   // 1: Up / bouncy stretch groove with headphones (501x487)
-  loadVibeFrame("vibe_2_up.png", 501, 487, { x: 280, y: 130, r: 32 }, { x: 325, y: 205 }),
+  loadVibeFrame(
+    "vibe_2_up.png",
+    501,
+    487,
+    { x: 280, y: 130, r: 32 },
+    { x: 325, y: 205 },
+  ),
 ];
 
 /** A mouth sprite with its natural pixel dimensions and a target width. */
@@ -83,9 +130,13 @@ interface MouthSprite {
   widthFactor: number;
 }
 
-function mouth(file: string, natW: number, natH: number, widthFactor: number): MouthSprite {
-  const img = new Image();
-  img.src = `./sprites/frog/${file}`;
+function mouth(
+  file: string,
+  natW: number,
+  natH: number,
+  widthFactor: number,
+): MouthSprite {
+  const img = createImage(`./sprites/frog/${file}`);
   return { img, natW, natH, widthFactor };
 }
 
@@ -159,6 +210,12 @@ export class FaceMascot implements Mascot {
   private jumpTarget: Vec = { x: 0, y: 0 };
   private facing: 1 | -1 = 1; // 1 = right, -1 = left
 
+  // Entrance jump animation state (hopping into viewport from outside on new tab)
+  private entryProgress = -1; // -1 = idle, 0..1 = entering
+  private readonly entryDuration = 840; // ms
+  private entryStart: Vec = { x: 0, y: 0 };
+  private entryTarget: Vec = { x: 0, y: 0 };
+
   // Landing squash animation state (after drag drop)
   private landProgress = -1; // -1 = idle, 0..1 = landing squash
   private readonly landDuration = 180; // ms
@@ -176,11 +233,63 @@ export class FaceMascot implements Mascot {
   ) {
     this.screenSize = size;
     this.normPos = normPos ? { ...normPos } : { x: 0.5, y: 0.5 };
+    const bodyW = this.config.size * 2.2;
+    const bodyH = bodyW * (450 / 566);
+    const padX = bodyW * 0.5 + 16;
+    const padY = bodyH * 0.5 + 16;
+
     this.center = {
-      x: this.normPos.x * size.w,
-      y: this.normPos.y * size.h,
+      x: clamp(this.normPos.x * size.w, padX, Math.max(padX, size.w - padX)),
+      y: clamp(this.normPos.y * size.h, padY, Math.max(padY, size.h - padY)),
     };
     this.cursor = { ...this.center };
+
+    this.playEntryAnimation();
+  }
+
+  /** Trigger a dramatic, joyful entrance leap from outside the screen! */
+  playEntryAnimation(): void {
+    if (this.dragging) return;
+
+    const bodyW = this.config.size * 2.2;
+    const bodyH = bodyW * (450 / 566);
+    const padX = bodyW * 0.5 + 24;
+    const padY = bodyH * 0.5 + 24;
+
+    const targetX = clamp(
+      this.normPos.x * this.screenSize.w,
+      padX,
+      Math.max(padX, this.screenSize.w - padX),
+    );
+    const targetY = clamp(
+      this.normPos.y * this.screenSize.h,
+      padY,
+      Math.max(padY, this.screenSize.h - padY),
+    );
+
+    this.entryTarget = { x: targetX, y: targetY };
+
+    // Launch from offscreen bottom corner directed toward target perch
+    if (targetX < this.screenSize.w * 0.5) {
+      // Enter from bottom-left
+      this.entryStart = {
+        x: Math.max(-bodyW * 0.8, targetX - 240),
+        y: this.screenSize.h + bodyH * 0.75,
+      };
+      this.facing = 1; // Face right toward landing spot
+    } else {
+      // Enter from bottom-right
+      this.entryStart = {
+        x: Math.min(this.screenSize.w + bodyW * 0.8, targetX + 240),
+        y: this.screenSize.h + bodyH * 0.75,
+      };
+      this.facing = -1; // Face left toward landing spot
+    }
+
+    this.entryProgress = 0;
+    this.jumpProgress = -1;
+    this.landProgress = -1;
+    this.center = { ...this.entryStart };
   }
 
   setCursor(pos: Vec): void {
@@ -197,7 +306,7 @@ export class FaceMascot implements Mascot {
 
   /** Trigger a joyful hop to a random nearby position! */
   jump(): void {
-    if (this.jumpProgress < 0 && !this.dragging) {
+    if (this.jumpProgress < 0 && this.entryProgress < 0 && !this.dragging) {
       this.jumpProgress = 0;
       this.landProgress = -1;
       this.mood.poke();
@@ -226,7 +335,11 @@ export class FaceMascot implements Mascot {
       }
 
       const tx = clamp(this.jumpStart.x + Math.cos(angle) * dist, minX, maxX);
-      const ty = clamp(this.jumpStart.y + Math.sin(angle) * (dist * 0.6), minY, maxY);
+      const ty = clamp(
+        this.jumpStart.y + Math.sin(angle) * (dist * 0.6),
+        minY,
+        maxY,
+      );
 
       this.jumpTarget = { x: tx, y: ty };
 
@@ -269,10 +382,22 @@ export class FaceMascot implements Mascot {
     const padX = bodyW * 0.5 + 16;
     const padY = bodyH * 0.5 + 16;
 
-    this.center = {
-      x: clamp(this.normPos.x * size.w, padX, Math.max(padX, size.w - padX)),
-      y: clamp(this.normPos.y * size.h, padY, Math.max(padY, size.h - padY)),
-    };
+    const targetX = clamp(
+      this.normPos.x * size.w,
+      padX,
+      Math.max(padX, size.w - padX),
+    );
+    const targetY = clamp(
+      this.normPos.y * size.h,
+      padY,
+      Math.max(padY, size.h - padY),
+    );
+
+    if (this.entryProgress < 0) {
+      this.center = { x: targetX, y: targetY };
+    } else {
+      this.entryTarget = { x: targetX, y: targetY };
+    }
   }
 
   hitTest(pos: Vec): boolean {
@@ -286,6 +411,7 @@ export class FaceMascot implements Mascot {
   startDrag(pos: Vec): void {
     this.dragging = true;
     this.dragMoved = false;
+    this.entryProgress = -1;
     this.jumpProgress = -1;
     this.landProgress = -1;
     this.dragOffset = {
@@ -302,8 +428,16 @@ export class FaceMascot implements Mascot {
     const padX = bodyW * 0.5 + 16;
     const padY = bodyH * 0.5 + 16;
 
-    const newX = clamp(pos.x - this.dragOffset.x, padX, Math.max(padX, this.screenSize.w - padX));
-    const newY = clamp(pos.y - this.dragOffset.y, padY, Math.max(padY, this.screenSize.h - padY));
+    const newX = clamp(
+      pos.x - this.dragOffset.x,
+      padX,
+      Math.max(padX, this.screenSize.w - padX),
+    );
+    const newY = clamp(
+      pos.y - this.dragOffset.y,
+      padY,
+      Math.max(padY, this.screenSize.h - padY),
+    );
 
     if (newX < this.center.x - 3) this.facing = -1;
     else if (newX > this.center.x + 3) this.facing = 1;
@@ -360,6 +494,21 @@ export class FaceMascot implements Mascot {
       this.time += dtScale * 0.035;
     }
 
+    // Advance entrance leap animation
+    if (this.entryProgress >= 0) {
+      const dtMs = dtScale * (1000 / 60);
+      this.entryProgress += dtMs / this.entryDuration;
+      if (this.entryProgress >= 1) {
+        this.entryProgress = -1;
+        this.center = { ...this.entryTarget };
+        this.normPos = {
+          x: this.center.x / Math.max(1, this.screenSize.w),
+          y: this.center.y / Math.max(1, this.screenSize.h),
+        };
+        this.mood.pet(); // Trigger cute happy/uwu face on successful landing!
+      }
+    }
+
     // Advance the jump regardless of reduced motion; a triggered hop must
     // always finish (otherwise it freezes mid-air and blocks isSettled()).
     if (this.jumpProgress >= 0) {
@@ -383,7 +532,12 @@ export class FaceMascot implements Mascot {
       }
     }
 
-    if (this.isVibing && !this.dragging && this.jumpProgress < 0) {
+    if (
+      this.isVibing &&
+      !this.dragging &&
+      this.jumpProgress < 0 &&
+      this.entryProgress < 0
+    ) {
       const dtMs = dtScale * (1000 / 60);
       this.vibeTime += dtMs;
       this.musicParticleTimer += dtMs;
@@ -477,7 +631,7 @@ export class FaceMascot implements Mascot {
     void _size;
     const { size } = this.config;
 
-    const expr = this.mood.current();
+    let expr = this.mood.current();
     const breath = Math.sin(this.time) * 0.02;
 
     // Body aspect ratio: 566 x 450
@@ -489,11 +643,49 @@ export class FaceMascot implements Mascot {
     const maxHeight = bodyH * 0.85;
     let frameIdx = -1;
     let yJump = 0;
+    let airRatio = 0;
 
     if (this.dragging) {
       // Crouch pose while holding & dragging across the screen
       frameIdx = 0;
       yJump = 0;
+    } else if (this.entryProgress >= 0) {
+      // Leaping into viewport from outside on new tab open!
+      const p = clamp(this.entryProgress, 0, 1);
+      const arcHeight = Math.max(
+        bodyH * 1.35,
+        (this.entryStart.y - this.entryTarget.y) * 0.38 + bodyH * 0.75,
+      );
+
+      if (p < 0.08) {
+        curCenterX = this.entryStart.x;
+        curCenterY = this.entryStart.y;
+        frameIdx = 0;
+        yJump = 0;
+        airRatio = 0;
+      } else if (p < 0.74) {
+        const u = (p - 0.08) / (0.74 - 0.08);
+        curCenterX = lerp(this.entryStart.x, this.entryTarget.x, u);
+        curCenterY = lerp(this.entryStart.y, this.entryTarget.y, u);
+        yJump = -Math.sin(u * Math.PI) * arcHeight;
+        airRatio = Math.sin(u * Math.PI);
+        frameIdx = u < 0.44 ? 1 : 2;
+        expr = "happy";
+      } else if (p < 0.92) {
+        curCenterX = this.entryTarget.x;
+        curCenterY = this.entryTarget.y;
+        frameIdx = 3; // Land squash impact
+        yJump = 0;
+        airRatio = 0;
+        expr = "uwu";
+      } else {
+        curCenterX = this.entryTarget.x;
+        curCenterY = this.entryTarget.y;
+        frameIdx = -1;
+        yJump = 0;
+        airRatio = 0;
+        expr = "happy";
+      }
     } else if (this.jumpProgress >= 0) {
       // Hopping Jump Animation Branch
       const p = clamp(this.jumpProgress, 0, 1);
@@ -503,22 +695,26 @@ export class FaceMascot implements Mascot {
         curCenterY = this.jumpStart.y;
         frameIdx = 0;
         yJump = 0;
+        airRatio = 0;
       } else if (p < 0.76) {
         const u = (p - 0.16) / (0.76 - 0.16);
         curCenterX = lerp(this.jumpStart.x, this.jumpTarget.x, u);
         curCenterY = lerp(this.jumpStart.y, this.jumpTarget.y, u);
         yJump = -Math.sin(u * Math.PI) * maxHeight;
+        airRatio = clamp(-yJump / maxHeight, 0, 1);
         frameIdx = p < 0.46 ? 1 : 2;
       } else if (p < 0.94) {
         curCenterX = this.jumpTarget.x;
         curCenterY = this.jumpTarget.y;
         frameIdx = 3;
         yJump = 0;
+        airRatio = 0;
       } else {
         curCenterX = this.jumpTarget.x;
         curCenterY = this.jumpTarget.y;
         frameIdx = -1;
         yJump = 0;
+        airRatio = 0;
       }
     } else if (this.landProgress >= 0) {
       // Land squash impact on drop
@@ -533,10 +729,20 @@ export class FaceMascot implements Mascot {
     }
 
     // 1. Dynamic ground drop shadow
-    const airRatio = clamp(-yJump / maxHeight, 0, 1);
-    const isIdle = !this.dragging && this.jumpProgress < 0 && this.landProgress < 0;
-    const shadowScale = (1 - airRatio * 0.45) * (isIdle ? 1 + breath * 0.2 : 1);
-    const shadowAlpha = 0.22 * (1 - airRatio * 0.70);
+    const isIdle =
+      !this.dragging &&
+      this.entryProgress < 0 &&
+      this.jumpProgress < 0 &&
+      this.landProgress < 0;
+    const isSquash =
+      (this.entryProgress >= 0 &&
+        this.entryProgress >= 0.74 &&
+        this.entryProgress < 0.92) ||
+      this.landProgress >= 0;
+    const shadowScale = isSquash
+      ? 1.18
+      : (1 - airRatio * 0.48) * (isIdle ? 1 + breath * 0.2 : 1);
+    const shadowAlpha = isSquash ? 0.26 : 0.22 * (1 - airRatio * 0.7);
 
     ctx.save();
     ctx.beginPath();
@@ -659,7 +865,7 @@ export class FaceMascot implements Mascot {
 
         const chars = ["z", "z", "Z"];
         const sizeMultipliers = [0.048, 0.068, 0.092];
-        const offsetsX = [0.72, 0.81, 0.90];
+        const offsetsX = [0.72, 0.81, 0.9];
         const baseHeights = [0.08, -0.04, -0.16];
 
         for (let i = 0; i < 3; i++) {
@@ -689,6 +895,7 @@ export class FaceMascot implements Mascot {
   isSettled(): boolean {
     return (
       !this.dragging &&
+      this.entryProgress < 0 &&
       this.jumpProgress < 0 &&
       this.landProgress < 0 &&
       !this.isVibing &&
@@ -699,5 +906,3 @@ export class FaceMascot implements Mascot {
     );
   }
 }
-
-

@@ -40,5 +40,6 @@ export interface Mascot {
   jump?(): void;
   /** Toggle or set listening to music / vibe state. */
   setVibing?(vibing: boolean): void;
+  /** Trigger an entrance jump into the screen from outside. */
+  playEntryAnimation?(): void;
 }
-

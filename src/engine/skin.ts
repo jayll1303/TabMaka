@@ -40,7 +40,10 @@ export function buildOutline(spine: Spine, config: CreatureConfig): Outline {
 
   const lastIndex = joints.length - 1;
   const tailDir = normalize(sub(joints[lastIndex], joints[lastIndex - 1]));
-  const tail = add(joints[lastIndex], scale(tailDir, radiusAt(config, lastIndex)));
+  const tail = add(
+    joints[lastIndex],
+    scale(tailDir, radiusAt(config, lastIndex)),
+  );
 
   return { left, right, nose, tail };
 }

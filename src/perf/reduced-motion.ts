@@ -7,7 +7,9 @@ export function prefersReducedMotion(): boolean {
 }
 
 /** Subscribe to reduced-motion changes; returns an unsubscribe function. */
-export function onReducedMotionChange(cb: (reduced: boolean) => void): () => void {
+export function onReducedMotionChange(
+  cb: (reduced: boolean) => void,
+): () => void {
   if (typeof window.matchMedia !== "function") return () => {};
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
   const handler = (e: MediaQueryListEvent) => cb(e.matches);

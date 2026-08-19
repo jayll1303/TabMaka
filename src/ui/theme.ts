@@ -54,7 +54,9 @@ export function applyTheme(colorHex: string): void {
 export function isDarkColor(hex: string): boolean {
   const clean = hex.replace("#", "");
   if (clean.length !== 6 && clean.length !== 3) return true;
-  let r = 0, g = 0, b = 0;
+  let r = 0,
+    g = 0,
+    b = 0;
   if (clean.length === 3) {
     r = parseInt(clean[0] + clean[0], 16);
     g = parseInt(clean[1] + clean[1], 16);
@@ -85,7 +87,8 @@ export function initAmbientPalette(
   container.setAttribute("aria-label", "Chọn màu nền");
 
   const swatchesHtml = THEME_PRESETS.map((p) => {
-    const isSelected = (settings.bg || "").toLowerCase() === p.color.toLowerCase();
+    const isSelected =
+      (settings.bg || "").toLowerCase() === p.color.toLowerCase();
     return `
       <button
         type="button"
@@ -116,14 +119,19 @@ export function initAmbientPalette(
     </label>
   `;
 
-  const swatchButtons = container.querySelectorAll<HTMLButtonElement>(".color-swatch[data-color]");
-  const customLabel = container.querySelector<HTMLLabelElement>(".custom-picker")!;
-  const customBgInput = container.querySelector<HTMLInputElement>("#custom-bg-input")!;
+  const swatchButtons = container.querySelectorAll<HTMLButtonElement>(
+    ".color-swatch[data-color]",
+  );
+  const customLabel =
+    container.querySelector<HTMLLabelElement>(".custom-picker")!;
+  const customBgInput =
+    container.querySelector<HTMLInputElement>("#custom-bg-input")!;
 
   function updateActiveSwatch(currentColor: string): void {
     let matchedPreset = false;
     swatchButtons.forEach((btn) => {
-      const match = (btn.dataset.color || "").toLowerCase() === currentColor.toLowerCase();
+      const match =
+        (btn.dataset.color || "").toLowerCase() === currentColor.toLowerCase();
       btn.classList.toggle("active", match);
       if (match) matchedPreset = true;
     });

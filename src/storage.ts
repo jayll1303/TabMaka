@@ -1,8 +1,4 @@
-export type ClockStyle =
-  | "minimal"
-  | "pixel-box"
-  | "cozy-hand"
-  | "analog-round";
+export type ClockStyle = "minimal" | "pixel-box" | "cozy-hand" | "analog-round";
 
 export interface Settings {
   creatureId: string;
@@ -62,7 +58,8 @@ export async function loadSettings(): Promise<Settings> {
   }
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return { ...defaultSettings, ...(JSON.parse(raw) as Partial<Settings>) };
+    if (raw)
+      return { ...defaultSettings, ...(JSON.parse(raw) as Partial<Settings>) };
   } catch {
     // ignore
   }

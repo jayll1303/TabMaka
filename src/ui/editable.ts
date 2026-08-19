@@ -5,7 +5,9 @@
  */
 export function isEditableTarget(
   target: EventTarget | null,
-  activeEl: Element | null = typeof document !== "undefined" ? document.activeElement : null,
+  activeEl: Element | null = typeof document !== "undefined"
+    ? document.activeElement
+    : null,
 ): boolean {
   const elements = [
     target as HTMLElement | null,
@@ -14,7 +16,10 @@ export function isEditableTarget(
 
   for (const el of elements) {
     if (el.isContentEditable) return true;
-    if (typeof el.closest === "function" && el.closest("[contenteditable='true'], [contenteditable='']")) {
+    if (
+      typeof el.closest === "function" &&
+      el.closest("[contenteditable='true'], [contenteditable='']")
+    ) {
       return true;
     }
     const tag = (el.tagName ?? "").toLowerCase();
