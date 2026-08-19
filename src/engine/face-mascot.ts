@@ -121,6 +121,81 @@ const vibeFrames: VibeFrame[] = [
   ),
 ];
 
+/** Typing / Hacker laptop animation keyframe specification. */
+interface TypingFrame {
+  img: HTMLImageElement;
+  natW: number;
+  natH: number;
+  mouthAnchor: { x: number; y: number };
+  frogCenterX: number;
+  frogBottomY: number;
+  frogHeight: number;
+}
+
+function loadTypingFrame(
+  file: string,
+  natW: number,
+  natH: number,
+  mouthAnchor: { x: number; y: number },
+  frogCenterX: number,
+  frogBottomY: number,
+  frogHeight: number,
+): TypingFrame {
+  const img = createImage(`./sprites/frog/typing/${file}`);
+  return {
+    img,
+    natW,
+    natH,
+    mouthAnchor,
+    frogCenterX,
+    frogBottomY,
+    frogHeight,
+  };
+}
+
+const typingFrames: TypingFrame[] = [
+  // 0: Idle at laptop (1298x921)
+  loadTypingFrame(
+    "type_0_idle.png",
+    1298,
+    921,
+    { x: 620, y: 420 },
+    550.0,
+    790.0,
+    738,
+  ),
+  // 1: Left paw down, right paw up (1295x933)
+  loadTypingFrame(
+    "type_1_left.png",
+    1295,
+    933,
+    { x: 620, y: 420 },
+    572.5,
+    798.0,
+    745,
+  ),
+  // 2: Right paw down, left paw up (1300x930)
+  loadTypingFrame(
+    "type_2_right.png",
+    1300,
+    930,
+    { x: 620, y: 420 },
+    551.0,
+    800.0,
+    750,
+  ),
+  // 3: Both paws up frenzy (1297x951)
+  loadTypingFrame(
+    "type_3_both.png",
+    1297,
+    951,
+    { x: 620, y: 420 },
+    550.5,
+    815.0,
+    768,
+  ),
+];
+
 /** A mouth sprite with its natural pixel dimensions and a target width. */
 interface MouthSprite {
   img: HTMLImageElement;
@@ -226,6 +301,15 @@ export class FaceMascot implements Mascot {
   private musicParticleTimer = 0;
   private readonly particles = new ParticleSystem();
 
+  // Typing / Hacker laptop state
+  private isTyping = false;
+  private typingTimeout = 0; // ms remaining before returning to loaf
+  private typingActiveTimer = 0; // ms active tapping window (flutters paws while > 0)
+  private typingSmashTimer = 0; // ms brief smash timer for Space/Enter (both paws)
+  private typingAnimClock = 0; // continuous time accumulator for smooth paw cadence
+  private typingHandIndex = 0; // 0 = left paw, 1 = right paw
+  private readonly typingDuration = 800; // ms
+
   constructor(
     private config: FaceConfig,
     size: Size,
@@ -245,6 +329,30 @@ export class FaceMascot implements Mascot {
     this.cursor = { ...this.center };
 
     this.playEntryAnimation();
+  }
+
+  /** Trigger bongo typing animation on keystroke. */
+  triggerTyping(key?: string): void {
+    if (this.dragging || this.entryProgress >= 0 || this.jumpProgress >= 0)
+      return;
+    this.isTyping = true;
+    this.typingTimeout = this.typingDuration;
+    this.typingActiveTimer = 220; // Active paw tapping window
+
+    if (key === " " || key === "Enter") {
+      this.typingSmashTimer = 110; // Brief 110ms double-paw smash on Space/Enter
+    } else {
+      // Toggle hand on each keypress and advance clock for immediate visual snap
+      this.typingHandIndex = 1 - this.typingHandIndex;
+      this.typingAnimClock = this.typingHandIndex;
+    }
+
+    this.mood.notifyActivity();
+  }
+
+  /** Check if mascot is currently in typing mode. */
+  isTypingActive(): boolean {
+    return this.isTyping;
   }
 
   /** Trigger a dramatic, joyful entrance leap from outside the screen! */
@@ -506,6 +614,27 @@ export class FaceMascot implements Mascot {
           y: this.center.y / Math.max(1, this.screenSize.h),
         };
         this.mood.pet(); // Trigger cute happy/uwu face on successful landing!
+      }
+    }
+
+    // Advance typing animation timeout and active cadence clock
+    if (this.isTyping) {
+      const dtMs = dtScale * (1000 / 60);
+      this.typingTimeout -= dtMs;
+      if (this.typingActiveTimer > 0) {
+        this.typingActiveTimer -= dtMs;
+      }
+      if (this.typingSmashTimer > 0) {
+        this.typingSmashTimer -= dtMs;
+      }
+      if (!reduced) {
+        this.typingAnimClock += dtScale * 0.28;
+      }
+      if (this.typingTimeout <= 0) {
+        this.isTyping = false;
+        this.typingTimeout = 0;
+        this.typingActiveTimer = 0;
+        this.typingSmashTimer = 0;
       }
     }
 
@@ -789,6 +918,66 @@ export class FaceMascot implements Mascot {
       if (m.img.complete && m.img.naturalWidth > 0) {
         ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
       }
+    } else if (this.isTyping) {
+      // Bongo Hacker Frog Laptop Typing Pose
+      // Frame selection:
+      // - If brief smash timer active (Space / Enter): type_3_both (index 3)
+      // - If actively typing (within active window): alternate type_1_left (1) and type_2_right (2) continuously
+      // - If paused/idle between sentences: type_0_idle (0) (hands resting on laptop)
+      let tfIdx = 0;
+      if (this.typingSmashTimer > 0) {
+        tfIdx = 3; // Both paws up smash
+      } else if (this.typingActiveTimer > 0) {
+        // Active typing: alternating left and right paws rapidly!
+        const step = Math.floor(this.typingAnimClock) % 2;
+        tfIdx = step === 0 ? 1 : 2;
+      } else {
+        tfIdx = 0; // Both paws resting at laptop
+      }
+
+      const frame = typingFrames[tfIdx];
+
+      // Subtle vertical rhythmic head/body bounce while actively typing
+      const isActivelyTapping =
+        this.typingActiveTimer > 0 || this.typingSmashTimer > 0;
+      const typeBounce = isActivelyTapping
+        ? -Math.abs(Math.sin(this.typingAnimClock * Math.PI)) * 2.5
+        : 0;
+
+      // Exact pixel-perfect scaling to match frog body size and baseline 1:1 with idle loaf
+      const scale = (406 / frame.frogHeight) * (bodyH / 450);
+      const curW = frame.natW * scale;
+      const curH = frame.natH * scale;
+
+      // Center the frog body horizontally (frog body center is at x=0)
+      const drawX = -frame.frogCenterX * scale;
+      // Align bottom baseline of frog body with loaf baseline on ground (+ micro bounce)
+      const drawY =
+        bodyH * (447 / 450 - 0.5) - frame.frogBottomY * scale + typeBounce;
+
+      if (frame.img.complete && frame.img.naturalWidth > 0) {
+        ctx.drawImage(frame.img, drawX, drawY, curW, curH);
+      } else if (bodyImg.complete && bodyImg.naturalWidth > 0) {
+        ctx.drawImage(
+          bodyImg,
+          -bodyW / 2,
+          -bodyH / 2 + typeBounce,
+          bodyW,
+          bodyH,
+        );
+      }
+
+      // Draw mouth under sunglasses
+      const typeExpr = expr === "sleepy" ? "happy" : expr;
+      const m = mouths[typeExpr] ?? mouths.happy;
+      const mouthX = drawX + (frame.mouthAnchor.x / frame.natW) * curW;
+      const mouthY = drawY + (frame.mouthAnchor.y / frame.natH) * curH;
+      const mW = bodyW * m.widthFactor;
+      const mH = mW * (m.natH / m.natW);
+
+      if (m.img.complete && m.img.naturalWidth > 0) {
+        ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
+      }
     } else if (this.isVibing) {
       // Vibe / Headphone chill groove animation loop (2-pose groove)
       const vibeCycle = 560; // ms per full beat loop (~107 BPM)
@@ -895,6 +1084,7 @@ export class FaceMascot implements Mascot {
   isSettled(): boolean {
     return (
       !this.dragging &&
+      !this.isTyping &&
       this.entryProgress < 0 &&
       this.jumpProgress < 0 &&
       this.landProgress < 0 &&

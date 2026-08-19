@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.1] - 2026-08-19
 
 ### Added
+- **Bongo Hacker Frog Typing Animation**: Maka wears cool hacker sunglasses and types along on a mini laptop whenever you press keys on your keyboard! Uses 4 custom keyframe sprites (`type_0_idle`, `type_1_left`, `type_2_right`, `type_3_both`) with continuous rapid paw flutter, energetic head bounce, space/enter smash accents, and 1:1 pixel-perfect body scaling.
 - **Entrance Jump Animation**: Maka the frog now joyfully leaps into the viewport from off-screen on every new tab with realistic parabolic arc, dynamic squash-and-stretch poses, and responsive ground shadow.
 - **Manual Entrance Shortcut (`E`)**: Press `E` anytime to replay the entrance leap animation.
 

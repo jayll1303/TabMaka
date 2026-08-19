@@ -42,4 +42,8 @@ export interface Mascot {
   setVibing?(vibing: boolean): void;
   /** Trigger an entrance jump into the screen from outside. */
   playEntryAnimation?(): void;
+  /** Trigger bongo typing animation on keystroke. */
+  triggerTyping?(key?: string): void;
+  /** Check if mascot is currently in typing animation mode. */
+  isTypingActive?(): boolean;
 }
