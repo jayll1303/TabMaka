@@ -1,0 +1,26 @@
+{
+  "name": "tabmaka-promo-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Programmatic promo video for TabMaka using Remotion",
+  "scripts": {
+    "dev": "remotion preview src/index.ts",
+    "build": "tsc --noEmit",
+    "render:16x9": "remotion render src/index.ts TabMakaPromo16x9 out/tabmaka-promo-16x9.mp4",
+    "render:9x16": "remotion render src/index.ts TabMakaPromo9x16 out/tabmaka-promo-9x16.mp4",
+    "render:all": "npm run render:16x9 && npm run render:9x16",
+    "still:16x9": "remotion still src/index.ts TabMakaPromo16x9 out/preview-16x9.png --frame=120",
+    "still:9x16": "remotion still src/index.ts TabMakaPromo9x16 out/preview-9x16.png --frame=120"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.260"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.260",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.7.2"
+  }
+}

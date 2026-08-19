@@ -38,5 +38,7 @@ export interface Mascot {
   poke?(): void;
   /** Trigger a jump animation on the mascot. */
   jump?(): void;
+  /** Toggle or set listening to music / vibe state. */
+  setVibing?(vibing: boolean): void;
 }
 

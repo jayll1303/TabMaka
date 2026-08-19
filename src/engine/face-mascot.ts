@@ -3,6 +3,7 @@ import { type Vec, clamp, lerp, normalize, sub, len } from "./vec";
 import { Blink } from "./blink";
 import { Mood, type Expression } from "./mood";
 import type { Mascot, Size } from "./mascot";
+import { ParticleSystem } from "./particles";
 
 // Load body sprite. The baked-in black eye bead has been removed from the
 // source PNG (see scripts/clean-frog-eye.mjs); the eye is drawn entirely in
@@ -43,6 +44,34 @@ const jumpFrames: JumpFrame[] = [
   loadJumpFrame("jump_3_apex.png", 473, 397, { x: 305, y: 85, r: 32 }, { x: 340, y: 140 }),
   // 3: Land Impact / Squash (647x304)
   loadJumpFrame("jump_4_land.png", 647, 304, { x: 410, y: 105, r: 35 }, { x: 475, y: 150 }),
+];
+
+/** Vibe / Music chill headphone animation keyframe specification. */
+interface VibeFrame {
+  img: HTMLImageElement;
+  natW: number;
+  natH: number;
+  eyeAnchor: { x: number; y: number; r: number };
+  mouthAnchor: { x: number; y: number };
+}
+
+function loadVibeFrame(
+  file: string,
+  natW: number,
+  natH: number,
+  eyeAnchor: { x: number; y: number; r: number },
+  mouthAnchor: { x: number; y: number },
+): VibeFrame {
+  const img = new Image();
+  img.src = `./sprites/frog/vibe/${file}`;
+  return { img, natW, natH, eyeAnchor, mouthAnchor };
+}
+
+const vibeFrames: VibeFrame[] = [
+  // 0: Sway / relaxed groove with headphones (529x521)
+  loadVibeFrame("vibe_1_sway.png", 529, 521, { x: 315, y: 140, r: 34 }, { x: 370, y: 230 }),
+  // 1: Up / bouncy stretch groove with headphones (501x487)
+  loadVibeFrame("vibe_2_up.png", 501, 487, { x: 280, y: 130, r: 32 }, { x: 325, y: 205 }),
 ];
 
 /** A mouth sprite with its natural pixel dimensions and a target width. */
@@ -134,6 +163,12 @@ export class FaceMascot implements Mascot {
   private landProgress = -1; // -1 = idle, 0..1 = landing squash
   private readonly landDuration = 180; // ms
 
+  // Vibe / Music listening state
+  private isVibing = false;
+  private vibeTime = 0;
+  private musicParticleTimer = 0;
+  private readonly particles = new ParticleSystem();
+
   constructor(
     private config: FaceConfig,
     size: Size,
@@ -208,6 +243,19 @@ export class FaceMascot implements Mascot {
   poke(): void {
     this.mood.poke();
     this.jump();
+  }
+
+  /** Set listening to music / chill vibe state. */
+  setVibing(vibing: boolean): void {
+    this.isVibing = vibing;
+    if (vibing) {
+      this.mood.pet();
+    }
+  }
+
+  /** Check if mascot is currently in vibe mode. */
+  isVibeActive(): boolean {
+    return this.isVibing;
   }
 
   setPointerPresent(present: boolean): void {
@@ -334,6 +382,21 @@ export class FaceMascot implements Mascot {
         this.landProgress = -1;
       }
     }
+
+    if (this.isVibing && !this.dragging && this.jumpProgress < 0) {
+      const dtMs = dtScale * (1000 / 60);
+      this.vibeTime += dtMs;
+      this.musicParticleTimer += dtMs;
+      if (this.musicParticleTimer >= 600) {
+        this.musicParticleTimer = 0;
+        const bodyW = this.config.size * 2.2;
+        const bodyH = bodyW * (450 / 566);
+        const spawnX = this.center.x + (Math.random() - 0.5) * bodyW * 0.55;
+        const spawnY = this.center.y - bodyH * 0.42;
+        this.particles.emitMusicNote({ x: spawnX, y: spawnY });
+      }
+    }
+    this.particles.update(dtScale);
   }
 
   /** Resolve eye-open amount, letting the current expression override blink. */
@@ -520,6 +583,48 @@ export class FaceMascot implements Mascot {
       if (m.img.complete && m.img.naturalWidth > 0) {
         ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
       }
+    } else if (this.isVibing) {
+      // Vibe / Headphone chill groove animation loop (2-pose groove)
+      const vibeCycle = 560; // ms per full beat loop (~107 BPM)
+      const p = (this.vibeTime % vibeCycle) / vibeCycle;
+      const vibeIdx = p < 0.5 ? 0 : 1;
+      const u = p < 0.5 ? p * 2 : (p - 0.5) * 2;
+
+      // Vertical rhythmic bouncing and head tilt
+      const yVibe = -Math.sin(u * Math.PI) * (vibeIdx === 0 ? 4 : 8);
+      const vibeAngle = (vibeIdx === 0 ? 1 : -1) * Math.sin(u * Math.PI) * 0.04;
+
+      const frame = vibeFrames[vibeIdx];
+      ctx.rotate(vibeAngle);
+
+      const curW = bodyW * (frame.natW / 566);
+      const curH = curW * (frame.natH / frame.natW);
+      const drawX = -curW / 2;
+      const drawY = bodyH / 2 + yVibe - curH;
+
+      if (frame.img.complete && frame.img.naturalWidth > 0) {
+        ctx.drawImage(frame.img, drawX, drawY, curW, curH);
+      } else if (bodyImg.complete && bodyImg.naturalWidth > 0) {
+        ctx.drawImage(bodyImg, -bodyW / 2, -bodyH / 2 + yVibe, bodyW, bodyH);
+      }
+
+      // Procedural tracking eye anchored to frame (default to uwu when vibing if neutral)
+      const vibeExpr = expr === "neutral" ? "uwu" : expr;
+      const eyeBaseX = drawX + (frame.eyeAnchor.x / frame.natW) * curW;
+      const eyeBaseY = drawY + (frame.eyeAnchor.y / frame.natH) * curH;
+      const eyeR = curW * (frame.eyeAnchor.r / frame.natW);
+      this.drawEye(ctx, vibeExpr, eyeBaseX, eyeBaseY, eyeR);
+
+      // Mouth anchored to frame
+      const m = mouths[vibeExpr] ?? mouths.neutral;
+      const mouthX = drawX + (frame.mouthAnchor.x / frame.natW) * curW;
+      const mouthY = drawY + (frame.mouthAnchor.y / frame.natH) * curH;
+      const mW = curW * m.widthFactor;
+      const mH = mW * (m.natH / m.natW);
+
+      if (m.img.complete && m.img.naturalWidth > 0) {
+        ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
+      }
     } else {
       // Standard Idle Resting Body
       ctx.scale(1 + breath * 0.4, 1 - breath * 0.5);
@@ -576,6 +681,9 @@ export class FaceMascot implements Mascot {
     }
 
     ctx.restore();
+
+    // 2. Global floating particles (e.g. musical notes)
+    this.particles.draw(ctx);
   }
 
   isSettled(): boolean {
@@ -583,6 +691,7 @@ export class FaceMascot implements Mascot {
       !this.dragging &&
       this.jumpProgress < 0 &&
       this.landProgress < 0 &&
+      !this.isVibing &&
       !this.mood.isBusy() &&
       this.mood.current() === "sleepy" &&
       Math.abs(this.look.x - this.desired.x) < 0.01 &&

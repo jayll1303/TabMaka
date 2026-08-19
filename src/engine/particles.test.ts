@@ -28,7 +28,35 @@ describe("ParticleSystem", () => {
       arc: () => {},
       stroke: () => {},
       fill: () => {},
+      fillText: () => {},
+      translate: () => {},
+      rotate: () => {},
     } as unknown as CanvasRenderingContext2D;
+    expect(() => ps.draw(mockCtx)).not.toThrow();
+  });
+
+  it("emits and updates music notes properly", () => {
+    const ps = new ParticleSystem();
+    for (let i = 0; i < 20; i++) {
+      ps.emitMusicNote({ x: 120, y: 120 });
+    }
+    ps.update(1);
+    const mockCtx = {
+      save: () => {},
+      restore: () => {},
+      beginPath: () => {},
+      arc: () => {},
+      stroke: () => {},
+      fill: () => {},
+      fillText: () => {},
+      translate: () => {},
+      rotate: () => {},
+    } as unknown as CanvasRenderingContext2D;
+    expect(() => ps.draw(mockCtx)).not.toThrow();
+
+    for (let i = 0; i < 100; i++) {
+      ps.update(1);
+    }
     expect(() => ps.draw(mockCtx)).not.toThrow();
   });
 });

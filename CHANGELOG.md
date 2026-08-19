@@ -5,6 +5,18 @@ All notable changes to TabMaka will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-08-19
+
+### Added
+- **Music & Audio Vibe Mode**: TabMaka now detects whenever audio/music is playing in any browser tab. The frog dynamically sways and bops its head with happy expressions while listening to music.
+- **Floating Musical Note & Sparkle Particles**: Emits cheerful floating musical notes (`♪`, `♫`, `♩`, `♬`) and glowing sparkles around your companion during audio playback.
+- **Manual Vibe Shortcut (`M`)**: Press `M` anytime to instantly toggle and preview the music vibe animation.
+- **Remotion Video Pipeline**: Motion graphics suite for automated promotional and social preview video generation.
+
+### Fixed
+- **Greeting Text Editing (Spacebar Bug)**: Fixed issue where pressing the Space key while inline-editing the custom welcome text triggered the mascot jump animation instead of inserting a space.
+- **Keyboard Shortcut Isolation**: Added comprehensive editable target detection to prevent global shortcuts (`Space`, `M`) from interfering with inputs, textareas, and contenteditable elements.
+
 ## [0.1.1] - 2026-08-18
 
 ### Added

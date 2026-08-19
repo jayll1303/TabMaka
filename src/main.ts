@@ -12,6 +12,8 @@ import {
 import { loadSettings, saveSettings } from "./storage";
 import { initClock, initGreeting, initClockToggle } from "./ui/clock";
 import { applyTheme, DEFAULT_BG, initAmbientPalette } from "./ui/theme";
+import { AudioDetector } from "./engine/audio-detector";
+import { isEditableTarget } from "./ui/editable";
 
 const canvas = document.getElementById("scene") as HTMLCanvasElement | null;
 const clockEl = document.getElementById("clock");
@@ -120,14 +122,29 @@ async function main(): Promise<void> {
     }
   });
 
+  const audioDetector = new AudioDetector((isAudible) => {
+    mascot.setVibing?.(isAudible);
+    wake();
+  });
+
+  // Expose to window for dev convenience
+  if (typeof window !== "undefined") {
+    (window as unknown as { audioDetector?: AudioDetector; mascot?: Mascot }).audioDetector = audioDetector;
+    (window as unknown as { audioDetector?: AudioDetector; mascot?: Mascot }).mascot = mascot;
+  }
+
   window.addEventListener("keydown", (e) => {
+    if (isEditableTarget(e.target, document.activeElement)) return;
+
     if (e.code === "Space" && !e.repeat) {
-      const tag = (document.activeElement?.tagName ?? "").toLowerCase();
-      if (tag !== "input" && tag !== "textarea") {
-        e.preventDefault();
-        mascot.jump?.();
-        wake();
-      }
+      e.preventDefault();
+      mascot.jump?.();
+      wake();
+    } else if ((e.key === "m" || e.key === "M") && !e.repeat) {
+      // Toggle vibe mode manually for quick preview & delight
+      const next = audioDetector.toggle();
+      mascot.setVibing?.(next);
+      wake();
     }
   });
 
