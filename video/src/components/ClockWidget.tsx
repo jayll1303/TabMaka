@@ -9,6 +9,8 @@ export interface ClockWidgetProps {
   minuteAngle?: number;
   scale?: number;
   dark?: boolean;
+  showSubtitle?: boolean;
+  subtitle?: string;
 }
 
 export const ClockWidget: React.FC<ClockWidgetProps> = ({
@@ -18,6 +20,8 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
   minuteAngle = 144,
   scale = 1,
   dark = false,
+  showSubtitle = false,
+  subtitle = "Good morning, friend ✨",
 }) => {
   const textColor = dark ? "#f0f2f5" : "#1f2421";
   const mutedColor = dark ? "rgba(240,242,245,0.6)" : "rgba(31,36,33,0.6)";
@@ -150,17 +154,19 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
       >
         {timeString}
       </div>
-      <div
-        style={{
-          fontSize: 20,
-          fontWeight: 500,
-          color: mutedColor,
-          marginTop: 6,
-          letterSpacing: 0.5,
-        }}
-      >
-        Good morning, friend ✨
-      </div>
+      {showSubtitle && (
+        <div
+          style={{
+            fontSize: 20,
+            fontWeight: 500,
+            color: mutedColor,
+            marginTop: 6,
+            letterSpacing: 0.5,
+          }}
+        >
+          {subtitle}
+        </div>
+      )}
     </div>
   );
 };

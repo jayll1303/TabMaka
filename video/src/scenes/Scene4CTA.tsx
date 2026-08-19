@@ -1,6 +1,7 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { FrogMascot } from "../components/FrogMascot";
+import { ChromeLogo } from "../components/ChromeLogo";
 import type { LayoutMode } from "../types";
 
 export interface Scene4CTAProps {
@@ -9,35 +10,40 @@ export interface Scene4CTAProps {
 
 export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
   const frame = useCurrentFrame();
-  const { fps, width, height } = useVideoConfig();
-
+  const { fps } = useVideoConfig();
   const isPortrait = layout === "portrait";
 
-  // Spring entrance for main title and mascot
-  const logoScale = spring({
+  // Spring entrance for Mascot & Content
+  const mascotSpring = spring({
     frame,
     fps,
-    config: { damping: 12, stiffness: 130 },
+    config: { damping: 14, stiffness: 120 },
+  });
+
+  const contentSpring = spring({
+    frame: Math.max(0, frame - 10),
+    fps,
+    config: { damping: 14, stiffness: 130 },
   });
 
   const buttonSpring = spring({
-    frame: Math.max(0, frame - 15),
+    frame: Math.max(0, frame - 20),
     fps,
-    config: { damping: 14, stiffness: 140 },
+    config: { damping: 12, stiffness: 140 },
   });
 
   // Pulse animation on the CTA button
-  const pulse = Math.sin(frame * 0.15) * 0.03;
+  const pulse = Math.sin(frame * 0.18) * 0.03;
 
   // Floating heart icon from mascot
-  const heartProgress = interpolate(frame, [20, 65], [0, 1], {
+  const heartProgress = interpolate(frame, [15, 60], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const heartY = -heartProgress * 80;
+  const heartY = -heartProgress * 70;
   const heartOpacity = Math.sin(heartProgress * Math.PI);
 
-  const frogSize = isPortrait ? 300 : 360;
+  const frogSize = isPortrait ? 290 : 340;
 
   return (
     <div
@@ -49,45 +55,50 @@ export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: isPortrait ? "60px 40px" : "40px 60px",
+        padding: isPortrait ? "40px 24px" : "30px 60px",
         overflow: "hidden",
-        fontFamily: "system-ui, -apple-system, sans-serif",
+        fontFamily:
+          "'Plus Jakarta Sans', 'Outfit', system-ui, -apple-system, sans-serif",
       }}
     >
-      {/* Background Soft Glow */}
+      {/* Background Soft Ambient Green & Warm Radiant Glow */}
       <div
         style={{
           position: "absolute",
-          width: isPortrait ? 700 : 1000,
-          height: isPortrait ? 700 : 1000,
+          width: isPortrait ? 600 : 900,
+          height: isPortrait ? 600 : 900,
           borderRadius: "50%",
-          backgroundColor: "rgba(130, 195, 85, 0.22)",
-          filter: "blur(80px)",
-          transform: `scale(${1 + pulse * 2})`,
+          background:
+            "radial-gradient(circle, rgba(130, 195, 85, 0.28) 0%, rgba(245, 235, 215, 0.15) 50%, transparent 75%)",
+          filter: "blur(70px)",
+          transform: `scale(${1 + pulse * 1.5})`,
+          pointerEvents: "none",
         }}
       />
 
-      {/* Main Container */}
+      {/* Main Clean Spotlight Container */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           textAlign: "center",
-          gap: isPortrait ? 18 : 16,
+          gap: isPortrait ? 20 : 18,
           zIndex: 10,
+          maxWidth: isPortrait ? 520 : 800,
         }}
       >
-        {/* Mascot Center with Winking/Kiss Expression */}
+        {/* Mascot Center (Winking / Kissing) */}
         <div
           style={{
             position: "relative",
-            transform: `scale(${logoScale})`,
+            transform: `scale(${mascotSpring})`,
+            filter: "drop-shadow(0 16px 32px rgba(30, 50, 20, 0.12))",
           }}
         >
           <FrogMascot
             pose="loaf"
-            expression={frame > 20 ? "kiss" : "happy"}
+            expression={frame > 18 ? "kiss" : "happy"}
             size={frogSize}
           />
 
@@ -96,12 +107,12 @@ export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
             <div
               style={{
                 position: "absolute",
-                right: "28%",
-                top: "20%",
-                fontSize: 42,
+                right: "12%",
+                top: "2%",
+                fontSize: isPortrait ? 38 : 46,
                 opacity: heartOpacity,
                 transform: `translateY(${heartY}px) scale(${1 + heartProgress * 0.4})`,
-                filter: "drop-shadow(0 2px 8px rgba(255,100,120,0.3))",
+                filter: "drop-shadow(0 4px 12px rgba(255,80,110,0.35))",
               }}
             >
               💖
@@ -109,37 +120,47 @@ export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
           )}
         </div>
 
-        {/* Title */}
-        <div style={{ transform: `scale(${logoScale})` }}>
+        {/* Brand Title & Headline */}
+        <div
+          style={{
+            transform: `scale(${contentSpring})`,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
           <h1
             style={{
-              fontSize: isPortrait ? 68 : 84,
+              fontSize: isPortrait ? 64 : 76,
               fontWeight: 900,
               color: "#182415",
               letterSpacing: -2,
               margin: 0,
               lineHeight: 1,
+              fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif",
             }}
           >
             TabMaka
           </h1>
           <p
             style={{
-              fontSize: isPortrait ? 24 : 28,
+              fontSize: isPortrait ? 22 : 26,
               fontWeight: 600,
-              color: "#556b50",
-              margin: "10px 0 0",
+              color: "#526B4A",
+              margin: 0,
+              letterSpacing: -0.3,
             }}
           >
             Your Cozy Browser Companion
           </p>
         </div>
 
-        {/* Big CTA Button */}
+        {/* Highlighted Big CTA Button */}
         <div
           style={{
             transform: `scale(${buttonSpring * (1 + pulse)})`,
-            marginTop: isPortrait ? 20 : 12,
+            marginTop: isPortrait ? 12 : 8,
           }}
         >
           <div
@@ -147,33 +168,24 @@ export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
               display: "flex",
               alignItems: "center",
               gap: 14,
-              backgroundColor: "#82c355",
-              color: "#ffffff",
-              padding: isPortrait ? "20px 42px" : "18px 48px",
+              background: "linear-gradient(135deg, #6FB33F 0%, #559628 100%)",
+              color: "#FFFFFF",
+              padding: isPortrait ? "18px 36px" : "18px 44px",
               borderRadius: 50,
-              fontSize: isPortrait ? 28 : 30,
+              fontSize: isPortrait ? 24 : 27,
               fontWeight: 800,
-              boxShadow: "0 12px 32px rgba(130, 195, 85, 0.4)",
-              border: "3px solid #6fa847",
-              letterSpacing: 0.5,
+              boxShadow:
+                "0 14px 36px rgba(100, 175, 50, 0.45), 0 2px 4px rgba(0,0,0,0.1)",
+              border: "2px solid rgba(255, 255, 255, 0.35)",
+              letterSpacing: -0.2,
             }}
           >
-            <span>✨</span>
-            <span>Add to Chrome & Edge - Free</span>
+            <ChromeLogo size={isPortrait ? 28 : 32} />
+            <span>Add to Chrome — It's Free</span>
           </div>
         </div>
 
-        {/* Footer Subtext */}
-        <div
-          style={{
-            fontSize: isPortrait ? 18 : 20,
-            fontWeight: 600,
-            color: "rgba(30, 45, 25, 0.6)",
-            marginTop: 8,
-          }}
-        >
-          100% Local • No Tracking • Open Source MIT
-        </div>
+
       </div>
     </div>
   );
