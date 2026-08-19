@@ -22,8 +22,6 @@ export const Scene1DesktopLaunch: React.FC<Scene1DesktopLaunchProps> = ({ layout
   const chromeDockY = isPortrait ? 1858 : 1030;
 
   // Camera Zoom & Follow animation
-  // Phase 1: Zoom in on dock icon from frame 0 to 20
-  // Phase 2: Zoom back out to full screen from frame 22 to 45
   const zoomIn = interpolate(frame, [0, 20], [1.0, isPortrait ? 1.55 : 1.4], {
     extrapolateRight: "clamp",
   });
@@ -39,7 +37,6 @@ export const Scene1DesktopLaunch: React.FC<Scene1DesktopLaunchProps> = ({ layout
     frame < 22 ? zoomIn : interpolate(zoomOutSpring, [0, 1], [isPortrait ? 1.55 : 1.4, 1.0]);
 
   // Cursor coordinates
-  // Move to Chrome dock icon at frame 20, click at 21, then move into the browser window
   const cursorX = interpolate(
     frame,
     [0, 20, 26, 45, 75, 100, 130],
@@ -109,6 +106,31 @@ export const Scene1DesktopLaunch: React.FC<Scene1DesktopLaunchProps> = ({ layout
     frogOffsetX = 0;
   }
 
+  // Dynamic Ground Shadow calculation
+  let shadowScale = 0;
+  let shadowOpacity = 0;
+
+  if (frame >= jumpStartFrame) {
+    if (jumpElapsed < 6) {
+      shadowOpacity = interpolate(jumpElapsed, [0, 6], [0, 0.2]);
+      shadowScale = 0.6;
+    } else if (jumpElapsed < 14) {
+      // In air at apex
+      const airRatio = Math.max(0, -frogOffsetY / 70);
+      shadowScale = 1 - airRatio * 0.45;
+      shadowOpacity = 0.28 * (1 - airRatio * 0.65);
+    } else if (jumpElapsed < 22) {
+      // Landing
+      const landRatio = Math.max(0, -frogOffsetY / 70);
+      shadowScale = 0.7 + (1 - landRatio) * 0.3;
+      shadowOpacity = 0.28;
+    } else {
+      // Settled loaf
+      shadowScale = 1.0;
+      shadowOpacity = 0.28;
+    }
+  }
+
   // Eye look-at offset tracking cursor
   const frogCenterTargetX = width * 0.5;
   const frogCenterTargetY = isPortrait ? height * 0.65 : height * 0.62;
@@ -170,73 +192,118 @@ export const Scene1DesktopLaunch: React.FC<Scene1DesktopLaunchProps> = ({ layout
               theme="light"
               tabs={[{ id: "newtab", title: "New Tab", icon: "🐸" }]}
             >
-              {/* New Tab Minimal Content */}
+              {/* New Tab Content: Elevated Stage (Text & Clock in upper area, Mascot centered below) */}
               <div
                 style={{
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  justifyContent: "center",
+                  justifyContent: "flex-start",
+                  paddingTop: isPortrait ? "8%" : "4%",
                   position: "relative",
                 }}
               >
-                {/* Clock */}
-                <ClockWidget style="minimal" scale={isPortrait ? 0.9 : 1.1} showSubtitle={false} />
-
-                {/* Typing Greeting Line */}
+                {/* 1. Header Area: Greeting ON TOP + Pixel Clock BELOW */}
                 <div
                   style={{
-                    fontSize: isPortrait ? 20 : 26,
-                    fontWeight: 500,
-                    color: "#3F3C34",
-                    marginTop: isPortrait ? 10 : 16,
-                    marginBottom: isPortrait ? 30 : 50,
-                    letterSpacing: -0.5,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 6,
+                    zIndex: 2,
                   }}
                 >
-                  <TypingText
-                    text="welcome back, friend."
-                    startFrame={38}
-                    framesPerChar={2}
+                  <div
+                    style={{
+                      fontSize: isPortrait ? 22 : 28,
+                      fontWeight: 400,
+                      color: "#1F2421",
+                      letterSpacing: "-0.01em",
+                      fontFamily:
+                        "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+                    }}
+                  >
+                    <TypingText
+                      text="welcome back, friend."
+                      startFrame={38}
+                      framesPerChar={2}
+                    />
+                  </div>
+
+                  <ClockWidget
+                    style="pixel-box"
+                    scale={isPortrait ? 0.9 : 1.0}
+                    showSubtitle={false}
                   />
                 </div>
 
-                {/* Mascot Container */}
+                {/* 2. Mascot Container positioned at comfortable center/lower area */}
                 <div
                   style={{
-                    position: "relative",
+                    position: "absolute",
+                    top: isPortrait ? "56%" : "60%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
                     display: "flex",
+                    flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    opacity: frogOpacity,
-                    transform: `translate(${frogOffsetX}px, ${frogOffsetY}px)`,
                   }}
                 >
-                  <FrogMascot
-                    pose={frogPose}
-                    expression={frogPose === "jump-apex" ? "surprised" : "happy"}
-                    size={isPortrait ? 310 : 350}
-                    eyeLookAt={{ x: lookX, y: lookY }}
-                  />
-
-                  {/* Dust Puffs on landing */}
-                  {showDust && (
+                  {/* Ground Shadow Ellipse */}
+                  {shadowOpacity > 0 && (
                     <div
                       style={{
                         position: "absolute",
-                        bottom: -10,
-                        display: "flex",
-                        gap: 160,
-                        opacity: dustOpacity,
-                        transform: `scale(${dustScale})`,
+                        bottom: isPortrait ? 4 : 8,
+                        width: isPortrait ? 210 : 250,
+                        height: isPortrait ? 30 : 36,
+                        borderRadius: "50%",
+                        background:
+                          "radial-gradient(ellipse at center, rgba(18, 28, 14, 0.35) 0%, rgba(18, 28, 14, 0.1) 60%, transparent 80%)",
+                        transform: `scale(${shadowScale})`,
+                        opacity: shadowOpacity,
+                        filter: "blur(4px)",
                         pointerEvents: "none",
                       }}
-                    >
-                      <span style={{ fontSize: 24 }}>💨</span>
-                      <span style={{ fontSize: 24 }}>💨</span>
-                    </div>
+                    />
                   )}
+
+                  {/* Mascot Sprite Body */}
+                  <div
+                    style={{
+                      opacity: frogOpacity,
+                      transform: `translate(${frogOffsetX}px, ${frogOffsetY}px)`,
+                      position: "relative",
+                    }}
+                  >
+                    <FrogMascot
+                      pose={frogPose}
+                      expression={frogPose === "jump-apex" ? "surprised" : "happy"}
+                      size={isPortrait ? 310 : 350}
+                      eyeLookAt={{ x: lookX, y: lookY }}
+                    />
+
+                    {/* Dust Puffs on landing */}
+                    {showDust && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: -10,
+                          left: "50%",
+                          transform: `translateX(-50%) scale(${dustScale})`,
+                          display: "flex",
+                          gap: 160,
+                          opacity: dustOpacity,
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <span style={{ fontSize: 24 }}>💨</span>
+                        <span style={{ fontSize: 24 }}>💨</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </MockBrowserWindow>

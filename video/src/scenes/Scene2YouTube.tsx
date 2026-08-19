@@ -1,9 +1,8 @@
 import React from "react";
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { MockBrowserWindow, BrowserTab } from "../components/MockBrowserWindow";
 import { YouTubeMockup } from "../components/YouTubeMockup";
 import { VirtualCursor } from "../components/VirtualCursor";
-import { TypingText } from "../components/TypingText";
 import { ClockWidget } from "../components/ClockWidget";
 import { FrogMascot } from "../components/FrogMascot";
 import type { LayoutMode } from "../types";
@@ -14,7 +13,7 @@ export interface Scene2YouTubeProps {
 
 export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
   const frame = useCurrentFrame();
-  const { fps, width, height } = useVideoConfig();
+  const { width, height } = useVideoConfig();
   const isPortrait = layout === "portrait";
 
   // Rickroll easter egg URL
@@ -138,22 +137,84 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
             /* YouTube Player View */
             <YouTubeMockup layout={layout} />
           ) : (
-            /* New Tab transitioning out */
+            /* New Tab transitioning out (Elevated layout, single text static, no re-typing) */
             <div
               style={{
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
+                justifyContent: "flex-start",
+                paddingTop: isPortrait ? "8%" : "4%",
+                position: "relative",
                 opacity: interpolate(frame, [54, 58], [1, 0]),
               }}
             >
-              <ClockWidget style="minimal" scale={isPortrait ? 0.9 : 1.1} showSubtitle={false} />
-              <div style={{ marginTop: 16, marginBottom: 40, fontSize: 24, color: "#3F3C34" }}>
-                <TypingText text="welcome back, friend." startFrame={0} framesPerChar={1} showCursor={false} />
+              {/* 1. Header: Greeting ON TOP + Pixel Clock BELOW */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 6,
+                  zIndex: 2,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: isPortrait ? 22 : 28,
+                    fontWeight: 400,
+                    color: "#1F2421",
+                    letterSpacing: "-0.01em",
+                    fontFamily:
+                      "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+                  }}
+                >
+                  welcome back, friend.
+                </div>
+
+                <ClockWidget
+                  style="pixel-box"
+                  scale={isPortrait ? 0.9 : 1.0}
+                  showSubtitle={false}
+                />
               </div>
-              <FrogMascot pose="loaf" expression="happy" size={isPortrait ? 300 : 340} />
+
+              {/* 2. Mascot with Shadow */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: isPortrait ? "56%" : "60%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {/* Ground Shadow */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: isPortrait ? 4 : 8,
+                    width: isPortrait ? 210 : 250,
+                    height: isPortrait ? 30 : 36,
+                    borderRadius: "50%",
+                    background:
+                      "radial-gradient(ellipse at center, rgba(18, 28, 14, 0.35) 0%, rgba(18, 28, 14, 0.1) 60%, transparent 80%)",
+                    opacity: 0.28,
+                    filter: "blur(4px)",
+                    pointerEvents: "none",
+                  }}
+                />
+
+                <FrogMascot
+                  pose="loaf"
+                  expression="happy"
+                  size={isPortrait ? 300 : 340}
+                />
+              </div>
             </div>
           )}
         </MockBrowserWindow>

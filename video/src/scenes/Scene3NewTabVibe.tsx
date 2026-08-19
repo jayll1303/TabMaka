@@ -85,7 +85,7 @@ export const Scene3NewTabVibe: React.FC<Scene3NewTabVibeProps> = ({ layout }) =>
           tabs={[
             {
               id: "youtube",
-              title: "lofi hip hop radio ☕",
+              title: "Rick Astley - Never Gonna Give You Up 🎵",
               icon: "▶️",
               isPlayingAudio: true,
             },
@@ -96,74 +96,105 @@ export const Scene3NewTabVibe: React.FC<Scene3NewTabVibeProps> = ({ layout }) =>
             },
           ]}
         >
-          {/* New Tab Content: Mascot already vibing with retro headphones */}
+          {/* New Tab Content: Elevated Stage with matching pixel-box clock & headphones vibe */}
           <div
             style={{
               height: "100%",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent: "flex-start",
+              paddingTop: isPortrait ? "8%" : "4%",
               position: "relative",
               transform: `scale(${contentSpring})`,
             }}
           >
-            {/* Clock & Greeting */}
+            {/* 1. Header Area: Greeting ON TOP + Pixel Clock BELOW */}
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: isPortrait ? 10 : 16,
-                marginBottom: isPortrait ? 30 : 50,
+                gap: 6,
+                zIndex: 2,
               }}
             >
-              <ClockWidget style="minimal" scale={isPortrait ? 0.9 : 1.1} showSubtitle={false} />
               <div
                 style={{
-                  fontSize: isPortrait ? 20 : 26,
-                  fontWeight: 500,
-                  color: "#3F3C34",
-                  letterSpacing: -0.5,
+                  fontSize: isPortrait ? 22 : 28,
+                  fontWeight: 400,
+                  color: "#1F2421",
+                  letterSpacing: "-0.01em",
+                  fontFamily:
+                    "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
                 }}
               >
                 <TypingText
                   text="vibing to your tunes 🎧"
-                  startFrame={10}
+                  startFrame={8}
                   framesPerChar={2}
                 />
               </div>
+
+              <ClockWidget
+                style="pixel-box"
+                scale={isPortrait ? 0.9 : 1.0}
+                showSubtitle={false}
+              />
             </div>
 
-            {/* Frog Mascot Vibing with Retro Headphones */}
+            {/* 2. Frog Mascot Vibing with Retro Headphones & Ground Shadow */}
             <div
               style={{
-                position: "relative",
+                position: "absolute",
+                top: isPortrait ? "56%" : "60%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <FrogMascot
-                pose={vibePose}
-                expression="uwu"
-                size={isPortrait ? 310 : 350}
-                scaleY={beatBounce}
-              />
-
-              {/* Floating Music Notes */}
+              {/* Ground Shadow */}
               <div
                 style={{
                   position: "absolute",
-                  inset: 0,
+                  bottom: isPortrait ? 4 : 8,
+                  width: isPortrait ? 210 : 250,
+                  height: isPortrait ? 30 : 36,
+                  borderRadius: "50%",
+                  background:
+                    "radial-gradient(ellipse at center, rgba(18, 28, 14, 0.35) 0%, rgba(18, 28, 14, 0.1) 60%, transparent 80%)",
+                  transform: `scale(${1 + (beatBounce - 1) * 0.5})`,
+                  opacity: 0.28,
+                  filter: "blur(4px)",
                   pointerEvents: "none",
                 }}
-              >
-                <MusicParticles
-                  count={isPortrait ? 6 : 8}
-                  originX={isPortrait ? 155 : 175}
-                  originY={isPortrait ? 20 : 30}
+              />
+
+              <div style={{ position: "relative" }}>
+                <FrogMascot
+                  pose={vibePose}
+                  expression="uwu"
+                  size={isPortrait ? 310 : 350}
+                  scaleY={beatBounce}
                 />
+
+                {/* Floating Music Notes */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    pointerEvents: "none",
+                  }}
+                >
+                  <MusicParticles
+                    count={isPortrait ? 6 : 8}
+                    originX={isPortrait ? 155 : 175}
+                    originY={isPortrait ? 20 : 30}
+                  />
+                </div>
               </div>
             </div>
           </div>

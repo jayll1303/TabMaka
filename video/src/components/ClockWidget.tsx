@@ -14,7 +14,7 @@ export interface ClockWidgetProps {
 }
 
 export const ClockWidget: React.FC<ClockWidgetProps> = ({
-  style = "minimal",
+  style = "pixel-box",
   timeString = "10:24",
   hourAngle = 312,
   minuteAngle = 144,
@@ -23,7 +23,7 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
   showSubtitle = false,
   subtitle = "Good morning, friend ✨",
 }) => {
-  const textColor = dark ? "#f0f2f5" : "#1f2421";
+  const textColor = dark ? "#F0F2F5" : "#1F2421";
   const mutedColor = dark ? "rgba(240,242,245,0.6)" : "rgba(31,36,33,0.6)";
 
   if (style === "analog-round") {
@@ -98,16 +98,20 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
       <div
         style={{
           transform: `scale(${scale})`,
-          padding: "10px 24px",
-          border: `4px solid ${textColor}`,
-          backgroundColor: dark ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.6)",
-          boxShadow: `4px 4px 0px ${dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"}`,
-          fontFamily: "'Courier New', Courier, monospace",
-          fontSize: 48,
-          fontWeight: 900,
-          letterSpacing: 4,
+          padding: "6px 18px",
+          border: `3px solid ${textColor}`,
+          backgroundColor: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
+          boxShadow: `4px 4px 0px ${textColor}`,
+          fontFamily:
+            "'Silkscreen', 'SF Mono', 'Courier New', Monaco, monospace",
+          fontSize: 32,
+          fontWeight: 700,
+          letterSpacing: "0.08em",
           color: textColor,
-          borderRadius: 4,
+          borderRadius: 8,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {timeString}
@@ -149,7 +153,8 @@ export const ClockWidget: React.FC<ClockWidgetProps> = ({
           color: textColor,
           letterSpacing: -2,
           lineHeight: 1,
-          fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          fontFamily:
+            "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         }}
       >
         {timeString}
