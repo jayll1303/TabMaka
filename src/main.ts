@@ -153,28 +153,19 @@ async function main(): Promise<void> {
   }
 
   window.addEventListener("keydown", (e) => {
-    if (isEditableTarget(e.target, document.activeElement)) return;
-
-    if (e.code === "Space" && !e.repeat) {
-      e.preventDefault();
-      mascot.jump?.();
-      wake();
-    } else if ((e.key === "m" || e.key === "M") && !e.repeat) {
-      // Toggle vibe mode manually for quick preview & delight
-      const next = audioDetector.toggle();
-      mascot.setVibing?.(next);
-      wake();
-    } else if ((e.key === "e" || e.key === "E") && !e.repeat) {
-      // Replay entrance jump animation
-      mascot.playEntryAnimation?.();
-      wake();
-    } else if ((e.key === "f" || e.key === "F") && !e.repeat) {
-      // Spawn fly snack
-      const rx = 100 + Math.random() * Math.max(100, size.w - 200);
-      const ry = 100 + Math.random() * Math.max(100, size.h - 200);
-      mascot.spawnFly?.({ x: rx, y: ry });
-      wake();
+    // Ignore pure modifier keys alone (Shift, Ctrl, Alt, Meta) so paws only tap on real keys
+    if (
+      e.key === "Shift" ||
+      e.key === "Control" ||
+      e.key === "Alt" ||
+      e.key === "Meta"
+    ) {
+      return;
     }
+
+    // Trigger bongo typing animation on keystroke!
+    mascot.triggerTyping?.(e.key);
+    wake();
   });
 
   window.addEventListener("pointercancel", () => {

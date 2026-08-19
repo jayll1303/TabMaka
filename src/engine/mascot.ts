@@ -46,4 +46,8 @@ export interface Mascot {
   spawnFly?(pos: Vec): void;
   /** Check if a fly snack is currently active. */
   hasActiveFly?(): boolean;
+  /** Trigger bongo typing animation on keystroke. */
+  triggerTyping?(key?: string): void;
+  /** Check if mascot is currently in typing animation mode. */
+  isTypingActive?(): boolean;
 }
