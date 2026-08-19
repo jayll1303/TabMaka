@@ -253,9 +253,30 @@ export function initGreeting(el: HTMLElement, settings: Settings): void {
   }
 
   render();
-  el.contentEditable = "true";
+  el.contentEditable = "false";
   el.spellcheck = false;
   el.setAttribute("title", "Click to edit greeting");
+
+  // Only enter edit mode when user deliberately clicks directly on greeting text
+  el.addEventListener("click", () => {
+    if (el.contentEditable !== "true") {
+      el.contentEditable = "true";
+      if (typeof el.focus === "function") {
+        el.focus();
+      }
+      if (typeof window !== "undefined" && typeof document !== "undefined") {
+        try {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        } catch {
+          // Ignored in test environment
+        }
+      }
+    }
+  });
 
   el.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -269,6 +290,7 @@ export function initGreeting(el: HTMLElement, settings: Settings): void {
   });
 
   el.addEventListener("blur", () => {
+    el.contentEditable = "false";
     const raw = el.textContent?.trim() || "";
     if (raw === "" || raw === greetingFor()) {
       settings.customGreeting = "";
@@ -278,4 +300,17 @@ export function initGreeting(el: HTMLElement, settings: Settings): void {
     void saveSettings(settings);
     render();
   });
+
+  // Clicking anywhere outside the greeting immediately blurs it and exits edit mode
+  if (typeof window !== "undefined") {
+    window.addEventListener("pointerdown", (e) => {
+      if (
+        el.contentEditable === "true" &&
+        e.target !== el &&
+        (typeof el.contains !== "function" || !el.contains(e.target as Node))
+      ) {
+        el.blur();
+      }
+    });
+  }
 }

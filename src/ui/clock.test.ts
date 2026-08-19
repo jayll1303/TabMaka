@@ -62,6 +62,16 @@ class MockElement {
     const fns = this.listeners.get("click") ?? [];
     fns.forEach((fn) => fn({ type: "click", preventDefault: () => {} }));
   }
+
+  focus() {
+    const fns = this.listeners.get("focus") ?? [];
+    fns.forEach((fn) => fn({ type: "focus" }));
+  }
+
+  blur() {
+    const fns = this.listeners.get("blur") ?? [];
+    fns.forEach((fn) => fn({ type: "blur" }));
+  }
 }
 
 describe("greetingFor", () => {
@@ -154,5 +164,26 @@ describe("initClockToggle", () => {
     btn.click();
     expect(currentSettings.clock).toBe(true);
     expect(currentSettings.clockStyle).toBe("minimal");
+  });
+});
+
+describe("initGreeting", () => {
+  it("starts non-editable and only enables contentEditable on click", async () => {
+    const { initGreeting } = await import("./clock");
+    const el = new MockElement() as unknown as HTMLElement;
+    initGreeting(el, { ...defaultSettings, customGreeting: "" });
+
+    // Initially non-editable
+    expect(el.contentEditable).toBe("false");
+    expect(el.textContent).toBeDefined();
+
+    // Click enables edit mode
+    (el as unknown as MockElement).click();
+    expect(el.contentEditable).toBe("true");
+
+    // Blur resets to non-editable
+    const blurFns = (el as unknown as MockElement).listeners.get("blur") ?? [];
+    blurFns.forEach((fn) => fn({ type: "blur" }));
+    expect(el.contentEditable).toBe("false");
   });
 });

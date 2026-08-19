@@ -128,6 +128,9 @@ interface TypingFrame {
   natW: number;
   natH: number;
   mouthAnchor: { x: number; y: number };
+  frogCenterX: number;
+  frogBottomY: number;
+  frogHeight: number;
 }
 
 function loadTypingFrame(
@@ -135,20 +138,63 @@ function loadTypingFrame(
   natW: number,
   natH: number,
   mouthAnchor: { x: number; y: number },
+  frogCenterX: number,
+  frogBottomY: number,
+  frogHeight: number,
 ): TypingFrame {
   const img = createImage(`./sprites/frog/typing/${file}`);
-  return { img, natW, natH, mouthAnchor };
+  return {
+    img,
+    natW,
+    natH,
+    mouthAnchor,
+    frogCenterX,
+    frogBottomY,
+    frogHeight,
+  };
 }
 
 const typingFrames: TypingFrame[] = [
   // 0: Idle at laptop (1298x921)
-  loadTypingFrame("type_0_idle.png", 1298, 921, { x: 620, y: 420 }),
+  loadTypingFrame(
+    "type_0_idle.png",
+    1298,
+    921,
+    { x: 620, y: 420 },
+    550.0,
+    790.0,
+    738,
+  ),
   // 1: Left paw down, right paw up (1295x933)
-  loadTypingFrame("type_1_left.png", 1295, 933, { x: 620, y: 420 }),
+  loadTypingFrame(
+    "type_1_left.png",
+    1295,
+    933,
+    { x: 620, y: 420 },
+    572.5,
+    798.0,
+    745,
+  ),
   // 2: Right paw down, left paw up (1300x930)
-  loadTypingFrame("type_2_right.png", 1300, 930, { x: 620, y: 420 }),
+  loadTypingFrame(
+    "type_2_right.png",
+    1300,
+    930,
+    { x: 620, y: 420 },
+    551.0,
+    800.0,
+    750,
+  ),
   // 3: Both paws up frenzy (1297x951)
-  loadTypingFrame("type_3_both.png", 1297, 951, { x: 620, y: 420 }),
+  loadTypingFrame(
+    "type_3_both.png",
+    1297,
+    951,
+    { x: 620, y: 420 },
+    550.5,
+    815.0,
+    768,
+  ),
 ];
 
 /** A mouth sprite with its natural pixel dimensions and a target width. */
@@ -969,15 +1015,16 @@ export class FaceMascot implements Mascot {
         ? -Math.abs(Math.sin(this.typingAnimClock * Math.PI)) * 2.5
         : 0;
 
-      // Exact pixel-perfect scaling to match frog body size 1:1 with idle loaf
-      const scale = (404 / 736) * (bodyH / 450);
+      // Exact pixel-perfect scaling to match frog body size and baseline 1:1 with idle loaf
+      const scale = (406 / frame.frogHeight) * (bodyH / 450);
       const curW = frame.natW * scale;
       const curH = frame.natH * scale;
 
-      // Center the frog body horizontally (frog body center is at ~555 in typing sprites)
-      const drawX = -curW * (555 / frame.natW);
-      // Place bottom of laptop on the baseline ground + bounce
-      const drawY = bodyH / 2 - curH + 2 + typeBounce;
+      // Center the frog body horizontally (frog body center is at x=0)
+      const drawX = -frame.frogCenterX * scale;
+      // Align bottom baseline of frog body with loaf baseline on ground (+ micro bounce)
+      const drawY =
+        bodyH * (447 / 450 - 0.5) - frame.frogBottomY * scale + typeBounce;
 
       if (frame.img.complete && frame.img.naturalWidth > 0) {
         ctx.drawImage(frame.img, drawX, drawY, curW, curH);
