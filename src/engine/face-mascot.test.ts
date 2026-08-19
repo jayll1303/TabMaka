@@ -49,4 +49,27 @@ describe("FaceMascot Entry Animation", () => {
       mascot.update(1, false);
     }
   });
+
+  it("spawns fly on spawnFly, catches it with tongue and emits burp", () => {
+    const mascot = new FaceMascot(frog, size, { x: 0.5, y: 0.5 });
+    // Advance entry jump
+    for (let i = 0; i < 60; i++) {
+      mascot.update(1, false);
+    }
+
+    expect(mascot.hasActiveFly()).toBe(false);
+
+    // Spawn fly
+    mascot.spawnFly({ x: 200, y: 300 });
+    expect(mascot.hasActiveFly()).toBe(true);
+    expect(mascot.isSettled()).toBe(false);
+
+    // Advance frames until fly countdown triggers tongue strike and catch
+    for (let i = 0; i < 180; i++) {
+      mascot.update(1, false);
+    }
+
+    // Fly should be caught & eaten
+    expect(mascot.hasActiveFly()).toBe(false);
+  });
 });

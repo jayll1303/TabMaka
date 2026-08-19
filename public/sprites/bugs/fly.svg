@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Fly Wings -->
+  <g id="wings">
+    <!-- Left Wing -->
+    <path d="M 24 28 C 10 14, 4 22, 14 36 C 18 42, 26 36, 26 30 Z" fill="#dff9fb" fill-opacity="0.85" stroke="#7ed6df" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M 22 28 C 16 22, 12 28, 18 34" fill="none" stroke="#badc58" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+    <!-- Right Wing -->
+    <path d="M 40 28 C 54 14, 60 22, 50 36 C 46 42, 38 36, 38 30 Z" fill="#dff9fb" fill-opacity="0.85" stroke="#7ed6df" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M 42 28 C 48 22, 52 28, 46 34" fill="none" stroke="#badc58" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+  </g>
+
+  <!-- Fly Legs -->
+  <path d="M 22 38 Q 16 44 14 48 M 42 38 Q 48 44 50 48 M 24 44 Q 20 52 18 56 M 40 44 Q 44 52 46 56" fill="none" stroke="#222f3e" stroke-width="1.6" stroke-linecap="round"/>
+
+  <!-- Fly Body -->
+  <ellipse cx="32" cy="38" rx="11" ry="14" fill="#2d3436" stroke="#1e272e" stroke-width="2"/>
+  <!-- Highlight on Body -->
+  <ellipse cx="30" cy="34" rx="6" ry="9" fill="#576574" opacity="0.5"/>
+
+  <!-- Head -->
+  <circle cx="32" cy="24" r="8" fill="#1e272e"/>
+
+  <!-- Big Kawaii Eyes -->
+  <!-- Left Eye -->
+  <ellipse cx="27" cy="22" rx="4.5" ry="5.5" fill="#c0392b" stroke="#1e272e" stroke-width="1.2"/>
+  <ellipse cx="27" cy="22" rx="4" ry="5" fill="#e74c3c"/>
+  <circle cx="25.5" cy="20" r="1.8" fill="#ffffff"/>
+  <circle cx="28" cy="24" r="0.8" fill="#ffffff"/>
+
+  <!-- Right Eye -->
+  <ellipse cx="37" cy="22" rx="4.5" ry="5.5" fill="#c0392b" stroke="#1e272e" stroke-width="1.2"/>
+  <ellipse cx="37" cy="22" rx="4" ry="5" fill="#e74c3c"/>
+  <circle cx="35.5" cy="20" r="1.8" fill="#ffffff"/>
+  <circle cx="38" cy="24" r="0.8" fill="#ffffff"/>
+
+  <!-- Cheeks -->
+  <circle cx="24" cy="27" r="1.5" fill="#ff7675" opacity="0.8"/>
+  <circle cx="40" cy="27" r="1.5" fill="#ff7675" opacity="0.8"/>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Ladybug Underwings -->
+  <g id="underwings" opacity="0.8">
+    <ellipse cx="20" cy="28" rx="12" ry="6" transform="rotate(-30 20 28)" fill="#dff9fb" stroke="#7ed6df" stroke-width="1.5"/>
+    <ellipse cx="44" cy="28" rx="12" ry="6" transform="rotate(30 44 28)" fill="#dff9fb" stroke="#7ed6df" stroke-width="1.5"/>
+  </g>
+
+  <!-- Legs & Antennae -->
+  <path d="M 28 16 Q 24 10 20 8 M 36 16 Q 40 10 44 8" fill="none" stroke="#1e272e" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="19" cy="8" r="1.8" fill="#1e272e"/>
+  <circle cx="45" cy="8" r="1.8" fill="#1e272e"/>
+
+  <path d="M 20 36 Q 12 36 10 40 M 44 36 Q 52 36 54 40 M 22 46 Q 14 50 12 56 M 42 46 Q 50 50 52 56" fill="none" stroke="#1e272e" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Head -->
+  <circle cx="32" cy="22" r="9" fill="#2d3436" stroke="#1e272e" stroke-width="1.5"/>
+  <!-- Head eyes -->
+  <circle cx="28" cy="19" r="2.8" fill="#ffffff"/>
+  <circle cx="28" cy="19" r="1.5" fill="#1e272e"/>
+  <circle cx="36" cy="19" r="2.8" fill="#ffffff"/>
+  <circle cx="36" cy="19" r="1.5" fill="#1e272e"/>
+
+  <!-- Red Shell Body -->
+  <ellipse cx="32" cy="38" rx="15" ry="16" fill="#eb4d4b" stroke="#1e272e" stroke-width="2"/>
+  <!-- Wing Split Line -->
+  <line x1="32" y1="23" x2="32" y2="54" stroke="#1e272e" stroke-width="2"/>
+
+  <!-- Black Polka Dots -->
+  <circle cx="24" cy="32" r="3.2" fill="#1e272e"/>
+  <circle cx="40" cy="32" r="3.2" fill="#1e272e"/>
+  <circle cx="22" cy="44" r="3" fill="#1e272e"/>
+  <circle cx="42" cy="44" r="3" fill="#1e272e"/>
+  <circle cx="32" cy="38" r="2.2" fill="#1e272e"/>
+
+  <!-- Shell Gloss Highlight -->
+  <ellipse cx="26" cy="32" rx="4" ry="7" transform="rotate(-25 26 32)" fill="#ffffff" opacity="0.4"/>
+</svg>

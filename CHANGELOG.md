@@ -8,8 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.1] - 2026-08-19
 
 ### Added
+- **Catch the Fly Interactive Mini-Game**: Click on any empty canvas area (or press `F`) to spawn one of 5 cute vector SVG bug snacks (chibi fly, ladybug, bumblebee, glowing firefly, or teal dragonfly). Maka tracks the bug with its eyes, snaps it with a stretchy Bezier tongue, and enjoys it with a satisfying manga onomatopoeia sound effect.
 - **Entrance Jump Animation**: Maka the frog now joyfully leaps into the viewport from off-screen on every new tab with realistic parabolic arc, dynamic squash-and-stretch poses, and responsive ground shadow.
-- **Manual Entrance Shortcut (`E`)**: Press `E` anytime to replay the entrance leap animation.
+- **Manual Shortcuts**: Press `E` to replay entrance leap, `F` to spawn bug snacks, `M` to toggle music vibe, and `Space` to hop.
 
 ### Fixed
 - **Reduced Motion Loop Autostart**: Ensured render loop runs and completes keyframe animations before settling to prevent freezes on systems with reduced-motion preferences.

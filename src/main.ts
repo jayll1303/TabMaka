@@ -95,6 +95,18 @@ async function main(): Promise<void> {
       mascot.startDrag?.(pos);
       document.body.style.cursor = "grabbing";
       wake();
+    } else {
+      // Clicked on empty canvas or stage: spawn a fly snack for Maka!
+      const target = e.target as HTMLElement | null;
+      if (
+        !isEditableTarget(target, document.activeElement) &&
+        !target?.closest("#clock-control") &&
+        !target?.closest("#ambient-palette") &&
+        !target?.closest("#onboarding")
+      ) {
+        mascot.spawnFly?.(pos);
+        wake();
+      }
     }
   });
 
@@ -155,6 +167,12 @@ async function main(): Promise<void> {
     } else if ((e.key === "e" || e.key === "E") && !e.repeat) {
       // Replay entrance jump animation
       mascot.playEntryAnimation?.();
+      wake();
+    } else if ((e.key === "f" || e.key === "F") && !e.repeat) {
+      // Spawn fly snack
+      const rx = 100 + Math.random() * Math.max(100, size.w - 200);
+      const ry = 100 + Math.random() * Math.max(100, size.h - 200);
+      mascot.spawnFly?.({ x: rx, y: ry });
       wake();
     }
   });

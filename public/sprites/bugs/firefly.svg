@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Outer Glow Filter -->
+  <defs>
+    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff275" stop-opacity="1"/>
+      <stop offset="50%" stop-color="#badc58" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#6ab04c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Glowing Aura behind Abdomen -->
+  <circle cx="32" cy="46" r="16" fill="url(#glowGrad)" opacity="0.85"/>
+
+  <!-- Wings -->
+  <g id="wings">
+    <ellipse cx="20" cy="24" rx="14" ry="7" transform="rotate(-35 20 24)" fill="#f6e58d" fill-opacity="0.8" stroke="#f0932b" stroke-width="1.5"/>
+    <ellipse cx="44" cy="24" rx="14" ry="7" transform="rotate(35 44 24)" fill="#f6e58d" fill-opacity="0.8" stroke="#f0932b" stroke-width="1.5"/>
+  </g>
+
+  <!-- Antennae -->
+  <path d="M 28 16 Q 22 8 16 7 M 36 16 Q 42 8 48 7" fill="none" stroke="#222f3e" stroke-width="1.6" stroke-linecap="round"/>
+  <circle cx="15" cy="7" r="1.8" fill="#f9ca24"/>
+  <circle cx="49" cy="7" r="1.8" fill="#f9ca24"/>
+
+  <!-- Glowing Abdomen Bottom -->
+  <ellipse cx="32" cy="46" rx="10" ry="11" fill="#badc58" stroke="#6ab04c" stroke-width="2"/>
+  <ellipse cx="32" cy="46" rx="7" ry="8" fill="#ffff76"/>
+
+  <!-- Dark Thorax/Body -->
+  <ellipse cx="32" cy="32" rx="9" ry="8" fill="#2d3436" stroke="#1e272e" stroke-width="1.8"/>
+
+  <!-- Head -->
+  <circle cx="32" cy="20" r="7.5" fill="#2d3436" stroke="#1e272e" stroke-width="1.5"/>
+
+  <!-- Glowing Emerald Eyes -->
+  <circle cx="28" cy="19" r="3.2" fill="#6ab04c"/>
+  <circle cx="27" cy="18" r="1.2" fill="#ffffff"/>
+  <circle cx="36" cy="19" r="3.2" fill="#6ab04c"/>
+  <circle cx="35" cy="18" r="1.2" fill="#ffffff"/>
+</svg>

@@ -1,4 +1,4 @@
-import type { Vec } from "./vec";
+import { type Vec, clamp } from "./vec";
 
 export interface Bubble {
   x: number;
@@ -23,11 +23,24 @@ export interface MusicNote {
   life: number;
 }
 
+export interface BurpBubble {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  radius: number;
+  text: string;
+  maxLife: number;
+  life: number;
+}
+
 export class ParticleSystem {
   private bubbles: Bubble[] = [];
   private notes: MusicNote[] = [];
+  private burps: BurpBubble[] = [];
   private readonly maxBubbles: number = 24;
   private readonly maxNotes: number = 16;
+  private readonly maxBurps: number = 6;
   private static readonly NOTE_SYMBOLS = ["♪", "♫", "♬"];
 
   /**
@@ -81,6 +94,29 @@ export class ParticleSystem {
     });
   }
 
+  /**
+   * Spawn a cute comic burp text and sound marks floating up from mouth.
+   */
+  emitBurp(pos: Vec): void {
+    if (this.burps.length >= this.maxBurps) {
+      this.burps.shift();
+    }
+
+    const BELCH_TEXTS = ["*BURP!*", "*burp~*", "*BELCH!*", "*URP*"];
+    const text = BELCH_TEXTS[Math.floor(Math.random() * BELCH_TEXTS.length)];
+
+    this.burps.push({
+      x: pos.x,
+      y: pos.y,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: -0.65 - Math.random() * 0.25,
+      radius: 12,
+      text,
+      maxLife: 60,
+      life: 0,
+    });
+  }
+
   update(dtScale: number): void {
     // Update bubbles
     for (let i = this.bubbles.length - 1; i >= 0; i--) {
@@ -108,10 +144,28 @@ export class ParticleSystem {
       n.rotation += n.vRot * dtScale;
       n.vy -= 0.005 * dtScale; // Light float
     }
+
+    // Update burps
+    for (let i = this.burps.length - 1; i >= 0; i--) {
+      const b = this.burps[i];
+      b.life += dtScale;
+      if (b.life >= b.maxLife) {
+        this.burps.splice(i, 1);
+        continue;
+      }
+      b.x += b.vx * dtScale + Math.sin(b.life * 0.12) * 0.35 * dtScale;
+      b.y += b.vy * dtScale;
+      b.vy -= 0.005 * dtScale;
+    }
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    if (this.bubbles.length === 0 && this.notes.length === 0) return;
+    if (
+      this.bubbles.length === 0 &&
+      this.notes.length === 0 &&
+      this.burps.length === 0
+    )
+      return;
 
     ctx.save();
 
@@ -162,11 +216,58 @@ export class ParticleSystem {
       ctx.restore();
     }
 
+    // Draw pure manga onomatopoeia sound text
+    for (const b of this.burps) {
+      const progress = b.life / b.maxLife;
+      const alpha = Math.sin(progress * Math.PI);
+
+      ctx.save();
+      ctx.translate(b.x, b.y);
+
+      // Subtle wobble float
+      const wobbleX = Math.sin(b.life * 0.14) * 1.2;
+      ctx.translate(wobbleX, 0);
+
+      // Pop-in bounce scale
+      const scale =
+        progress < 0.12
+          ? (progress / 0.12) * 1.15
+          : progress < 0.22
+            ? 1.15 - ((progress - 0.12) / 0.1) * 0.15
+            : 1.0;
+      ctx.scale(scale, scale);
+      ctx.globalAlpha = clamp(alpha * 1.25, 0, 1);
+
+      ctx.font =
+        "bold italic 16px 'Gaegu', 'Comic Neue', 'Anime Ace', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      // 1. Soft white halo outline for perfect contrast on any theme
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.95)";
+      ctx.lineWidth = 3.5;
+      ctx.lineJoin = "round";
+      ctx.strokeText(b.text, 0, 0);
+
+      // 2. Crisp dark manga text
+      ctx.fillStyle = "#1e272e";
+      ctx.fillText(b.text, 0, 0);
+
+      ctx.restore();
+    }
+
     ctx.restore();
+  }
+
+  hasActive(): boolean {
+    return (
+      this.bubbles.length > 0 || this.notes.length > 0 || this.burps.length > 0
+    );
   }
 
   clear(): void {
     this.bubbles = [];
     this.notes = [];
+    this.burps = [];
   }
 }

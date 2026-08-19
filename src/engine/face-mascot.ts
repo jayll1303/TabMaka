@@ -4,6 +4,7 @@ import { Blink } from "./blink";
 import { Mood, type Expression } from "./mood";
 import type { Mascot, Size } from "./mascot";
 import { ParticleSystem } from "./particles";
+import { Fly } from "./fly";
 
 function createImage(src: string): HTMLImageElement {
   if (typeof Image !== "undefined") {
@@ -176,15 +177,6 @@ const eyeWidthFactor: Record<Expression, number> = {
 
 /**
  * Sprite-Based Kawaii Frog Loaf Mascot.
- * Features:
- * - Pixel-perfect body sprite; baked eye bead is repainted so the eye is drawn
- *   entirely in code and never conflicts with expression eyes.
- * - Expression/mood system: neutral, happy, uwu, surprised, sleepy, tongue, kiss.
- * - Cursor-driven reactions (drag & drop -> surprised, gentle hover -> content,
- *   click -> playful) plus an idle drift into sleepy.
- * - Procedural eye: black bead scaled by openness + white specular glint that
- *   tracks the cursor; smile-arc closed eyes for shut expressions.
- * - Gentle idle breathing and drag-and-drop repositioning.
  */
 export class FaceMascot implements Mascot {
   private cursor: Vec;
@@ -226,6 +218,12 @@ export class FaceMascot implements Mascot {
   private musicParticleTimer = 0;
   private readonly particles = new ParticleSystem();
 
+  // Fly snack interaction
+  private activeFly: Fly | null = null;
+  private tongueProgress = -1; // -1 = idle, 0..1 = shooting & retracting
+  private readonly tongueDuration = 240; // ms
+  private tongueTarget: Vec = { x: 0, y: 0 };
+
   constructor(
     private config: FaceConfig,
     size: Size,
@@ -245,6 +243,22 @@ export class FaceMascot implements Mascot {
     this.cursor = { ...this.center };
 
     this.playEntryAnimation();
+  }
+
+  /** Spawn a fly snack for Maka to catch! */
+  spawnFly(pos: Vec): void {
+    if (this.dragging || this.entryProgress >= 0) return;
+    if (this.activeFly && this.activeFly.state === "buzzing") {
+      this.activeFly.anchor = { ...pos };
+      return;
+    }
+    this.activeFly = new Fly(pos);
+    this.mood.notifyActivity();
+  }
+
+  /** Check if a fly snack is currently active. */
+  hasActiveFly(): boolean {
+    return this.activeFly !== null && this.activeFly.state !== "eaten";
   }
 
   /** Trigger a dramatic, joyful entrance leap from outside the screen! */
@@ -414,6 +428,11 @@ export class FaceMascot implements Mascot {
     this.entryProgress = -1;
     this.jumpProgress = -1;
     this.landProgress = -1;
+    this.tongueProgress = -1;
+    if (this.activeFly) {
+      this.activeFly.state = "eaten";
+      this.activeFly = null;
+    }
     this.dragOffset = {
       x: pos.x - this.center.x,
       y: pos.y - this.center.y,
@@ -471,9 +490,40 @@ export class FaceMascot implements Mascot {
   }
 
   update(dtScale: number, reduced: boolean): void {
+    let gazeTarget = this.cursor;
+    let hasGazeOverride = this.present;
+
+    // Track active fly snack with eyes and handle tongue catch trigger
+    if (this.activeFly && this.activeFly.state !== "eaten") {
+      this.activeFly.update(dtScale);
+      gazeTarget = this.activeFly.pos;
+      hasGazeOverride = true;
+
+      // Face toward the fly
+      if (this.activeFly.pos.x < this.center.x - 15) {
+        this.facing = -1;
+      } else if (this.activeFly.pos.x > this.center.x + 15) {
+        this.facing = 1;
+      }
+
+      if (
+        this.activeFly.state === "targeted" &&
+        this.tongueProgress < 0 &&
+        this.jumpProgress < 0 &&
+        this.entryProgress < 0 &&
+        !this.dragging
+      ) {
+        // Launch tongue!
+        this.tongueProgress = 0;
+        this.activeFly.state = "caught";
+        this.tongueTarget = { ...this.activeFly.pos };
+        this.mood.poke();
+      }
+    }
+
     let desired: Vec = { x: 0, y: 0 };
-    if (this.present) {
-      const to = sub(this.cursor, this.center);
+    if (hasGazeOverride) {
+      const to = sub(gazeTarget, this.center);
       const d = len(to);
       if (d > 1) {
         const dir = normalize(to);
@@ -506,6 +556,27 @@ export class FaceMascot implements Mascot {
           y: this.center.y / Math.max(1, this.screenSize.h),
         };
         this.mood.pet(); // Trigger cute happy/uwu face on successful landing!
+      }
+    }
+
+    // Advance tongue strike and catch animation
+    if (this.tongueProgress >= 0) {
+      const dtMs = dtScale * (1000 / 60);
+      this.tongueProgress += dtMs / this.tongueDuration;
+      if (this.tongueProgress >= 1) {
+        this.tongueProgress = -1;
+        if (this.activeFly) {
+          this.activeFly.state = "eaten";
+          this.activeFly = null;
+        }
+        // Emit cute burp bubble from mouth
+        const bodyW = this.config.size * 2.2;
+        const mouthSpawnPos = {
+          x: this.center.x + (this.facing === 1 ? bodyW * 0.22 : -bodyW * 0.22),
+          y: this.center.y - bodyW * 0.08,
+        };
+        this.particles.emitBurp(mouthSpawnPos);
+        this.mood.pet(); // cute happy/uwu face while enjoying snack!
       }
     }
 
@@ -888,7 +959,84 @@ export class FaceMascot implements Mascot {
 
     ctx.restore();
 
-    // 2. Global floating particles (e.g. musical notes)
+    // 2. Draw active tongue strike curve
+    if (this.tongueProgress >= 0) {
+      const mouthOffsetX = (405 / 566 - 0.5) * bodyW * this.facing;
+      const mouthOffsetY = (100 / 450 - 0.5) * bodyH;
+      const mouthWorld = {
+        x: curCenterX + mouthOffsetX,
+        y: curCenterY + mouthOffsetY,
+      };
+
+      const p = clamp(this.tongueProgress, 0, 1);
+      let tongueTip: Vec;
+      if (p < 0.48) {
+        // Extending to fly
+        const u = p / 0.48;
+        tongueTip = {
+          x: lerp(
+            mouthWorld.x,
+            this.tongueTarget.x,
+            Math.sin(u * Math.PI * 0.5),
+          ),
+          y: lerp(
+            mouthWorld.y,
+            this.tongueTarget.y,
+            Math.sin(u * Math.PI * 0.5),
+          ),
+        };
+      } else {
+        // Retracting back with caught fly
+        const u = (p - 0.48) / (1 - 0.48);
+        tongueTip = {
+          x: lerp(this.tongueTarget.x, mouthWorld.x, u * u),
+          y: lerp(this.tongueTarget.y, mouthWorld.y, u * u),
+        };
+        if (this.activeFly) {
+          this.activeFly.pos = { ...tongueTip };
+        }
+      }
+
+      ctx.save();
+      // Curved stretchy tongue
+      ctx.beginPath();
+      ctx.moveTo(mouthWorld.x, mouthWorld.y);
+      const cpX = (mouthWorld.x + tongueTip.x) * 0.5;
+      const cpY =
+        (mouthWorld.y + tongueTip.y) * 0.5 +
+        Math.min(18, Math.abs(tongueTip.x - mouthWorld.x) * 0.15);
+      ctx.quadraticCurveTo(cpX, cpY, tongueTip.x, tongueTip.y);
+
+      ctx.lineWidth = Math.max(3.5, bodyW * 0.038);
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#ff6584";
+      ctx.stroke();
+
+      // Tongue highlight gloss
+      ctx.lineWidth = Math.max(1.2, bodyW * 0.012);
+      ctx.strokeStyle = "#ffa5be";
+      ctx.stroke();
+
+      // Sticky bulb tip
+      ctx.beginPath();
+      ctx.arc(
+        tongueTip.x,
+        tongueTip.y,
+        Math.max(4.5, bodyW * 0.035),
+        0,
+        Math.PI * 2,
+      );
+      ctx.fillStyle = "#ff4f72";
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 3. Draw active fly snack
+    if (this.activeFly && this.activeFly.state !== "eaten") {
+      this.activeFly.draw(ctx);
+    }
+
+    // 4. Global floating particles (e.g. musical notes, burp bubbles)
     this.particles.draw(ctx);
   }
 
@@ -898,6 +1046,9 @@ export class FaceMascot implements Mascot {
       this.entryProgress < 0 &&
       this.jumpProgress < 0 &&
       this.landProgress < 0 &&
+      this.tongueProgress < 0 &&
+      this.activeFly === null &&
+      !this.particles.hasActive() &&
       !this.isVibing &&
       !this.mood.isBusy() &&
       this.mood.current() === "sleepy" &&

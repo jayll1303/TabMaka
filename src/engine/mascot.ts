@@ -42,4 +42,8 @@ export interface Mascot {
   setVibing?(vibing: boolean): void;
   /** Trigger an entrance jump into the screen from outside. */
   playEntryAnimation?(): void;
+  /** Spawn a fly snack at the specified screen position. */
+  spawnFly?(pos: Vec): void;
+  /** Check if a fly snack is currently active. */
+  hasActiveFly?(): boolean;
 }
