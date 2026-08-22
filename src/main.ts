@@ -233,9 +233,19 @@ async function main(): Promise<void> {
 
   // Shell: clock, greeting, clock control, disco control, ambient palette.
   if (clockEl) initClock(clockEl, settings);
-  if (greetingEl) initGreeting(greetingEl, settings);
+  if (greetingEl) {
+    initGreeting(greetingEl, settings);
+    greetingEl.addEventListener("focus", () => {
+      if (bubbleController?.isVisible()) {
+        bubbleController.react("Hehe!");
+      }
+    });
+  }
   if (clockControlEl && clockEl) {
     initClockToggle(clockControlEl, settings, (s) => {
+      if (bubbleController?.isVisible()) {
+        bubbleController.react("Yay!");
+      }
       initClock(clockEl, s);
     });
   }
@@ -246,12 +256,19 @@ async function main(): Promise<void> {
       () => audioDetector.getStatus(),
       (s) => {
         mascot.setDiscoActive?.(audioDetector.getStatus() && !!s.disco);
+        if (bubbleController?.isVisible()) {
+          bubbleController.react("Wheee!");
+        }
         wake();
       },
     );
   }
   if (ambientPaletteEl) {
-    initAmbientPalette(ambientPaletteEl, settings, () => {});
+    initAmbientPalette(ambientPaletteEl, settings, () => {
+      if (bubbleController?.isVisible()) {
+        bubbleController.react("Yay!");
+      }
+    });
   }
 
   // First-run onboarding.

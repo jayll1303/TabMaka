@@ -260,6 +260,9 @@ describe("Thought Bubble Lifecycle", () => {
     expect((el as unknown as MockElement).classList.contains("visible")).toBe(
       false,
     );
+    expect((el as unknown as MockElement).classList.contains("reacting")).toBe(
+      false,
+    );
 
     controller.destroy();
   });

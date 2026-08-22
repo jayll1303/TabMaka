@@ -132,7 +132,7 @@ export function initBubble(
   function hide(): void {
     clearHideTimer();
     isShowing = false;
-    bubbleEl.classList.remove("visible");
+    bubbleEl.classList.remove("visible", "reacting");
     bubbleEl.setAttribute("aria-hidden", "true");
   }
 
