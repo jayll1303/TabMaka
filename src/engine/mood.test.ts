@@ -27,13 +27,27 @@ describe("Mood state machine", () => {
     expect(m.current()).toBe("sleepy");
   });
 
-  it("activity wakes it from sleepy", () => {
+  it("activity wakes it from sleepy and triggers onWake callback", () => {
     const clock = makeClock(0);
     const m = new Mood({ now: clock.now, rand: () => 0.5 });
+    let wakeCount = 0;
+    m.onWake(() => {
+      wakeCount++;
+    });
+
     clock.advance(6000);
     expect(m.current()).toBe("sleepy");
+    expect(wakeCount).toBe(0);
+
+    // Waking up triggers callback
     m.notifyActivity();
     expect(m.current()).toBe("neutral");
+    expect(wakeCount).toBe(1);
+
+    // Continuous activity while awake should not re-trigger onWake
+    clock.advance(100);
+    m.notifyActivity();
+    expect(wakeCount).toBe(1);
   });
 
   it("startle shows surprised and then decays back", () => {

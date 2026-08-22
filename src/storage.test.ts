@@ -31,6 +31,16 @@ describe("storage (localStorage fallback)", () => {
     expect(s.customGreeting).toBe("Good morning Nam");
     expect(s.hour12).toBe(true);
     expect(s.clockStyle).toBe("pixel-box");
+    expect(s.disco).toBe(false);
+  });
+
+  it("round-trips disco mode setting", async () => {
+    await saveSettings({
+      ...defaultSettings,
+      disco: true,
+    });
+    const s = await loadSettings();
+    expect(s.disco).toBe(true);
   });
 
   it("merges partial stored data over defaults", async () => {
@@ -42,5 +52,6 @@ describe("storage (localStorage fallback)", () => {
     expect(s.customGreeting).toBe("Hello world");
     expect(s.clock).toBe(defaultSettings.clock);
     expect(s.clockStyle).toBe("minimal");
+    expect(s.disco).toBe(false);
   });
 });

@@ -11,6 +11,7 @@ export interface Settings {
   posX: number;
   posY: number;
   customGreeting: string;
+  disco: boolean;
 }
 
 export const defaultSettings: Settings = {
@@ -23,6 +24,7 @@ export const defaultSettings: Settings = {
   posX: 0.5,
   posY: 0.5,
   customGreeting: "",
+  disco: false,
 };
 
 const KEY = "tabmaka.settings";
