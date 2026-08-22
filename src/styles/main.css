@@ -365,17 +365,17 @@ body {
 
 /* Disco Mode - Nightclub / Bar Ambient Lighting */
 body.disco-mode {
-  --bg: #090714 !important;
+  --bg: #040209 !important;
   --fg: #f5f0ff !important;
-  --muted: rgba(245, 240, 255, 0.72) !important;
-  --panel-bg: rgba(18, 12, 36, 0.88) !important;
-  --panel-border: rgba(255, 255, 255, 0.18) !important;
-  --panel-input-bg: rgba(255, 255, 255, 0.08) !important;
-  --panel-input-border: rgba(255, 255, 255, 0.2) !important;
-  --toggle-bg: rgba(255, 255, 255, 0.1) !important;
-  --toggle-hover-bg: rgba(255, 255, 255, 0.2) !important;
+  --muted: rgba(245, 240, 255, 0.6) !important;
+  --panel-bg: rgba(14, 10, 26, 0.9) !important;
+  --panel-border: rgba(255, 255, 255, 0.12) !important;
+  --panel-input-bg: rgba(255, 255, 255, 0.06) !important;
+  --panel-input-border: rgba(255, 255, 255, 0.15) !important;
+  --toggle-bg: rgba(255, 255, 255, 0.08) !important;
+  --toggle-hover-bg: rgba(255, 255, 255, 0.16) !important;
   color-scheme: dark;
-  background-color: #090714 !important;
+  background-color: #040209 !important;
   position: relative;
 }
 
@@ -390,22 +390,22 @@ body.disco-mode::before {
   background:
     radial-gradient(
       circle at 25% 25%,
-      rgba(255, 0, 128, 0.45) 0%,
+      rgba(255, 0, 128, 0.25) 0%,
       transparent 42%
     ),
     radial-gradient(
       circle at 75% 65%,
-      rgba(0, 230, 255, 0.42) 0%,
+      rgba(0, 230, 255, 0.22) 0%,
       transparent 45%
     ),
     radial-gradient(
       circle at 50% 85%,
-      rgba(138, 43, 226, 0.45) 0%,
+      rgba(138, 43, 226, 0.25) 0%,
       transparent 50%
     ),
     radial-gradient(
       circle at 80% 20%,
-      rgba(255, 200, 10, 0.35) 0%,
+      rgba(255, 200, 10, 0.18) 0%,
       transparent 38%
     );
   filter: blur(50px);
@@ -420,16 +420,16 @@ body.disco-mode::after {
   pointer-events: none;
   background: conic-gradient(
     from 0deg at 50% 50%,
-    rgba(255, 0, 128, 0.15),
-    rgba(0, 240, 255, 0.15),
-    rgba(160, 32, 240, 0.18),
-    rgba(255, 215, 0, 0.15),
-    rgba(0, 255, 170, 0.15),
-    rgba(255, 0, 128, 0.15)
+    rgba(255, 0, 128, 0.08),
+    rgba(0, 240, 255, 0.08),
+    rgba(160, 32, 240, 0.09),
+    rgba(255, 215, 0, 0.08),
+    rgba(0, 255, 170, 0.08),
+    rgba(255, 0, 128, 0.08)
   );
   mix-blend-mode: color-dodge;
   animation: disco-strobe-spin 14s linear infinite;
-  opacity: 0.88;
+  opacity: 0.55;
 }
 
 @keyframes disco-lights-sweep {

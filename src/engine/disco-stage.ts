@@ -58,30 +58,33 @@ export class DiscoStage {
     const { w, h } = size;
     if (w <= 0 || h <= 0) return;
 
+    const pos = this.spotPos.x ? this.spotPos : targetPos;
+
     ctx.save();
 
-    // 1. Ambient Strobe Flash
+    // 1. Deep Dark Stage Atmosphere with Center Spotlight Window
     const beat = Math.sin(this.time * 3.5);
-    const strobeAlpha = reduced ? 0.05 : 0.08 + Math.max(0, beat) * 0.12;
+    const strobeAlpha = reduced ? 0.03 : 0.04 + Math.max(0, beat) * 0.08;
 
-    const bgGrad = ctx.createRadialGradient(
-      w * 0.5,
-      h * 0.4,
-      50,
-      w * 0.5,
-      h * 0.5,
-      Math.max(w, h) * 0.8,
+    const bgDarkGrad = ctx.createRadialGradient(
+      pos.x,
+      pos.y,
+      60,
+      pos.x,
+      pos.y,
+      Math.max(w, h) * 0.75,
     );
-    bgGrad.addColorStop(0, `rgba(180, 50, 255, ${strobeAlpha * 0.6})`);
-    bgGrad.addColorStop(0.5, `rgba(0, 180, 255, ${strobeAlpha * 0.3})`);
-    bgGrad.addColorStop(1, "rgba(9, 7, 20, 0)");
-    ctx.fillStyle = bgGrad;
+    bgDarkGrad.addColorStop(0, `rgba(18, 12, 32, ${0.4 + strobeAlpha})`);
+    bgDarkGrad.addColorStop(0.35, "rgba(8, 5, 16, 0.75)");
+    bgDarkGrad.addColorStop(0.7, "rgba(4, 3, 9, 0.9)");
+    bgDarkGrad.addColorStop(1, "rgba(2, 1, 5, 0.96)");
+    ctx.fillStyle = bgDarkGrad;
     ctx.fillRect(0, 0, w, h);
 
     // 2. 3D Perspective LED Checkerboard Dance Floor
     this.drawLedDanceFloor(ctx, size, reduced);
 
-    // 3. Ground Spotlight Disc beneath Mascot
+    // 3. Ground Spotlight Disc beneath Mascot (High Luminance)
     this.drawGroundSpotlight(ctx, targetPos);
 
     ctx.restore();
@@ -195,21 +198,22 @@ export class DiscoStage {
     const pos = this.spotPos.x ? this.spotPos : targetPos;
     const pulse = 1.0 + Math.sin(this.time * 4) * 0.08;
 
-    const rx = 110 * pulse;
-    const ry = 36 * pulse;
-    const groundY = pos.y + 42;
+    const rx = 120 * pulse;
+    const ry = 40 * pulse;
+    const groundY = pos.y + 40;
 
     const spotGrad = ctx.createRadialGradient(
       pos.x,
       groundY,
-      10,
+      6,
       pos.x,
       groundY,
       rx,
     );
-    spotGrad.addColorStop(0, "rgba(255, 235, 180, 0.55)");
-    spotGrad.addColorStop(0.35, "rgba(255, 100, 200, 0.35)");
-    spotGrad.addColorStop(0.7, "rgba(0, 220, 255, 0.18)");
+    spotGrad.addColorStop(0, "rgba(255, 255, 255, 0.85)");
+    spotGrad.addColorStop(0.22, "rgba(255, 240, 190, 0.68)");
+    spotGrad.addColorStop(0.5, "rgba(255, 120, 210, 0.38)");
+    spotGrad.addColorStop(0.78, "rgba(0, 220, 255, 0.16)");
     spotGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
 
     ctx.save();
@@ -232,24 +236,25 @@ export class DiscoStage {
     const sourceX = size.w * 0.5 + Math.sin(this.time * 1.2) * 60;
     const sourceY = -30;
 
-    const beamW = 100;
+    const beamW = 110;
     const groundY = pos.y + 40;
 
     const coneGrad = ctx.createLinearGradient(
       sourceX,
       sourceY,
       pos.x,
-      groundY + 20,
+      groundY + 15,
     );
-    coneGrad.addColorStop(0, "rgba(255, 255, 255, 0.45)");
-    coneGrad.addColorStop(0.2, "rgba(255, 180, 230, 0.22)");
-    coneGrad.addColorStop(0.6, "rgba(0, 220, 255, 0.12)");
+    coneGrad.addColorStop(0, "rgba(255, 255, 255, 0.65)");
+    coneGrad.addColorStop(0.18, "rgba(255, 245, 215, 0.38)");
+    coneGrad.addColorStop(0.5, "rgba(255, 180, 240, 0.22)");
+    coneGrad.addColorStop(0.82, "rgba(0, 230, 255, 0.12)");
     coneGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
 
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(sourceX - 12, sourceY);
-    ctx.lineTo(sourceX + 12, sourceY);
+    ctx.moveTo(sourceX - 14, sourceY);
+    ctx.lineTo(sourceX + 14, sourceY);
     ctx.lineTo(pos.x + beamW * 0.85, groundY);
     ctx.lineTo(pos.x - beamW * 0.85, groundY);
     ctx.closePath();
