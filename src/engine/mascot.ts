@@ -50,4 +50,14 @@ export interface Mascot {
   triggerTyping?(key?: string): void;
   /** Check if mascot is currently in typing animation mode. */
   isTypingActive?(): boolean;
+  /** Set or toggle disco club stage effect. */
+  setDiscoActive?(active: boolean): void;
+  /** Check if disco stage is currently active. */
+  isDiscoActive?(): boolean;
+  /** Get anchor coordinate for speech/thought bubble. */
+  getBubbleAnchor?(): Vec;
+  /** Register callback when entry animation completes. */
+  onEntryComplete?(cb: () => void): void;
+  /** Register callback when mascot wakes up from sleep. */
+  onWake?(cb: () => void): void;
 }

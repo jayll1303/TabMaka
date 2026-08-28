@@ -5,6 +5,7 @@ import { Mood, type Expression } from "./mood";
 import type { Mascot, Size } from "./mascot";
 import { ParticleSystem } from "./particles";
 import { Fly } from "./fly";
+import { DiscoStage } from "./disco-stage";
 
 function createImage(src: string): HTMLImageElement {
   if (typeof Image !== "undefined") {
@@ -27,6 +28,16 @@ const bodyImg = createImage("./sprites/frog/frog_body.png");
 
 // Natural eye geometry on the 566x450 body sprite.
 const EYE_NAT = { x: 313.3, y: 85.8, r: 38.8 };
+
+// Natural mouth anchor on the 566x450 body sprite (idle + tongue origin).
+const MOUTH_NAT = { x: 405, y: 100 };
+
+// Body geometry: rendered width is size * scale, height keeps sprite aspect.
+const BODY_WIDTH_SCALE = 2.2;
+const BODY_ASPECT = 450 / 566;
+
+// Milliseconds per frame at the reference 60fps cadence.
+const MS_PER_FRAME = 1000 / 60;
 
 /** Jump animation keyframe specification. */
 interface JumpFrame {
@@ -293,6 +304,10 @@ export class FaceMascot implements Mascot {
   private musicParticleTimer = 0;
   private readonly particles = new ParticleSystem();
 
+  // Disco Stage state
+  private isDisco = false;
+  private readonly discoStage = new DiscoStage();
+
   // Fly snack interaction
   private activeFly: Fly | null = null;
   private tongueProgress = -1; // -1 = idle, 0..1 = shooting & retracting
@@ -308,6 +323,9 @@ export class FaceMascot implements Mascot {
   private typingHandIndex = 0; // 0 = left paw, 1 = right paw
   private readonly typingDuration = 800; // ms
 
+  private entryCallbacks: Array<() => void> = [];
+  private hasEntryCompleted = false;
+
   constructor(
     private config: FaceConfig,
     size: Size,
@@ -315,24 +333,41 @@ export class FaceMascot implements Mascot {
   ) {
     this.screenSize = size;
     this.normPos = normPos ? { ...normPos } : { x: 0.5, y: 0.5 };
-    const bodyW = this.config.size * 2.2;
-    const bodyH = bodyW * (450 / 566);
-    const padX = bodyW * 0.5 + 16;
-    const padY = bodyH * 0.5 + 16;
 
-    this.center = {
-      x: clamp(this.normPos.x * size.w, padX, Math.max(padX, size.w - padX)),
-      y: clamp(this.normPos.y * size.h, padY, Math.max(padY, size.h - padY)),
-    };
+    this.center = this.clampCenter(this.normPos, size, 16);
     this.cursor = { ...this.center };
 
     this.playEntryAnimation();
   }
 
+  /** Rendered body width/height derived from the configured size. */
+  private get bodyDims(): { w: number; h: number } {
+    const w = this.config.size * BODY_WIDTH_SCALE;
+    return { w, h: w * BODY_ASPECT };
+  }
+
+  /**
+   * Clamp a normalized position to on-screen bounds for the given size,
+   * keeping the body fully visible with `padExtra` px of breathing room.
+   */
+  private clampCenter(norm: Vec, size: Size, padExtra: number): Vec {
+    const { w: bodyW, h: bodyH } = this.bodyDims;
+    const padX = bodyW * 0.5 + padExtra;
+    const padY = bodyH * 0.5 + padExtra;
+    return {
+      x: clamp(norm.x * size.w, padX, Math.max(padX, size.w - padX)),
+      y: clamp(norm.y * size.h, padY, Math.max(padY, size.h - padY)),
+    };
+  }
+
+  /** True while a finite keyframe animation owns the body pose. */
+  private isBusyWithKeyframe(): boolean {
+    return this.dragging || this.entryProgress >= 0 || this.jumpProgress >= 0;
+  }
+
   /** Trigger bongo typing animation on keystroke. */
   triggerTyping(key?: string): void {
-    if (this.dragging || this.entryProgress >= 0 || this.jumpProgress >= 0)
-      return;
+    if (this.isBusyWithKeyframe()) return;
     this.isTyping = true;
     this.typingTimeout = this.typingDuration;
     this.typingActiveTimer = 220; // Active paw tapping window
@@ -373,20 +408,11 @@ export class FaceMascot implements Mascot {
   playEntryAnimation(): void {
     if (this.dragging) return;
 
-    const bodyW = this.config.size * 2.2;
-    const bodyH = bodyW * (450 / 566);
-    const padX = bodyW * 0.5 + 24;
-    const padY = bodyH * 0.5 + 24;
-
-    const targetX = clamp(
-      this.normPos.x * this.screenSize.w,
-      padX,
-      Math.max(padX, this.screenSize.w - padX),
-    );
-    const targetY = clamp(
-      this.normPos.y * this.screenSize.h,
-      padY,
-      Math.max(padY, this.screenSize.h - padY),
+    const { w: bodyW, h: bodyH } = this.bodyDims;
+    const { x: targetX, y: targetY } = this.clampCenter(
+      this.normPos,
+      this.screenSize,
+      24,
     );
 
     this.entryTarget = { x: targetX, y: targetY };
@@ -436,8 +462,7 @@ export class FaceMascot implements Mascot {
       this.jumpStart = { ...this.center };
 
       // Safe screen boundaries with padding
-      const bodyW = this.config.size * 2.2;
-      const bodyH = bodyW * (450 / 566);
+      const { w: bodyW, h: bodyH } = this.bodyDims;
       const padX = bodyW * 0.5 + 24;
       const padY = bodyH * 0.5 + 24;
       const minX = padX;
@@ -493,38 +518,33 @@ export class FaceMascot implements Mascot {
     return this.isVibing;
   }
 
+  /** Set or toggle disco club stage effect. */
+  setDiscoActive(active: boolean): void {
+    this.isDisco = active;
+  }
+
+  /** Check if disco stage is currently active. */
+  isDiscoActive(): boolean {
+    return this.isDisco && this.isVibing;
+  }
+
   setPointerPresent(present: boolean): void {
     this.present = present;
   }
 
   setEnv(size: Size): void {
     this.screenSize = size;
-    const bodyW = this.config.size * 2.2;
-    const bodyH = bodyW * (450 / 566);
-    const padX = bodyW * 0.5 + 16;
-    const padY = bodyH * 0.5 + 16;
-
-    const targetX = clamp(
-      this.normPos.x * size.w,
-      padX,
-      Math.max(padX, size.w - padX),
-    );
-    const targetY = clamp(
-      this.normPos.y * size.h,
-      padY,
-      Math.max(padY, size.h - padY),
-    );
+    const target = this.clampCenter(this.normPos, size, 16);
 
     if (this.entryProgress < 0) {
-      this.center = { x: targetX, y: targetY };
+      this.center = target;
     } else {
-      this.entryTarget = { x: targetX, y: targetY };
+      this.entryTarget = target;
     }
   }
 
   hitTest(pos: Vec): boolean {
-    const bodyW = this.config.size * 2.2;
-    const bodyH = bodyW * (450 / 566);
+    const { w: bodyW, h: bodyH } = this.bodyDims;
     const dx = (pos.x - this.center.x) / (bodyW * 0.52);
     const dy = (pos.y - this.center.y) / (bodyH * 0.52);
     return dx * dx + dy * dy <= 1.0;
@@ -550,8 +570,7 @@ export class FaceMascot implements Mascot {
   dragTo(pos: Vec): void {
     if (!this.dragging) return;
     this.dragMoved = true;
-    const bodyW = this.config.size * 2.2;
-    const bodyH = bodyW * (450 / 566);
+    const { w: bodyW, h: bodyH } = this.bodyDims;
     const padX = bodyW * 0.5 + 16;
     const padY = bodyH * 0.5 + 16;
 
@@ -592,12 +611,33 @@ export class FaceMascot implements Mascot {
     return this.dragging;
   }
 
+  getBubbleAnchor(): Vec {
+    const { h } = this.bodyDims;
+    return {
+      x: this.center.x,
+      y: this.center.y - h * 0.52,
+    };
+  }
+
+  onEntryComplete(cb: () => void): void {
+    if (this.hasEntryCompleted || this.entryProgress < 0) {
+      cb();
+    } else {
+      this.entryCallbacks.push(cb);
+    }
+  }
+
+  onWake(cb: () => void): void {
+    this.mood.onWake(cb);
+  }
+
   setNormalizedPos(pos: Vec): void {
     this.normPos = { ...pos };
     this.setEnv(this.screenSize);
   }
 
   update(dtScale: number, reduced: boolean): void {
+    const dtMs = dtScale * MS_PER_FRAME;
     let gazeTarget = this.cursor;
     let hasGazeOverride = this.present;
 
@@ -654,7 +694,6 @@ export class FaceMascot implements Mascot {
 
     // Advance entrance leap animation
     if (this.entryProgress >= 0) {
-      const dtMs = dtScale * (1000 / 60);
       this.entryProgress += dtMs / this.entryDuration;
       if (this.entryProgress >= 1) {
         this.entryProgress = -1;
@@ -664,12 +703,17 @@ export class FaceMascot implements Mascot {
           y: this.center.y / Math.max(1, this.screenSize.h),
         };
         this.mood.pet(); // Trigger cute happy/uwu face on successful landing!
+        this.hasEntryCompleted = true;
+        const cbs = this.entryCallbacks;
+        this.entryCallbacks = [];
+        for (const cb of cbs) {
+          cb();
+        }
       }
     }
 
     // Advance typing animation timeout and active cadence clock
     if (this.isTyping) {
-      const dtMs = dtScale * (1000 / 60);
       this.typingTimeout -= dtMs;
       if (this.typingActiveTimer > 0) {
         this.typingActiveTimer -= dtMs;
@@ -690,7 +734,6 @@ export class FaceMascot implements Mascot {
 
     // Advance tongue strike and catch animation
     if (this.tongueProgress >= 0) {
-      const dtMs = dtScale * (1000 / 60);
       this.tongueProgress += dtMs / this.tongueDuration;
       if (this.tongueProgress >= 1) {
         this.tongueProgress = -1;
@@ -699,7 +742,7 @@ export class FaceMascot implements Mascot {
           this.activeFly = null;
         }
         // Emit cute burp bubble from mouth
-        const bodyW = this.config.size * 2.2;
+        const { w: bodyW } = this.bodyDims;
         const mouthSpawnPos = {
           x: this.center.x + (this.facing === 1 ? bodyW * 0.22 : -bodyW * 0.22),
           y: this.center.y - bodyW * 0.08,
@@ -712,7 +755,6 @@ export class FaceMascot implements Mascot {
     // Advance the jump regardless of reduced motion; a triggered hop must
     // always finish (otherwise it freezes mid-air and blocks isSettled()).
     if (this.jumpProgress >= 0) {
-      const dtMs = dtScale * (1000 / 60);
       this.jumpProgress += dtMs / this.jumpDuration;
       if (this.jumpProgress >= 1) {
         this.jumpProgress = -1;
@@ -725,7 +767,6 @@ export class FaceMascot implements Mascot {
     }
 
     if (this.landProgress >= 0) {
-      const dtMs = dtScale * (1000 / 60);
       this.landProgress += dtMs / this.landDuration;
       if (this.landProgress >= 1) {
         this.landProgress = -1;
@@ -738,19 +779,24 @@ export class FaceMascot implements Mascot {
       this.jumpProgress < 0 &&
       this.entryProgress < 0
     ) {
-      const dtMs = dtScale * (1000 / 60);
       this.vibeTime += dtMs;
       this.musicParticleTimer += dtMs;
       if (this.musicParticleTimer >= 600) {
         this.musicParticleTimer = 0;
-        const bodyW = this.config.size * 2.2;
-        const bodyH = bodyW * (450 / 566);
+        const { w: bodyW, h: bodyH } = this.bodyDims;
         const spawnX = this.center.x + (Math.random() - 0.5) * bodyW * 0.55;
         const spawnY = this.center.y - bodyH * 0.42;
         this.particles.emitMusicNote({ x: spawnX, y: spawnY });
       }
     }
     this.particles.update(dtScale);
+
+    this.discoStage.update(
+      dtScale,
+      this.center,
+      this.isDisco && this.isVibing,
+      reduced,
+    );
   }
 
   /** Resolve eye-open amount, letting the current expression override blink. */
@@ -827,16 +873,16 @@ export class FaceMascot implements Mascot {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D, _size: Size): void {
-    void _size;
-    const { size } = this.config;
+  draw(ctx: CanvasRenderingContext2D, size: Size): void {
+    const isDiscoPlaying = this.isDisco && this.isVibing;
+    if (isDiscoPlaying) {
+      this.discoStage.drawBackground(ctx, size, this.center, false);
+    }
 
     let expr = this.mood.current();
     const breath = Math.sin(this.time) * 0.02;
 
-    // Body aspect ratio: 566 x 450
-    const bodyW = size * 2.2;
-    const bodyH = bodyW * (450 / 566);
+    const { w: bodyW, h: bodyH } = this.bodyDims;
 
     let curCenterX = this.center.x;
     let curCenterY = this.center.y;
@@ -1108,8 +1154,8 @@ export class FaceMascot implements Mascot {
       this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
 
       const m = mouths[expr] ?? mouths.neutral;
-      const mouthX = drawX + (405 / 566) * bodyW;
-      const mouthY = drawY + (100 / 450) * bodyH;
+      const mouthX = drawX + (MOUTH_NAT.x / 566) * bodyW;
+      const mouthY = drawY + (MOUTH_NAT.y / 450) * bodyH;
       const mW = bodyW * m.widthFactor;
       const mH = mW * (m.natH / m.natW);
 
@@ -1150,8 +1196,8 @@ export class FaceMascot implements Mascot {
 
     // 2. Draw active tongue strike curve
     if (this.tongueProgress >= 0) {
-      const mouthOffsetX = (405 / 566 - 0.5) * bodyW * this.facing;
-      const mouthOffsetY = (100 / 450 - 0.5) * bodyH;
+      const mouthOffsetX = (MOUTH_NAT.x / 566 - 0.5) * bodyW * this.facing;
+      const mouthOffsetY = (MOUTH_NAT.y / 450 - 0.5) * bodyH;
       const mouthWorld = {
         x: curCenterX + mouthOffsetX,
         y: curCenterY + mouthOffsetY,
@@ -1227,12 +1273,18 @@ export class FaceMascot implements Mascot {
 
     // 4. Global floating particles (e.g. musical notes, burp bubbles)
     this.particles.draw(ctx);
+
+    // 5. Disco Stage Foreground (Lasers, Spotlight Cone, Equalizer Bars)
+    if (isDiscoPlaying) {
+      this.discoStage.drawForeground(ctx, size, this.center, false);
+    }
   }
 
   isSettled(): boolean {
     return (
       !this.dragging &&
       !this.isTyping &&
+      !this.isDiscoActive() &&
       this.entryProgress < 0 &&
       this.jumpProgress < 0 &&
       this.landProgress < 0 &&

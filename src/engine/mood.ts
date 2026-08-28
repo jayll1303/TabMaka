@@ -38,6 +38,7 @@ export class Mood {
   private readonly pokeHold: number;
   private readonly petHold: number;
   private readonly sleepAfter: number;
+  private readonly onWakeCallbacks: Array<() => void> = [];
 
   constructor(opts: MoodOptions = {}) {
     this.now = opts.now ?? (() => performance.now());
@@ -53,14 +54,31 @@ export class Mood {
     return this.reaction !== null && t < this.reactionUntil;
   }
 
+  onWake(cb: () => void): void {
+    this.onWakeCallbacks.push(cb);
+  }
+
+  private checkWake(t: number): void {
+    const wasSleeping = t - this.lastInteractAt >= this.sleepAfter;
+    if (wasSleeping) {
+      const cbs = [...this.onWakeCallbacks];
+      for (const cb of cbs) {
+        cb();
+      }
+    }
+  }
+
   /** Any cursor movement; keeps the frog awake. */
   notifyActivity(): void {
-    this.lastInteractAt = this.now();
+    const t = this.now();
+    this.checkWake(t);
+    this.lastInteractAt = t;
   }
 
   /** Cursor lingering gently nearby -> content (happy / uwu). */
   pet(): void {
     const t = this.now();
+    this.checkWake(t);
     this.lastInteractAt = t;
     if (this.reactionActive(t) && this.activePriority > PET_PRIORITY) return;
     const stillPetting =
@@ -79,6 +97,7 @@ export class Mood {
   /** Drag & drop -> surprised. */
   startle(): void {
     const t = this.now();
+    this.checkWake(t);
     this.lastInteractAt = t;
     if (this.reactionActive(t) && this.activePriority > STARTLE_PRIORITY)
       return;
@@ -90,6 +109,7 @@ export class Mood {
   /** Click on the frog -> playful (tongue / kiss). */
   poke(): void {
     const t = this.now();
+    this.checkWake(t);
     this.lastInteractAt = t;
     if (this.reactionActive(t) && this.activePriority > POKE_PRIORITY) return;
     this.reaction = this.rand() < 0.5 ? "tongue" : "kiss";

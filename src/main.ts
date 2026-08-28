@@ -12,6 +12,8 @@ import {
 import { loadSettings, saveSettings } from "./storage";
 import { initClock, initGreeting, initClockToggle } from "./ui/clock";
 import { applyTheme, DEFAULT_BG, initAmbientPalette } from "./ui/theme";
+import { initDiscoToggle } from "./ui/disco";
+import { initBubble, type BubbleController } from "./ui/bubble";
 import { AudioDetector } from "./engine/audio-detector";
 import { isEditableTarget } from "./ui/editable";
 
@@ -19,7 +21,9 @@ const canvas = document.getElementById("scene") as HTMLCanvasElement | null;
 const clockEl = document.getElementById("clock");
 const greetingEl = document.getElementById("greeting");
 const clockControlEl = document.getElementById("clock-control");
+const discoControlEl = document.getElementById("disco-control");
 const ambientPaletteEl = document.getElementById("ambient-palette");
+const bubbleEl = document.getElementById("mascot-bubble");
 const onboardingEl = document.getElementById("onboarding");
 
 async function main(): Promise<void> {
@@ -38,6 +42,12 @@ async function main(): Promise<void> {
     reduced,
     { x: settings.posX ?? 0.5, y: settings.posY ?? 0.5 },
   );
+  mascot.setDiscoActive?.(!!settings.disco);
+
+  let bubbleController: BubbleController | null = null;
+  if (bubbleEl) {
+    bubbleController = initBubble(bubbleEl, mascot, () => size);
+  }
 
   function drawFrame(dtScale: number): void {
     mascot.update(dtScale, reduced);
@@ -93,6 +103,7 @@ async function main(): Promise<void> {
       pointerDownPos = pos;
       hasDragged = false;
       mascot.startDrag?.(pos);
+      bubbleController?.hide();
       document.body.style.cursor = "grabbing";
       wake();
     } else {
@@ -101,10 +112,15 @@ async function main(): Promise<void> {
       if (
         !isEditableTarget(target, document.activeElement) &&
         !target?.closest("#clock-control") &&
+        !target?.closest("#disco-control") &&
         !target?.closest("#ambient-palette") &&
+        !target?.closest("#mascot-bubble") &&
         !target?.closest("#onboarding")
       ) {
         mascot.spawnFly?.(pos);
+        if (bubbleController?.isVisible()) {
+          bubbleController.react("Yay!");
+        }
         wake();
       }
     }
@@ -125,6 +141,7 @@ async function main(): Promise<void> {
       document.body.style.cursor = isOver ? "grab" : "";
       pointerDownPos = null;
       hasDragged = false;
+      bubbleController?.updatePosition();
       wake();
     }
   });
@@ -133,12 +150,19 @@ async function main(): Promise<void> {
     const pos = { x: e.clientX, y: e.clientY };
     if (mascot.hitTest?.(pos)) {
       mascot.jump?.();
+      if (bubbleController?.isVisible()) {
+        bubbleController.react("Wheee!");
+      }
       wake();
     }
   });
 
+  let discoController: ReturnType<typeof initDiscoToggle> | null = null;
+
   const audioDetector = new AudioDetector((isAudible) => {
     mascot.setVibing?.(isAudible);
+    mascot.setDiscoActive?.(isAudible && !!settings.disco);
+    discoController?.updateVibeState(isAudible);
     wake();
   });
 
@@ -165,6 +189,9 @@ async function main(): Promise<void> {
 
     // Trigger bongo typing animation on keystroke!
     mascot.triggerTyping?.(e.key);
+    if (bubbleController?.isVisible()) {
+      bubbleController.react("Yay!");
+    }
     wake();
   });
 
@@ -174,6 +201,7 @@ async function main(): Promise<void> {
       document.body.style.cursor = "";
       pointerDownPos = null;
       hasDragged = false;
+      bubbleController?.updatePosition();
       wake();
     }
   });
@@ -189,6 +217,7 @@ async function main(): Promise<void> {
   window.addEventListener("resize", () => {
     size = resizeCanvas(canvas);
     mascot.setEnv(size);
+    bubbleController?.updatePosition();
     if (reduced) drawFrame(1);
   });
 
@@ -202,16 +231,44 @@ async function main(): Promise<void> {
     wake();
   });
 
-  // Shell: clock, greeting, clock control, ambient palette.
+  // Shell: clock, greeting, clock control, disco control, ambient palette.
   if (clockEl) initClock(clockEl, settings);
-  if (greetingEl) initGreeting(greetingEl, settings);
+  if (greetingEl) {
+    initGreeting(greetingEl, settings);
+    greetingEl.addEventListener("focus", () => {
+      if (bubbleController?.isVisible()) {
+        bubbleController.react("Hehe!");
+      }
+    });
+  }
   if (clockControlEl && clockEl) {
     initClockToggle(clockControlEl, settings, (s) => {
+      if (bubbleController?.isVisible()) {
+        bubbleController.react("Yay!");
+      }
       initClock(clockEl, s);
     });
   }
+  if (discoControlEl) {
+    discoController = initDiscoToggle(
+      discoControlEl,
+      settings,
+      () => audioDetector.getStatus(),
+      (s) => {
+        mascot.setDiscoActive?.(audioDetector.getStatus() && !!s.disco);
+        if (bubbleController?.isVisible()) {
+          bubbleController.react("Wheee!");
+        }
+        wake();
+      },
+    );
+  }
   if (ambientPaletteEl) {
-    initAmbientPalette(ambientPaletteEl, settings, () => {});
+    initAmbientPalette(ambientPaletteEl, settings, () => {
+      if (bubbleController?.isVisible()) {
+        bubbleController.react("Yay!");
+      }
+    });
   }
 
   // First-run onboarding.

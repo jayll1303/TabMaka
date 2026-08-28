@@ -90,4 +90,20 @@ export class SpineMascot implements Mascot {
   isSettled(): boolean {
     return dist(this.head, this.target) < 0.5;
   }
+
+  getBubbleAnchor(): Vec {
+    const headRadius = this.config.radii[0] ?? 20;
+    return {
+      x: this.head.x,
+      y: this.head.y - headRadius * 1.5,
+    };
+  }
+
+  onEntryComplete(cb: () => void): void {
+    cb();
+  }
+
+  onWake(_cb: () => void): void {
+    // Spine creatures wander continuously
+  }
 }
