@@ -117,3 +117,14 @@ Propagation: phase-01 (creature config), phase-03 (Canvas + spine + skin), phase
 
 Ket luan: PROCEED. San sang cook Phase 1 -> Phase 3.
 
+
+### Session 3 - 2026-08-28 (repo hygiene, pre-publish)
+
+Positioning chot: portfolio khoe nghe + toi uu keo install.
+
+Don 3 viec rui ro thap (Phase 8 - Package and Publish):
+1. Bo quyen `tabs` khoi manifest. Da xac minh vibe-nhac chi can tin hieu `audible` (chrome.tabs.query/onUpdated) - KHONG can quyen `tabs` (quyen do chi mo url/title). Loi kep: privacy.md thanh dung su that + bo canh bao quyen luc cai (tang install conversion). Cap nhat privacy.md + README nhat quan.
+2. Chia `face-mascot.ts` (1099 dong) -> 4 module: face-mascot (state/lifecycle 467), frog-render (drawFrog + FrogView 391), frog-eye (94), frog-sprites (268). Giu nguyen hanh vi. build + 61 test + lint deu pass.
+3. Them docs/system-architecture.md map kien truc that + danh dau spine engine la DORMANT (khong ship).
+
+Con treo: spine engine (SpineMascot + spine/skin/locomotion/behavior + render.drawCreature) van la dead code trong ban ship - giu lai cho creature procedural tuong lai; can quyet xoa hay quarantine. package.json `zip` script van tro toi v0.2.1 (lech version).
