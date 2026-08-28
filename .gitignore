@@ -5,3 +5,7 @@ dist/
 *.zip
 video/out/
 
+# Local OAuth / API secrets (never commit)
+testing-secret.json
+*secret*.json
+client_secret*.json
