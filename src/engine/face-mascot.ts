@@ -4,321 +4,80 @@ import { Blink } from "./blink";
 import { Mood, type Expression } from "./mood";
 import type { Mascot, Size } from "./mascot";
 import { ParticleSystem } from "./particles";
-
-function createImage(src: string): HTMLImageElement {
-  if (typeof Image !== "undefined") {
-    const img = new Image();
-    img.src = src;
-    return img;
-  }
-  return {
-    src,
-    complete: false,
-    naturalWidth: 0,
-    naturalHeight: 0,
-  } as HTMLImageElement;
-}
-
-// Load body sprite. The baked-in black eye bead has been removed from the
-// source PNG (see scripts/clean-frog-eye.mjs); the eye is drawn entirely in
-// code so the mood system has full control (blink, wide, sleepy, closed, ...).
-const bodyImg = createImage("./sprites/frog/frog_body.png");
-
-// Natural eye geometry on the 566x450 body sprite.
-const EYE_NAT = { x: 313.3, y: 85.8, r: 38.8 };
-
-/** Jump animation keyframe specification. */
-interface JumpFrame {
-  img: HTMLImageElement;
-  natW: number;
-  natH: number;
-  eyeAnchor: { x: number; y: number; r: number };
-  mouthAnchor: { x: number; y: number };
-}
-
-function loadJumpFrame(
-  file: string,
-  natW: number,
-  natH: number,
-  eyeAnchor: { x: number; y: number; r: number },
-  mouthAnchor: { x: number; y: number },
-): JumpFrame {
-  const img = createImage(`./sprites/frog/jump/${file}`);
-  return { img, natW, natH, eyeAnchor, mouthAnchor };
-}
-
-const jumpFrames: JumpFrame[] = [
-  // 0: Crouch / Anticipation (637x329)
-  loadJumpFrame(
-    "jump_1_crouch.png",
-    637,
-    329,
-    { x: 370, y: 110, r: 36 },
-    { x: 440, y: 155 },
-  ),
-  // 1: Launch / Takeoff (571x511)
-  loadJumpFrame(
-    "jump_2_launch.png",
-    571,
-    511,
-    { x: 465, y: 125, r: 34 },
-    { x: 475, y: 190 },
-  ),
-  // 2: Apex Peak Flight (473x397)
-  loadJumpFrame(
-    "jump_3_apex.png",
-    473,
-    397,
-    { x: 305, y: 85, r: 32 },
-    { x: 340, y: 140 },
-  ),
-  // 3: Land Impact / Squash (647x304)
-  loadJumpFrame(
-    "jump_4_land.png",
-    647,
-    304,
-    { x: 410, y: 105, r: 35 },
-    { x: 475, y: 150 },
-  ),
-];
-
-/** Vibe / Music chill headphone animation keyframe specification. */
-interface VibeFrame {
-  img: HTMLImageElement;
-  natW: number;
-  natH: number;
-  eyeAnchor: { x: number; y: number; r: number };
-  mouthAnchor: { x: number; y: number };
-}
-
-function loadVibeFrame(
-  file: string,
-  natW: number,
-  natH: number,
-  eyeAnchor: { x: number; y: number; r: number },
-  mouthAnchor: { x: number; y: number },
-): VibeFrame {
-  const img = createImage(`./sprites/frog/vibe/${file}`);
-  return { img, natW, natH, eyeAnchor, mouthAnchor };
-}
-
-const vibeFrames: VibeFrame[] = [
-  // 0: Sway / relaxed groove with headphones (529x521)
-  loadVibeFrame(
-    "vibe_1_sway.png",
-    529,
-    521,
-    { x: 315, y: 140, r: 34 },
-    { x: 370, y: 230 },
-  ),
-  // 1: Up / bouncy stretch groove with headphones (501x487)
-  loadVibeFrame(
-    "vibe_2_up.png",
-    501,
-    487,
-    { x: 280, y: 130, r: 32 },
-    { x: 325, y: 205 },
-  ),
-];
-
-/** Typing / Hacker laptop animation keyframe specification. */
-interface TypingFrame {
-  img: HTMLImageElement;
-  natW: number;
-  natH: number;
-  mouthAnchor: { x: number; y: number };
-  frogCenterX: number;
-  frogBottomY: number;
-  frogHeight: number;
-}
-
-function loadTypingFrame(
-  file: string,
-  natW: number,
-  natH: number,
-  mouthAnchor: { x: number; y: number },
-  frogCenterX: number,
-  frogBottomY: number,
-  frogHeight: number,
-): TypingFrame {
-  const img = createImage(`./sprites/frog/typing/${file}`);
-  return {
-    img,
-    natW,
-    natH,
-    mouthAnchor,
-    frogCenterX,
-    frogBottomY,
-    frogHeight,
-  };
-}
-
-const typingFrames: TypingFrame[] = [
-  // 0: Idle at laptop (1298x921)
-  loadTypingFrame(
-    "type_0_idle.png",
-    1298,
-    921,
-    { x: 620, y: 420 },
-    550.0,
-    790.0,
-    738,
-  ),
-  // 1: Left paw down, right paw up (1295x933)
-  loadTypingFrame(
-    "type_1_left.png",
-    1295,
-    933,
-    { x: 620, y: 420 },
-    572.5,
-    798.0,
-    745,
-  ),
-  // 2: Right paw down, left paw up (1300x930)
-  loadTypingFrame(
-    "type_2_right.png",
-    1300,
-    930,
-    { x: 620, y: 420 },
-    551.0,
-    800.0,
-    750,
-  ),
-  // 3: Both paws up frenzy (1297x951)
-  loadTypingFrame(
-    "type_3_both.png",
-    1297,
-    951,
-    { x: 620, y: 420 },
-    550.5,
-    815.0,
-    768,
-  ),
-];
-
-/** A mouth sprite with its natural pixel dimensions and a target width. */
-interface MouthSprite {
-  img: HTMLImageElement;
-  natW: number;
-  natH: number;
-  /** Rendered width as a fraction of the body width. */
-  widthFactor: number;
-}
-
-function mouth(
-  file: string,
-  natW: number,
-  natH: number,
-  widthFactor: number,
-): MouthSprite {
-  const img = createImage(`./sprites/frog/${file}`);
-  return { img, natW, natH, widthFactor };
-}
-
-// One sprite per expression, keeping each drawing's own aspect ratio.
-const mouths: Record<Expression, MouthSprite> = {
-  neutral: mouth("mouth_normal.png", 157, 87, 0.14),
-  happy: mouth("mouth_happy.png", 140, 105, 0.16),
-  uwu: mouth("mouth_uwu.png", 123, 50, 0.15),
-  surprised: mouth("mouth_surprised.png", 90, 92, 0.095),
-  sleepy: mouth("mouth_straight.png", 113, 32, 0.12),
-  tongue: mouth("mouth_tongue.png", 135, 71, 0.15),
-  kiss: mouth("mouth_kiss.png", 79, 80, 0.085),
-};
-
-/** How each expression drives the eye. */
-type EyeMode = "blink" | "wide" | "droop" | "shut";
-const eyeModeFor: Record<Expression, EyeMode> = {
-  neutral: "blink",
-  happy: "blink",
-  uwu: "shut",
-  surprised: "wide",
-  sleepy: "shut",
-  tongue: "blink",
-  kiss: "shut",
-};
-
-// Horizontal eye size relative to the baked bead, per expression.
-const eyeWidthFactor: Record<Expression, number> = {
-  neutral: 1,
-  happy: 1,
-  uwu: 1,
-  surprised: 1.18,
-  sleepy: 1,
-  tongue: 1,
-  kiss: 1,
-};
+import { bodyMetrics } from "./frog-sprites";
+import { drawFrog, type FrogView } from "./frog-render";
 
 /**
  * Sprite-Based Kawaii Frog Loaf Mascot.
+ *
+ * Owns all mascot state and behavior (cursor tracking, mood, jump/entry/typing/
+ * vibe animations, drag & drop) and advances it each frame in {@link update}.
+ * Rendering lives in `frog-render.ts` (via the read-only {@link FrogView}),
+ * the procedural eye in `frog-eye.ts`, and the art catalog in `frog-sprites.ts`.
+ *
  * Features:
- * - Pixel-perfect body sprite; baked eye bead is repainted so the eye is drawn
- *   entirely in code and never conflicts with expression eyes.
  * - Expression/mood system: neutral, happy, uwu, surprised, sleepy, tongue, kiss.
  * - Cursor-driven reactions (drag & drop -> surprised, gentle hover -> content,
  *   click -> playful) plus an idle drift into sleepy.
- * - Procedural eye: black bead scaled by openness + white specular glint that
- *   tracks the cursor; smile-arc closed eyes for shut expressions.
- * - Gentle idle breathing and drag-and-drop repositioning.
+ * - Procedural eye that tracks the cursor, plus gentle idle breathing.
  */
-export class FaceMascot implements Mascot {
+export class FaceMascot implements Mascot, FrogView {
   private cursor: Vec;
   private present = false;
-  private center: Vec;
+  center: Vec;
   private normPos: Vec;
   private screenSize: Size;
   private readonly blink = new Blink();
   private readonly mood = new Mood();
-  private look: Vec = { x: 0, y: 0 };
+  look: Vec = { x: 0, y: 0 };
   private desired: Vec = { x: 0, y: 0 };
-  private time = 0;
+  time = 0;
 
   // Dragging state
-  private dragging = false;
+  dragging = false;
   private dragMoved = false;
   private dragOffset: Vec = { x: 0, y: 0 };
 
   // Jump animation state
-  private jumpProgress = -1; // -1 = idle, 0..1 = jumping
+  jumpProgress = -1; // -1 = idle, 0..1 = jumping
   private readonly jumpDuration = 680; // ms
-  private jumpStart: Vec = { x: 0, y: 0 };
-  private jumpTarget: Vec = { x: 0, y: 0 };
-  private facing: 1 | -1 = 1; // 1 = right, -1 = left
+  jumpStart: Vec = { x: 0, y: 0 };
+  jumpTarget: Vec = { x: 0, y: 0 };
+  facing: 1 | -1 = 1; // 1 = right, -1 = left
 
   // Entrance jump animation state (hopping into viewport from outside on new tab)
-  private entryProgress = -1; // -1 = idle, 0..1 = entering
+  entryProgress = -1; // -1 = idle, 0..1 = entering
   private readonly entryDuration = 840; // ms
-  private entryStart: Vec = { x: 0, y: 0 };
-  private entryTarget: Vec = { x: 0, y: 0 };
+  entryStart: Vec = { x: 0, y: 0 };
+  entryTarget: Vec = { x: 0, y: 0 };
 
   // Landing squash animation state (after drag drop)
-  private landProgress = -1; // -1 = idle, 0..1 = landing squash
+  landProgress = -1; // -1 = idle, 0..1 = landing squash
   private readonly landDuration = 180; // ms
 
   // Vibe / Music listening state
-  private isVibing = false;
-  private vibeTime = 0;
+  isVibing = false;
+  vibeTime = 0;
   private musicParticleTimer = 0;
-  private readonly particles = new ParticleSystem();
+  readonly particles = new ParticleSystem();
 
   // Typing / Hacker laptop state
-  private isTyping = false;
+  isTyping = false;
   private typingTimeout = 0; // ms remaining before returning to loaf
-  private typingActiveTimer = 0; // ms active tapping window (flutters paws while > 0)
-  private typingSmashTimer = 0; // ms brief smash timer for Space/Enter (both paws)
-  private typingAnimClock = 0; // continuous time accumulator for smooth paw cadence
+  typingActiveTimer = 0; // ms active tapping window (flutters paws while > 0)
+  typingSmashTimer = 0; // ms brief smash timer for Space/Enter (both paws)
+  typingAnimClock = 0; // continuous time accumulator for smooth paw cadence
   private typingHandIndex = 0; // 0 = left paw, 1 = right paw
   private readonly typingDuration = 800; // ms
 
   constructor(
-    private config: FaceConfig,
+    public readonly config: FaceConfig,
     size: Size,
     normPos?: Vec,
   ) {
     this.screenSize = size;
     this.normPos = normPos ? { ...normPos } : { x: 0.5, y: 0.5 };
-    const bodyW = this.config.size * 2.2;
-    const bodyH = bodyW * (450 / 566);
+    const { bodyW, bodyH } = bodyMetrics(this.config.size);
     const padX = bodyW * 0.5 + 16;
     const padY = bodyH * 0.5 + 16;
 
@@ -329,6 +88,16 @@ export class FaceMascot implements Mascot {
     this.cursor = { ...this.center };
 
     this.playEntryAnimation();
+  }
+
+  /** Current mood expression (satisfies FrogView). */
+  currentExpression(): Expression {
+    return this.mood.current();
+  }
+
+  /** Current blink open amount [0,1] (satisfies FrogView). */
+  blinkOpen(): number {
+    return this.blink.currentOpen();
   }
 
   /** Trigger bongo typing animation on keystroke. */
@@ -359,8 +128,7 @@ export class FaceMascot implements Mascot {
   playEntryAnimation(): void {
     if (this.dragging) return;
 
-    const bodyW = this.config.size * 2.2;
-    const bodyH = bodyW * (450 / 566);
+    const { bodyW, bodyH } = bodyMetrics(this.config.size);
     const padX = bodyW * 0.5 + 24;
     const padY = bodyH * 0.5 + 24;
 
@@ -422,8 +190,7 @@ export class FaceMascot implements Mascot {
       this.jumpStart = { ...this.center };
 
       // Safe screen boundaries with padding
-      const bodyW = this.config.size * 2.2;
-      const bodyH = bodyW * (450 / 566);
+      const { bodyW, bodyH } = bodyMetrics(this.config.size);
       const padX = bodyW * 0.5 + 24;
       const padY = bodyH * 0.5 + 24;
       const minX = padX;
@@ -485,8 +252,7 @@ export class FaceMascot implements Mascot {
 
   setEnv(size: Size): void {
     this.screenSize = size;
-    const bodyW = this.config.size * 2.2;
-    const bodyH = bodyW * (450 / 566);
+    const { bodyW, bodyH } = bodyMetrics(this.config.size);
     const padX = bodyW * 0.5 + 16;
     const padY = bodyH * 0.5 + 16;
 
@@ -509,8 +275,7 @@ export class FaceMascot implements Mascot {
   }
 
   hitTest(pos: Vec): boolean {
-    const bodyW = this.config.size * 2.2;
-    const bodyH = bodyW * (450 / 566);
+    const { bodyW, bodyH } = bodyMetrics(this.config.size);
     const dx = (pos.x - this.center.x) / (bodyW * 0.52);
     const dy = (pos.y - this.center.y) / (bodyH * 0.52);
     return dx * dx + dy * dy <= 1.0;
@@ -531,8 +296,7 @@ export class FaceMascot implements Mascot {
   dragTo(pos: Vec): void {
     if (!this.dragging) return;
     this.dragMoved = true;
-    const bodyW = this.config.size * 2.2;
-    const bodyH = bodyW * (450 / 566);
+    const { bodyW, bodyH } = bodyMetrics(this.config.size);
     const padX = bodyW * 0.5 + 16;
     const padY = bodyH * 0.5 + 16;
 
@@ -672,8 +436,7 @@ export class FaceMascot implements Mascot {
       this.musicParticleTimer += dtMs;
       if (this.musicParticleTimer >= 600) {
         this.musicParticleTimer = 0;
-        const bodyW = this.config.size * 2.2;
-        const bodyH = bodyW * (450 / 566);
+        const { bodyW, bodyH } = bodyMetrics(this.config.size);
         const spawnX = this.center.x + (Math.random() - 0.5) * bodyW * 0.55;
         const spawnY = this.center.y - bodyH * 0.42;
         this.particles.emitMusicNote({ x: spawnX, y: spawnY });
@@ -682,403 +445,9 @@ export class FaceMascot implements Mascot {
     this.particles.update(dtScale);
   }
 
-  /** Resolve eye-open amount, letting the current expression override blink. */
-  private eyeOpen(mode: EyeMode): number {
-    switch (mode) {
-      case "wide":
-        return 1;
-      case "droop":
-        return 0.35;
-      case "shut":
-        return 0;
-      default:
-        return this.blink.currentOpen();
-    }
-  }
-
-  /** Draw the procedural eye (bead + glint, or a cute closed arc). */
-  private drawEye(
-    ctx: CanvasRenderingContext2D,
-    expr: Expression,
-    baseX: number,
-    baseY: number,
-    eyeR: number,
-  ): void {
-    const mode = eyeModeFor[expr];
-    const palette = this.config.palette;
-
-    if (mode === "shut") {
-      // Cute closed "smile" eye.
-      const r = eyeR * 0.95;
-      ctx.beginPath();
-      ctx.arc(baseX, baseY - r * 0.35, r, Math.PI * 0.18, Math.PI * 0.82);
-      ctx.lineWidth = eyeR * 0.3;
-      ctx.lineCap = "round";
-      ctx.strokeStyle = palette.eye;
-      ctx.stroke();
-      return;
-    }
-
-    const openness = clamp(this.eyeOpen(mode), 0, 1);
-    const rx = eyeR * eyeWidthFactor[expr];
-    const ry = rx * clamp(openness, 0.06, 1);
-
-    // Black eye bead (shrinks vertically as it closes).
-    ctx.beginPath();
-    ctx.ellipse(baseX, baseY, rx, ry, 0, 0, Math.PI * 2);
-    ctx.fillStyle = palette.eye;
-    ctx.fill();
-
-    // White specular glint fades/shrinks as the lid lowers.
-    if (openness > 0.2) {
-      const fade = clamp((openness - 0.2) / 0.8, 0, 1);
-      const glintR = rx * 0.38 * (0.6 + 0.4 * fade);
-      const maxTravel = rx * 0.42;
-      const lookX = this.look.x * this.facing;
-      const gx = baseX + lookX * maxTravel;
-      const gy = baseY + this.look.y * maxTravel;
-
-      ctx.beginPath();
-      ctx.arc(gx, gy, glintR, 0, Math.PI * 2);
-      ctx.fillStyle = palette.pupil;
-      ctx.fill();
-
-      // Secondary sparkle only while wide open.
-      if (fade > 0.5) {
-        const g2 = glintR * 0.42;
-        const g2x = baseX + lookX * (maxTravel * 0.5) + rx * 0.34;
-        const g2y = baseY + this.look.y * (maxTravel * 0.5) + ry * 0.32;
-        ctx.beginPath();
-        ctx.arc(g2x, g2y, g2, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.9 * fade})`;
-        ctx.fill();
-      }
-    }
-  }
-
   draw(ctx: CanvasRenderingContext2D, _size: Size): void {
     void _size;
-    const { size } = this.config;
-
-    let expr = this.mood.current();
-    const breath = Math.sin(this.time) * 0.02;
-
-    // Body aspect ratio: 566 x 450
-    const bodyW = size * 2.2;
-    const bodyH = bodyW * (450 / 566);
-
-    let curCenterX = this.center.x;
-    let curCenterY = this.center.y;
-    const maxHeight = bodyH * 0.85;
-    let frameIdx = -1;
-    let yJump = 0;
-    let airRatio = 0;
-
-    if (this.dragging) {
-      // Crouch pose while holding & dragging across the screen
-      frameIdx = 0;
-      yJump = 0;
-    } else if (this.entryProgress >= 0) {
-      // Leaping into viewport from outside on new tab open!
-      const p = clamp(this.entryProgress, 0, 1);
-      const arcHeight = Math.max(
-        bodyH * 1.35,
-        (this.entryStart.y - this.entryTarget.y) * 0.38 + bodyH * 0.75,
-      );
-
-      if (p < 0.08) {
-        curCenterX = this.entryStart.x;
-        curCenterY = this.entryStart.y;
-        frameIdx = 0;
-        yJump = 0;
-        airRatio = 0;
-      } else if (p < 0.74) {
-        const u = (p - 0.08) / (0.74 - 0.08);
-        curCenterX = lerp(this.entryStart.x, this.entryTarget.x, u);
-        curCenterY = lerp(this.entryStart.y, this.entryTarget.y, u);
-        yJump = -Math.sin(u * Math.PI) * arcHeight;
-        airRatio = Math.sin(u * Math.PI);
-        frameIdx = u < 0.44 ? 1 : 2;
-        expr = "happy";
-      } else if (p < 0.92) {
-        curCenterX = this.entryTarget.x;
-        curCenterY = this.entryTarget.y;
-        frameIdx = 3; // Land squash impact
-        yJump = 0;
-        airRatio = 0;
-        expr = "uwu";
-      } else {
-        curCenterX = this.entryTarget.x;
-        curCenterY = this.entryTarget.y;
-        frameIdx = -1;
-        yJump = 0;
-        airRatio = 0;
-        expr = "happy";
-      }
-    } else if (this.jumpProgress >= 0) {
-      // Hopping Jump Animation Branch
-      const p = clamp(this.jumpProgress, 0, 1);
-
-      if (p < 0.16) {
-        curCenterX = this.jumpStart.x;
-        curCenterY = this.jumpStart.y;
-        frameIdx = 0;
-        yJump = 0;
-        airRatio = 0;
-      } else if (p < 0.76) {
-        const u = (p - 0.16) / (0.76 - 0.16);
-        curCenterX = lerp(this.jumpStart.x, this.jumpTarget.x, u);
-        curCenterY = lerp(this.jumpStart.y, this.jumpTarget.y, u);
-        yJump = -Math.sin(u * Math.PI) * maxHeight;
-        airRatio = clamp(-yJump / maxHeight, 0, 1);
-        frameIdx = p < 0.46 ? 1 : 2;
-      } else if (p < 0.94) {
-        curCenterX = this.jumpTarget.x;
-        curCenterY = this.jumpTarget.y;
-        frameIdx = 3;
-        yJump = 0;
-        airRatio = 0;
-      } else {
-        curCenterX = this.jumpTarget.x;
-        curCenterY = this.jumpTarget.y;
-        frameIdx = -1;
-        yJump = 0;
-        airRatio = 0;
-      }
-    } else if (this.landProgress >= 0) {
-      // Land squash impact on drop
-      frameIdx = 3;
-      yJump = 0;
-    }
-
-    ctx.save();
-    ctx.translate(curCenterX, curCenterY);
-    if (this.facing === -1) {
-      ctx.scale(-1, 1);
-    }
-
-    // 1. Dynamic ground drop shadow
-    const isIdle =
-      !this.dragging &&
-      this.entryProgress < 0 &&
-      this.jumpProgress < 0 &&
-      this.landProgress < 0;
-    const isSquash =
-      (this.entryProgress >= 0 &&
-        this.entryProgress >= 0.74 &&
-        this.entryProgress < 0.92) ||
-      this.landProgress >= 0;
-    const shadowScale = isSquash
-      ? 1.18
-      : (1 - airRatio * 0.48) * (isIdle ? 1 + breath * 0.2 : 1);
-    const shadowAlpha = isSquash ? 0.26 : 0.22 * (1 - airRatio * 0.7);
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.ellipse(
-      0,
-      bodyH / 2 - 2,
-      bodyW * 0.38 * shadowScale,
-      bodyH * 0.09 * shadowScale,
-      0,
-      0,
-      Math.PI * 2,
-    );
-    ctx.fillStyle = `rgba(18, 18, 18, ${shadowAlpha})`;
-    ctx.fill();
-    ctx.restore();
-
-    if (frameIdx >= 0) {
-      // Active Jump / Drag Frame (0: crouch, 1: launch, 2: apex, 3: land)
-      const frame = jumpFrames[frameIdx];
-      const curW = bodyW * (frame.natW / 566);
-      const curH = curW * (frame.natH / frame.natW);
-      const drawX = -curW / 2;
-      const drawY = bodyH / 2 + yJump - curH;
-
-      if (frame.img.complete && frame.img.naturalWidth > 0) {
-        ctx.drawImage(frame.img, drawX, drawY, curW, curH);
-      } else if (bodyImg.complete && bodyImg.naturalWidth > 0) {
-        ctx.drawImage(bodyImg, -bodyW / 2, -bodyH / 2 + yJump, bodyW, bodyH);
-      }
-
-      // Procedural tracking eye anchored to frame
-      const eyeBaseX = drawX + (frame.eyeAnchor.x / frame.natW) * curW;
-      const eyeBaseY = drawY + (frame.eyeAnchor.y / frame.natH) * curH;
-      const eyeR = curW * (frame.eyeAnchor.r / frame.natW);
-      this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
-
-      // Mouth anchored to frame
-      const m = mouths[expr] ?? mouths.neutral;
-      const mouthX = drawX + (frame.mouthAnchor.x / frame.natW) * curW;
-      const mouthY = drawY + (frame.mouthAnchor.y / frame.natH) * curH;
-      const mW = curW * m.widthFactor;
-      const mH = mW * (m.natH / m.natW);
-
-      if (m.img.complete && m.img.naturalWidth > 0) {
-        ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
-      }
-    } else if (this.isTyping) {
-      // Bongo Hacker Frog Laptop Typing Pose
-      // Frame selection:
-      // - If brief smash timer active (Space / Enter): type_3_both (index 3)
-      // - If actively typing (within active window): alternate type_1_left (1) and type_2_right (2) continuously
-      // - If paused/idle between sentences: type_0_idle (0) (hands resting on laptop)
-      let tfIdx = 0;
-      if (this.typingSmashTimer > 0) {
-        tfIdx = 3; // Both paws up smash
-      } else if (this.typingActiveTimer > 0) {
-        // Active typing: alternating left and right paws rapidly!
-        const step = Math.floor(this.typingAnimClock) % 2;
-        tfIdx = step === 0 ? 1 : 2;
-      } else {
-        tfIdx = 0; // Both paws resting at laptop
-      }
-
-      const frame = typingFrames[tfIdx];
-
-      // Subtle vertical rhythmic head/body bounce while actively typing
-      const isActivelyTapping =
-        this.typingActiveTimer > 0 || this.typingSmashTimer > 0;
-      const typeBounce = isActivelyTapping
-        ? -Math.abs(Math.sin(this.typingAnimClock * Math.PI)) * 2.5
-        : 0;
-
-      // Exact pixel-perfect scaling to match frog body size and baseline 1:1 with idle loaf
-      const scale = (406 / frame.frogHeight) * (bodyH / 450);
-      const curW = frame.natW * scale;
-      const curH = frame.natH * scale;
-
-      // Center the frog body horizontally (frog body center is at x=0)
-      const drawX = -frame.frogCenterX * scale;
-      // Align bottom baseline of frog body with loaf baseline on ground (+ micro bounce)
-      const drawY =
-        bodyH * (447 / 450 - 0.5) - frame.frogBottomY * scale + typeBounce;
-
-      if (frame.img.complete && frame.img.naturalWidth > 0) {
-        ctx.drawImage(frame.img, drawX, drawY, curW, curH);
-      } else if (bodyImg.complete && bodyImg.naturalWidth > 0) {
-        ctx.drawImage(
-          bodyImg,
-          -bodyW / 2,
-          -bodyH / 2 + typeBounce,
-          bodyW,
-          bodyH,
-        );
-      }
-
-      // Draw mouth under sunglasses
-      const typeExpr = expr === "sleepy" ? "happy" : expr;
-      const m = mouths[typeExpr] ?? mouths.happy;
-      const mouthX = drawX + (frame.mouthAnchor.x / frame.natW) * curW;
-      const mouthY = drawY + (frame.mouthAnchor.y / frame.natH) * curH;
-      const mW = bodyW * m.widthFactor;
-      const mH = mW * (m.natH / m.natW);
-
-      if (m.img.complete && m.img.naturalWidth > 0) {
-        ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
-      }
-    } else if (this.isVibing) {
-      // Vibe / Headphone chill groove animation loop (2-pose groove)
-      const vibeCycle = 560; // ms per full beat loop (~107 BPM)
-      const p = (this.vibeTime % vibeCycle) / vibeCycle;
-      const vibeIdx = p < 0.5 ? 0 : 1;
-      const u = p < 0.5 ? p * 2 : (p - 0.5) * 2;
-
-      // Vertical rhythmic bouncing and head tilt
-      const yVibe = -Math.sin(u * Math.PI) * (vibeIdx === 0 ? 4 : 8);
-      const vibeAngle = (vibeIdx === 0 ? 1 : -1) * Math.sin(u * Math.PI) * 0.04;
-
-      const frame = vibeFrames[vibeIdx];
-      ctx.rotate(vibeAngle);
-
-      const curW = bodyW * (frame.natW / 566);
-      const curH = curW * (frame.natH / frame.natW);
-      const drawX = -curW / 2;
-      const drawY = bodyH / 2 + yVibe - curH;
-
-      if (frame.img.complete && frame.img.naturalWidth > 0) {
-        ctx.drawImage(frame.img, drawX, drawY, curW, curH);
-      } else if (bodyImg.complete && bodyImg.naturalWidth > 0) {
-        ctx.drawImage(bodyImg, -bodyW / 2, -bodyH / 2 + yVibe, bodyW, bodyH);
-      }
-
-      // Procedural tracking eye anchored to frame (default to uwu when vibing if neutral)
-      const vibeExpr = expr === "neutral" ? "uwu" : expr;
-      const eyeBaseX = drawX + (frame.eyeAnchor.x / frame.natW) * curW;
-      const eyeBaseY = drawY + (frame.eyeAnchor.y / frame.natH) * curH;
-      const eyeR = curW * (frame.eyeAnchor.r / frame.natW);
-      this.drawEye(ctx, vibeExpr, eyeBaseX, eyeBaseY, eyeR);
-
-      // Mouth anchored to frame
-      const m = mouths[vibeExpr] ?? mouths.neutral;
-      const mouthX = drawX + (frame.mouthAnchor.x / frame.natW) * curW;
-      const mouthY = drawY + (frame.mouthAnchor.y / frame.natH) * curH;
-      const mW = curW * m.widthFactor;
-      const mH = mW * (m.natH / m.natW);
-
-      if (m.img.complete && m.img.naturalWidth > 0) {
-        ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
-      }
-    } else {
-      // Standard Idle Resting Body
-      ctx.scale(1 + breath * 0.4, 1 - breath * 0.5);
-
-      const drawX = -bodyW / 2;
-      const drawY = -bodyH / 2;
-
-      if (bodyImg.complete && bodyImg.naturalWidth > 0) {
-        ctx.drawImage(bodyImg, drawX, drawY, bodyW, bodyH);
-      }
-
-      const eyeBaseX = drawX + (EYE_NAT.x / 566) * bodyW;
-      const eyeBaseY = drawY + (EYE_NAT.y / 450) * bodyH;
-      const eyeR = bodyW * (EYE_NAT.r / 566);
-      this.drawEye(ctx, expr, eyeBaseX, eyeBaseY, eyeR);
-
-      const m = mouths[expr] ?? mouths.neutral;
-      const mouthX = drawX + (405 / 566) * bodyW;
-      const mouthY = drawY + (100 / 450) * bodyH;
-      const mW = bodyW * m.widthFactor;
-      const mH = mW * (m.natH / m.natW);
-
-      if (m.img.complete && m.img.naturalWidth > 0) {
-        ctx.drawImage(m.img, mouthX - mW / 2, mouthY - mH / 2, mW, mH);
-      }
-
-      if (expr === "sleepy") {
-        ctx.save();
-        ctx.fillStyle = this.config.palette.eye;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        const chars = ["z", "z", "Z"];
-        const sizeMultipliers = [0.048, 0.068, 0.092];
-        const offsetsX = [0.72, 0.81, 0.9];
-        const baseHeights = [0.08, -0.04, -0.16];
-
-        for (let i = 0; i < 3; i++) {
-          const p = (this.time * 0.35 + i * 0.33) % 1;
-          const alpha = Math.sin(p * Math.PI);
-          const floatY = p * bodyH * 0.22;
-          const driftX = Math.sin(p * Math.PI * 2) * (bodyW * 0.02);
-
-          const x = drawX + bodyW * offsetsX[i] + driftX;
-          const y = drawY + bodyH * baseHeights[i] - floatY;
-
-          ctx.globalAlpha = clamp(alpha * 0.85, 0, 1);
-          ctx.font = `bold ${Math.round(bodyW * sizeMultipliers[i])}px system-ui, -apple-system, sans-serif`;
-          ctx.fillText(chars[i], x, y);
-        }
-
-        ctx.restore();
-      }
-    }
-
-    ctx.restore();
-
-    // 2. Global floating particles (e.g. musical notes)
-    this.particles.draw(ctx);
+    drawFrog(ctx, this);
   }
 
   isSettled(): boolean {
