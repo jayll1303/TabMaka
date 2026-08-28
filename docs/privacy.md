@@ -26,13 +26,22 @@ server by the extension. Uninstalling the extension removes it.
 
 - `storage`: to remember the preferences listed above between sessions.
 
-The extension also overrides the new-tab page (`chrome_url_overrides.newtab`)
-to display the companion. It does not read, modify, or transmit the contents
-of any other web page.
+`storage` is the only permission the extension requests. It also overrides the
+new-tab page (`chrome_url_overrides.newtab`) to display the companion. It does
+not read, modify, or transmit the contents of any other web page.
+
+## The music-reactive animation
+
+When a tab plays sound, the companion does a little headphone groove. To know
+when to start, TabMaka checks a single yes/no signal Chrome exposes to any
+extension: "is at least one tab currently playing audio?" This does not require
+any permission and reveals nothing about which site is playing, its URL, title,
+or contents. Nothing about this signal is stored or transmitted; it only toggles
+an on-screen animation.
 
 ## Contact
 
 Questions about privacy can be filed as an issue on the project's GitHub
 repository.
 
-_Last updated: 2026-08-17_
+_Last updated: 2026-08-28_
