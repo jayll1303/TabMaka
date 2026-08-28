@@ -1,7 +1,7 @@
 {
   "name": "tabmaka",
   "private": true,
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "description": "TabMaka - Cozy new tab pet for Chrome and Edge",
   "license": "MIT",

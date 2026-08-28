@@ -5,6 +5,11 @@ All notable changes to TabMaka will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-08-28
+
+### Fixed
+- **Vibe Headphones Transparency**: Removed the opaque white fill inside the headphone headband in both music-vibe poses, preserving the earcups and black outlines.
+
 ## [0.2.1] - 2026-08-19
 
 ### Added

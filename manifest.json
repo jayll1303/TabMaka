@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TabMaka - Cozy New Tab Pet",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "An adorable cozy pet that greets you on every new tab. 100% local, no tracking.",
   "chrome_url_overrides": {
     "newtab": "index.html"
