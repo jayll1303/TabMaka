@@ -5,7 +5,7 @@ All notable changes to TabMaka will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.3] - 2026-08-28
 
 ### Removed
 - **`tabs` permission**: The music-vibe feature detects audio through a yes/no signal Chrome exposes to any extension, so the `tabs` permission was never actually required. Dropping it means a clean install with **only** the `storage` permission and no browsing-related permission warning.
@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Frog mascot refactor**: Split the monolithic `face-mascot.ts` into focused modules — state/lifecycle (`face-mascot.ts`), rendering (`frog-render.ts`), procedural eye (`frog-eye.ts`), and the sprite/asset catalog (`frog-sprites.ts`). No behavior change; build, tests, and lint all pass.
 - **Privacy policy**: Clarified how the audio-reactive animation works and confirmed `storage` is the only permission.
+- **Release pipeline**: Chrome Web Store submission is now a manual, opt-in step; publishing a GitHub Release only builds and attaches the packaged zip.
 
 ### Added
 - **`docs/system-architecture.md`**: Documents the shipped architecture, the `Mascot` contract, and the dormant procedural spine engine.
