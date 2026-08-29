@@ -1,7 +1,7 @@
 {
   "name": "pondie-tab",
   "private": true,
-  "version": "0.2.3",
+  "version": "0.2.4",
   "type": "module",
   "description": "Pondie Tab - Cozy frog companion for Chrome and Edge",
   "license": "MIT",
@@ -13,7 +13,7 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{ts,css}\"",
-    "zip": "npm run build && powershell Compress-Archive -Path dist/* -DestinationPath pondie-tab-v0.2.3.zip -Force"
+    "zip": "npm run build && powershell Compress-Archive -Path dist/* -DestinationPath pondie-tab-v0.2.4.zip -Force"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

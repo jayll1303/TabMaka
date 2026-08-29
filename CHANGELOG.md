@@ -5,10 +5,18 @@ All notable changes to Pondie Tab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.4] - 2026-08-29
 
 ### Changed
 - **Brand**: Rebranded the product and promo assets from TabMaka to Pondie Tab while keeping the existing settings storage key for upgrade compatibility.
+
+### Added
+- **Pondie Tab brand assets**: Added the refreshed sprite-based logo system, icons, promo media, and product naming for the frog companion.
+
+### Changed
+- **Release packaging**: Updated the extension version and release artifact naming for the Pondie Tab Chrome Web Store submission.
+
+## [Unreleased]
 
 ## [0.2.3] - 2026-08-28
 

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Pondie Tab - Cozy Frog Companion",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "An adorable cozy frog companion that greets you on every new tab. 100% local, no tracking.",
   "chrome_url_overrides": {
     "newtab": "index.html"

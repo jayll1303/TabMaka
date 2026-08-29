@@ -42,7 +42,7 @@ jobs:
         id: pack
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          ZIP_NAME="tabmaka-v${VERSION}.zip"
+          ZIP_NAME="pondie-tab-v${VERSION}.zip"
           cd dist
           zip -r "../${ZIP_NAME}" ./*
           cd ..
