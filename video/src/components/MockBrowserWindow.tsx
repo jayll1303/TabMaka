@@ -170,7 +170,6 @@ export const MockBrowserWindow: React.FC<MockBrowserWindowProps> = ({
                 cursor: "pointer",
                 backgroundColor: isPlusClicked ? "rgba(100,160,60,0.3)" : "transparent",
                 transform: isPlusClicked ? "scale(0.92)" : "scale(1)",
-                transition: "all 0.1s",
               }}
             >
               +

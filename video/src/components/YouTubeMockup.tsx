@@ -30,8 +30,8 @@ export const YouTubeMockup: React.FC<YouTubeMockupProps> = ({
         color: "#F1F1F1",
         display: "flex",
         flexDirection: isPortrait ? "column" : "row",
-        padding: isPortrait ? 14 : 20,
-        gap: isPortrait ? 14 : 20,
+        padding: isPortrait ? "16px 16px 20px" : 20,
+        gap: isPortrait ? 12 : 20,
         fontFamily:
           "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
@@ -40,7 +40,9 @@ export const YouTubeMockup: React.FC<YouTubeMockupProps> = ({
       <div
         style={{
           flex: isPortrait ? "none" : 3,
-          height: isPortrait ? "56%" : "100%",
+          width: isPortrait ? "100%" : undefined,
+          height: isPortrait ? "66%" : "100%",
+          minHeight: 0,
           display: "flex",
           flexDirection: "column",
           gap: 10,
@@ -118,7 +120,6 @@ export const YouTubeMockup: React.FC<YouTubeMockupProps> = ({
               alignItems: "center",
               zIndex: 5,
               transform: `translate(${danceSway}px, ${-headBob}px)`,
-              transition: "transform 0.05s ease-out",
             }}
           >
             {/* Animated Musical Notes Floating Around */}
@@ -137,8 +138,8 @@ export const YouTubeMockup: React.FC<YouTubeMockupProps> = ({
 
             {/* Rick Astley Character SVG (Iconic trenchcoat, quiff hair & microphone) */}
             <svg
-              width={isPortrait ? "130" : "160"}
-              height={isPortrait ? "160" : "200"}
+              width={isPortrait ? "220" : "160"}
+              height={isPortrait ? "275" : "200"}
               viewBox="0 0 160 200"
               style={{
                 filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.5))",
@@ -317,14 +318,16 @@ export const YouTubeMockup: React.FC<YouTubeMockupProps> = ({
         <div>
           <h2
             style={{
-              fontSize: isPortrait ? 14 : 17,
+              fontSize: isPortrait ? 20 : 17,
               fontWeight: 700,
               margin: 0,
-              lineHeight: 1.3,
+              lineHeight: 1.2,
               color: "#FFFFFF",
             }}
           >
-            Rick Astley - Never Gonna Give You Up (Official Music Video)
+            {isPortrait
+              ? "Now playing · Never Gonna Give You Up"
+              : "Rick Astley - Never Gonna Give You Up (Official Music Video)"}
           </h2>
           <div
             style={{
@@ -333,7 +336,7 @@ export const YouTubeMockup: React.FC<YouTubeMockupProps> = ({
               gap: 10,
               marginTop: 6,
               color: "#AAAAAA",
-              fontSize: isPortrait ? 11 : 13,
+              fontSize: 13,
             }}
           >
             <div
@@ -363,6 +366,7 @@ export const YouTubeMockup: React.FC<YouTubeMockupProps> = ({
                 fontWeight: 600,
                 fontSize: 11,
                 marginLeft: "auto",
+                display: isPortrait ? "none" : undefined,
               }}
             >
               Subscribe

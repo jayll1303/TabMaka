@@ -12,6 +12,10 @@ export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const isPortrait = layout === "portrait";
+  const sceneOpacity = interpolate(frame, [0, 8], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   // Spring entrance for Mascot & Content
   const mascotSpring = spring({
@@ -51,6 +55,7 @@ export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
         position: "absolute",
         inset: 0,
         backgroundColor: "#FAF6EE",
+        opacity: sceneOpacity,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

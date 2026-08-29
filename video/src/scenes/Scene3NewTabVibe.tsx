@@ -16,6 +16,10 @@ export const Scene3NewTabVibe: React.FC<Scene3NewTabVibeProps> = ({ layout }) =>
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   const isPortrait = layout === "portrait";
+  const sceneOpacity = interpolate(frame, [0, 8, 90, 98], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   // Coordinates
   const newTabPlusX = isPortrait ? 385 : 435;
@@ -60,6 +64,7 @@ export const Scene3NewTabVibe: React.FC<Scene3NewTabVibeProps> = ({ layout }) =>
         position: "absolute",
         inset: 0,
         backgroundColor: "#FAF6EE",
+        opacity: sceneOpacity,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

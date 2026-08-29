@@ -19,7 +19,7 @@ export const Scene1DesktopLaunch: React.FC<Scene1DesktopLaunchProps> = ({ layout
 
   // Chrome icon coordinates in the bottom Dock
   const chromeDockX = isPortrait ? 490 : 898;
-  const chromeDockY = isPortrait ? 1858 : 1030;
+  const chromeDockY = isPortrait ? 1770 : 990;
 
   // Camera Zoom & Follow animation
   const zoomIn = interpolate(frame, [0, 20], [1.0, isPortrait ? 1.55 : 1.4], {
@@ -76,34 +76,38 @@ export const Scene1DesktopLaunch: React.FC<Scene1DesktopLaunchProps> = ({ layout
   // Frog mascot jump animation (starts at frame 60)
   const jumpStartFrame = 60;
   const jumpElapsed = Math.max(0, frame - jumpStartFrame);
+  const jumpDurationFrames = Math.round(0.84 * fps);
+  const jumpProgress = Math.min(1, jumpElapsed / jumpDurationFrames);
 
-  let frogPose: "loaf" | "jump-launch" | "jump-apex" | "jump-land" = "loaf";
+  let frogPose: "loaf" | "jump-crouch" | "jump-launch" | "jump-apex" | "jump-land" = "loaf";
   let frogOffsetY = 0;
   let frogOffsetX = 0;
   let frogOpacity = 0;
 
   if (frame < jumpStartFrame) {
     frogOpacity = 0;
-  } else if (jumpElapsed < 6) {
+  } else if (jumpProgress < 0.08) {
+    frogPose = "jump-crouch";
+    frogOpacity = 1;
+  } else if (jumpProgress < 0.44) {
     frogPose = "jump-launch";
     frogOpacity = 1;
-    frogOffsetY = interpolate(jumpElapsed, [0, 6], [220, 120]);
-    frogOffsetX = interpolate(jumpElapsed, [0, 6], [-180, -90]);
-  } else if (jumpElapsed < 14) {
+  } else if (jumpProgress < 0.76) {
     frogPose = "jump-apex";
     frogOpacity = 1;
-    frogOffsetY = interpolate(jumpElapsed, [6, 14], [120, -70]);
-    frogOffsetX = interpolate(jumpElapsed, [6, 14], [-90, 0]);
-  } else if (jumpElapsed < 22) {
+  } else if (jumpProgress < 0.94) {
     frogPose = "jump-land";
     frogOpacity = 1;
-    frogOffsetY = interpolate(jumpElapsed, [14, 22], [-70, 0]);
-    frogOffsetX = 0;
   } else {
     frogPose = "loaf";
     frogOpacity = 1;
-    frogOffsetY = 0;
-    frogOffsetX = 0;
+  }
+
+  // Continuous arc matching the app's entrance motion: smooth horizontal
+  // travel plus a sinusoidal lift, with no velocity jump between poses.
+  if (frame >= jumpStartFrame && jumpProgress < 1) {
+    frogOffsetX = interpolate(jumpProgress, [0, 1], [-180, 0]);
+    frogOffsetY = 220 * (1 - jumpProgress) - 190 * Math.sin(Math.PI * jumpProgress);
   }
 
   // Dynamic Ground Shadow calculation
@@ -111,24 +115,10 @@ export const Scene1DesktopLaunch: React.FC<Scene1DesktopLaunchProps> = ({ layout
   let shadowOpacity = 0;
 
   if (frame >= jumpStartFrame) {
-    if (jumpElapsed < 6) {
-      shadowOpacity = interpolate(jumpElapsed, [0, 6], [0, 0.2]);
-      shadowScale = 0.6;
-    } else if (jumpElapsed < 14) {
-      // In air at apex
-      const airRatio = Math.max(0, -frogOffsetY / 70);
-      shadowScale = 1 - airRatio * 0.45;
-      shadowOpacity = 0.28 * (1 - airRatio * 0.65);
-    } else if (jumpElapsed < 22) {
-      // Landing
-      const landRatio = Math.max(0, -frogOffsetY / 70);
-      shadowScale = 0.7 + (1 - landRatio) * 0.3;
-      shadowOpacity = 0.28;
-    } else {
-      // Settled loaf
-      shadowScale = 1.0;
-      shadowOpacity = 0.28;
-    }
+    const airRatio = Math.min(1, Math.max(0, -frogOffsetY / 190));
+    const isLanding = frogPose === "jump-land";
+    shadowScale = isLanding ? 1.12 : 1 - airRatio * 0.45;
+    shadowOpacity = isLanding ? 0.3 : 0.22 * (1 - airRatio * 0.65);
   }
 
   // Eye look-at offset tracking cursor
@@ -138,12 +128,12 @@ export const Scene1DesktopLaunch: React.FC<Scene1DesktopLaunchProps> = ({ layout
   const lookY = interpolate(cursorY - frogCenterTargetY, [-300, 300], [-3, 3]);
 
   // Landing impact dust particles
-  const showDust = jumpElapsed >= 20 && jumpElapsed <= 34;
-  const dustScale = interpolate(jumpElapsed, [20, 34], [0.3, 1.8], {
+  const showDust = jumpProgress >= 0.82 && jumpProgress <= 1;
+  const dustScale = interpolate(jumpProgress, [0.82, 1], [0.3, 1.8], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const dustOpacity = interpolate(jumpElapsed, [20, 24, 34], [0, 0.7, 0], {
+  const dustOpacity = interpolate(jumpProgress, [0.82, 0.9, 1], [0, 0.7, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -276,33 +266,40 @@ export const Scene1DesktopLaunch: React.FC<Scene1DesktopLaunchProps> = ({ layout
                       opacity: frogOpacity,
                       transform: `translate(${frogOffsetX}px, ${frogOffsetY}px)`,
                       position: "relative",
+                      width: isPortrait ? 370 : 420,
+                      height: isPortrait ? 300 : 340,
+                      display: "flex",
+                      alignItems: "flex-end",
+                      justifyContent: "center",
                     }}
                   >
-                    <FrogMascot
-                      pose={frogPose}
-                      expression={frogPose === "jump-apex" ? "surprised" : "happy"}
-                      size={isPortrait ? 310 : 350}
-                      eyeLookAt={{ x: lookX, y: lookY }}
-                    />
+                    <div style={{ position: "relative", display: "inline-block" }}>
+                      <FrogMascot
+                        pose={frogPose}
+                        expression={frogPose === "jump-apex" ? "surprised" : "happy"}
+                        size={isPortrait ? 310 : 350}
+                        eyeLookAt={{ x: lookX, y: lookY }}
+                      />
 
-                    {/* Dust Puffs on landing */}
-                    {showDust && (
-                      <div
-                        style={{
-                          position: "absolute",
-                          bottom: -10,
-                          left: "50%",
-                          transform: `translateX(-50%) scale(${dustScale})`,
-                          display: "flex",
-                          gap: 160,
-                          opacity: dustOpacity,
-                          pointerEvents: "none",
-                        }}
-                      >
-                        <span style={{ fontSize: 24 }}>💨</span>
-                        <span style={{ fontSize: 24 }}>💨</span>
-                      </div>
-                    )}
+                      {/* Dust Puffs on landing */}
+                      {showDust && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            bottom: -10,
+                            left: "50%",
+                            transform: `translateX(-50%) scale(${dustScale})`,
+                            display: "flex",
+                            gap: 160,
+                            opacity: dustOpacity,
+                            pointerEvents: "none",
+                          }}
+                        >
+                          <span style={{ fontSize: 24 }}>💨</span>
+                          <span style={{ fontSize: 24 }}>💨</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

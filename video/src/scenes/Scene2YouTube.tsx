@@ -5,6 +5,7 @@ import { YouTubeMockup } from "../components/YouTubeMockup";
 import { VirtualCursor } from "../components/VirtualCursor";
 import { ClockWidget } from "../components/ClockWidget";
 import { FrogMascot } from "../components/FrogMascot";
+import { TypingFrog } from "../components/TypingFrog";
 import type { LayoutMode } from "../types";
 
 export interface Scene2YouTubeProps {
@@ -15,6 +16,10 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
   const isPortrait = layout === "portrait";
+  const sceneOpacity = interpolate(frame, [105, 113], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   // Rickroll easter egg URL
   const targetUrl = "https://youtu.be/dQw4w9WgXcQ?si=PrklYN1pskm0CBAc";
@@ -28,7 +33,7 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
 
   // Smooth, gradual Camera Zoom on Address Bar during URL navigation
   // Zoom in from frame 0 to 20, stay zoomed while typing, then zoom out from frame 56 to 78
-  const maxZoom = isPortrait ? 1.25 : 1.2;
+  const maxZoom = isPortrait ? 1.1 : 1.2;
   const cameraScale =
     frame <= 20
       ? interpolate(frame, [0, 20], [1.0, maxZoom], { extrapolateRight: "clamp" })
@@ -105,6 +110,7 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
         position: "absolute",
         inset: 0,
         backgroundColor: "#FAF6EE",
+        opacity: sceneOpacity,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -117,7 +123,7 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
         style={{
           width: "100%",
           height: "100%",
-          transform: `scale(${cameraScale}) translateY(${(cameraScale - 1.0) * 160}px)`,
+          transform: `scale(${cameraScale}) translateY(${(cameraScale - 1.0) * (isPortrait ? 90 : 160)}px)`,
           transformOrigin: "center top",
           display: "flex",
           alignItems: "center",
@@ -209,11 +215,15 @@ export const Scene2YouTube: React.FC<Scene2YouTubeProps> = ({ layout }) => {
                   }}
                 />
 
-                <FrogMascot
-                  pose="loaf"
-                  expression="happy"
-                  size={isPortrait ? 300 : 340}
-                />
+                {frame >= 20 && frame < 56 ? (
+                  <TypingFrog size={isPortrait ? 360 : 380} startFrame={20} />
+                ) : (
+                  <FrogMascot
+                    pose="loaf"
+                    expression="happy"
+                    size={isPortrait ? 300 : 340}
+                  />
+                )}
               </div>
             </div>
           )}

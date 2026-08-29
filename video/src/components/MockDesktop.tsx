@@ -22,7 +22,7 @@ export const MockDesktop: React.FC<MockDesktopProps> = ({
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        padding: isPortrait ? "16px 20px" : "12px 28px",
+        padding: isPortrait ? "16px 20px 104px" : "12px 28px 52px",
         overflow: "hidden",
         fontFamily:
           "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
