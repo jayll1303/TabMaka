@@ -8,7 +8,7 @@ export const RemotionRoot: React.FC = () => {
     <>
       {/* 16:9 Landscape Video for YouTube, Product Hunt, Website Banner, Twitter */}
       <Composition
-        id="TabMakaPromo16x9"
+        id="PondieTabPromo16x9"
         component={MainVideo}
         durationInFrames={405}
         fps={30}
@@ -23,7 +23,7 @@ export const RemotionRoot: React.FC = () => {
 
       {/* 9:16 Portrait Video for TikTok, Instagram Reels, YouTube Shorts */}
       <Composition
-        id="TabMakaPromo9x16"
+        id="PondieTabPromo9x16"
         component={MainVideo}
         durationInFrames={405}
         fps={30}

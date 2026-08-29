@@ -1,13 +1,13 @@
-# TabMaka - Cozy New Tab Pet
+# Pondie Tab - Cozy Frog Companion
 
-TabMaka is an adorable cozy frog companion that greets you on every new tab. It tracks your cursor with its eyes, reacts to clicks, and can be placed anywhere on your screen.
+Pondie Tab is an adorable cozy frog companion that greets you on every new tab. It tracks your cursor with its eyes, reacts to clicks, and can be placed anywhere on your screen.
 100% local, no tracking, no accounts.
 
 Built for Chrome and Edge (Manifest V3). Vanilla TypeScript + Canvas 2D, no runtime framework, loads instantly.
 
 <p align="center">
-  <img src="store/assets/screenshot-1.jpeg" alt="TabMaka Preview 1" width="48%" />
-  <img src="store/assets/screenshot-2.jpeg" alt="TabMaka Preview 2" width="48%" />
+  <img src="store/assets/screenshot-1.jpeg" alt="Pondie Tab Preview 1" width="48%" />
+  <img src="store/assets/screenshot-2.jpeg" alt="Pondie Tab Preview 2" width="48%" />
 </p>
 
 ## Features

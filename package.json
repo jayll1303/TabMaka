@@ -1,9 +1,9 @@
 {
-  "name": "tabmaka",
+  "name": "pondie-tab",
   "private": true,
   "version": "0.2.3",
   "type": "module",
-  "description": "TabMaka - Cozy new tab pet for Chrome and Edge",
+  "description": "Pondie Tab - Cozy frog companion for Chrome and Edge",
   "license": "MIT",
   "scripts": {
     "dev": "vite",
@@ -13,7 +13,7 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{ts,css}\"",
-    "zip": "npm run build && powershell Compress-Archive -Path dist/* -DestinationPath tabmaka-v0.2.3.zip -Force"
+    "zip": "npm run build && powershell Compress-Archive -Path dist/* -DestinationPath pondie-tab-v0.2.3.zip -Force"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

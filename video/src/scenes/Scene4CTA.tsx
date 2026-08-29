@@ -2,6 +2,7 @@ import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { FrogMascot } from "../components/FrogMascot";
 import { ChromeLogo } from "../components/ChromeLogo";
+import { PondieTabLogo } from "../components/PondieTabLogo";
 import type { LayoutMode } from "../types";
 
 export interface Scene4CTAProps {
@@ -54,7 +55,7 @@ export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
       style={{
         position: "absolute",
         inset: 0,
-        backgroundColor: "#FAF6EE",
+        backgroundColor: "#FFF9ED",
         opacity: sceneOpacity,
         display: "flex",
         flexDirection: "column",
@@ -73,8 +74,8 @@ export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
           width: isPortrait ? 600 : 900,
           height: isPortrait ? 600 : 900,
           borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(130, 195, 85, 0.28) 0%, rgba(245, 235, 215, 0.15) 50%, transparent 75%)",
+            background:
+              "radial-gradient(circle, rgba(120, 174, 73, 0.28) 0%, rgba(245, 235, 215, 0.15) 50%, transparent 75%)",
           filter: "blur(70px)",
           transform: `scale(${1 + pulse * 1.5})`,
           pointerEvents: "none",
@@ -135,19 +136,14 @@ export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
             gap: 6,
           }}
         >
-          <h1
+          <div
             style={{
-              fontSize: isPortrait ? 64 : 76,
-              fontWeight: 900,
-              color: "#182415",
-              letterSpacing: -2,
-              margin: 0,
-              lineHeight: 1,
-              fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif",
+              width: isPortrait ? 430 : 620,
+              maxWidth: "100%",
             }}
           >
-            TabMaka
-          </h1>
+            <PondieTabLogo width={isPortrait ? 430 : 620} variant="wordmark" />
+          </div>
           <p
             style={{
               fontSize: isPortrait ? 22 : 26,
@@ -157,7 +153,7 @@ export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
               letterSpacing: -0.3,
             }}
           >
-            Your Cozy Browser Companion
+            Your Cozy Frog for Every New Tab
           </p>
         </div>
 
@@ -173,14 +169,14 @@ export const Scene4CTA: React.FC<Scene4CTAProps> = ({ layout }) => {
               display: "flex",
               alignItems: "center",
               gap: 14,
-              background: "linear-gradient(135deg, #6FB33F 0%, #559628 100%)",
+              background: "linear-gradient(135deg, #78AE49 0%, #4F8F72 100%)",
               color: "#FFFFFF",
               padding: isPortrait ? "18px 36px" : "18px 44px",
               borderRadius: 50,
               fontSize: isPortrait ? 24 : 27,
               fontWeight: 800,
               boxShadow:
-                "0 14px 36px rgba(100, 175, 50, 0.45), 0 2px 4px rgba(0,0,0,0.1)",
+                "0 14px 36px rgba(70, 137, 95, 0.4), 0 2px 4px rgba(0,0,0,0.1)",
               border: "2px solid rgba(255, 255, 255, 0.35)",
               letterSpacing: -0.2,
             }}

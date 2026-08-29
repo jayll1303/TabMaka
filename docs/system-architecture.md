@@ -1,6 +1,6 @@
 # System Architecture
 
-TabMaka is a Chrome/Edge (Manifest V3) new-tab extension that renders an
+Pondie Tab is a Chrome/Edge (Manifest V3) new-tab extension that renders an
 interactive kawaii frog on an HTML canvas. This document maps what actually
 ships today so humans and AI agents can navigate the code with an accurate
 mental model.
@@ -126,7 +126,7 @@ fallback. When any tab is audible it calls `mascot.setVibing(true)`.
 
 **No `tabs` permission is needed.** Chrome exposes the `audible` boolean and the
 `onUpdated` event to any extension; the `tabs` permission only gates sensitive
-fields (`url`, `title`, `favIconUrl`, `pendingUrl`), which TabMaka never reads.
+fields (`url`, `title`, `favIconUrl`, `pendingUrl`), which Pondie Tab never reads.
 Keeping this permission out avoids a scary install-time warning and keeps the
 privacy promise literally true. All chrome calls are guarded so the detector is
 a no-op outside the extension (e.g. Vite dev, tests).

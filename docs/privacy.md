@@ -1,10 +1,10 @@
 # Privacy Policy
 
-TabMaka is designed to run entirely on your device.
+Pondie Tab is designed to run entirely on your device.
 
 ## What we collect
 
-Nothing. TabMaka does not collect, transmit, or sell any personal
+Nothing. Pondie Tab does not collect, transmit, or sell any personal
 data. There is no analytics, no telemetry, no advertising, and no network
 requests to any server.
 
@@ -33,7 +33,7 @@ not read, modify, or transmit the contents of any other web page.
 ## The music-reactive animation
 
 When a tab plays sound, the companion does a little headphone groove. To know
-when to start, TabMaka checks a single yes/no signal Chrome exposes to any
+when to start, Pondie Tab checks a single yes/no signal Chrome exposes to any
 extension: "is at least one tab currently playing audio?" This does not require
 any permission and reveals nothing about which site is playing, its URL, title,
 or contents. Nothing about this signal is stored or transmitted; it only toggles

@@ -4,7 +4,7 @@ Copy and metadata for Chrome Web Store and Microsoft Edge Add-ons.
 
 ## Name
 
-TabMaka - Cozy New Tab Pet
+Pondie Tab - Cozy Frog Companion
 
 ## Category
 
@@ -16,7 +16,7 @@ An adorable cozy frog pet on your new tab. Eye tracking, drag & drop, 100% local
 
 ## Detailed description
 
-Meet TabMaka, an adorable cozy companion that lives on your new-tab page. Designed as a cute kawaii frog loaf, it warmly greets you every time you open a new tab.
+Meet Pondie Tab, an adorable cozy companion that lives on your new-tab page. Designed as a cute kawaii frog loaf, it warmly greets you every time you open a new tab.
 
 What you get:
 - An interactive kawaii frog companion with real-time cursor-following eye tracking, expressive blinking, and breathing animations
@@ -35,7 +35,7 @@ Open source (MIT). Build it from source or view the code on GitHub.
 
 ## Single-purpose statement (required by Chrome for new-tab overrides)
 
-TabMaka has a single purpose: to replace the browser's new-tab page with an interactive animated companion, customizable background themes, and a minimal clock. It does not perform any other function.
+Pondie Tab has a single purpose: to replace the browser's new-tab page with an interactive animated companion, customizable background themes, and a minimal clock. It does not perform any other function.
 
 ## Permission justification
 

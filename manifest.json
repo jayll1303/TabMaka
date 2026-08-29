@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "TabMaka - Cozy New Tab Pet",
+  "name": "Pondie Tab - Cozy Frog Companion",
   "version": "0.2.3",
-  "description": "An adorable cozy pet that greets you on every new tab. 100% local, no tracking.",
+  "description": "An adorable cozy frog companion that greets you on every new tab. 100% local, no tracking.",
   "chrome_url_overrides": {
     "newtab": "index.html"
   },

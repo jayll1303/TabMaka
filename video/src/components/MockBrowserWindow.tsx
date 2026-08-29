@@ -1,5 +1,5 @@
 import React from "react";
-import { interpolate, useCurrentFrame } from "remotion";
+import { Img, interpolate, staticFile, useCurrentFrame } from "remotion";
 
 export interface BrowserTab {
   id: string;
@@ -217,23 +217,26 @@ export const MockBrowserWindow: React.FC<MockBrowserWindowProps> = ({
             </span>
           </div>
 
-          {/* Extensions Bar with TabMaka Pin */}
+          {/* Extensions Bar with Pondie Tab Pin */}
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {/* TabMaka active extension icon */}
+            {/* Pondie Tab active extension icon */}
             <div
               style={{
                 width: 26,
                 height: 26,
                 borderRadius: 6,
-                backgroundColor: "rgba(130, 195, 85, 0.2)",
-                border: "1px solid rgba(130, 195, 85, 0.4)",
+                backgroundColor: "rgba(45, 111, 102, 0.14)",
+                border: "1px solid rgba(45, 111, 102, 0.28)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 14,
+                overflow: "hidden",
               }}
             >
-              🐸
+              <Img
+                src={staticFile("branding/pondie-tab-mark.svg")}
+                style={{ width: 22, height: 22, display: "block" }}
+              />
             </div>
           </div>
         </div>

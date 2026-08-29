@@ -64,14 +64,14 @@ function Generate-SmallTile {
     $iconY = 24
     $g.DrawImage($iconImg, $iconX, $iconY, $iconSize, $iconSize)
 
-    # Title: TabMaka
+    # Title: Pondie Tab
     $titleFont = Get-PromoFont "Segoe UI" 24 ([System.Drawing.FontStyle]::Bold)
     $titleBrush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(24, 28, 36))
     $sf = New-Object System.Drawing.StringFormat
     $sf.Alignment = [System.Drawing.StringAlignment]::Center
 
     $titleRect = New-Object System.Drawing.RectangleF(0, 162, $w, 36)
-    $g.DrawString("TabMaka", $titleFont, $titleBrush, $titleRect, $sf)
+    $g.DrawString("Pondie Tab", $titleFont, $titleBrush, $titleRect, $sf)
 
     # Subtitle: Cozy New Tab Pet
     $subFont = Get-PromoFont "Segoe UI" 13 ([System.Drawing.FontStyle]::Regular)
@@ -139,10 +139,10 @@ function Generate-MarqueeTile {
     $pillTextBrush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(70, 130, 40))
     $g.DrawString("NEW TAB COMPANION", $pillTextFont, $pillTextBrush, ($leftX + 22), 108)
 
-    # Title: TabMaka
+    # Title: Pondie Tab
     $titleFont = Get-PromoFont "Segoe UI" 60 ([System.Drawing.FontStyle]::Bold)
     $titleBrush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(24, 28, 36))
-    $g.DrawString("TabMaka", $titleFont, $titleBrush, $leftX, 150)
+    $g.DrawString("Pondie Tab", $titleFont, $titleBrush, $leftX, 150)
 
     # Subtitle: Cozy New Tab Pet
     $subFont = Get-PromoFont "Segoe UI" 28 ([System.Drawing.FontStyle]::Regular)

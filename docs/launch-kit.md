@@ -1,6 +1,6 @@
-# 🚀 TabMaka Launch Content Kit
+# 🚀 Pondie Tab Launch Content Kit
 
-Complete launch content and copy kit for shipping **TabMaka** across **Product Hunt**, **Hacker News (Show HN)**, **Reddit**, **Twitter / X**, **Vietnamese Developer Communities**, and **Short-form Video (TikTok/Reels/Shorts)**.
+Complete launch content and copy kit for shipping **Pondie Tab** across **Product Hunt**, **Hacker News (Show HN)**, **Reddit**, **Twitter / X**, **Vietnamese Developer Communities**, and **Short-form Video (TikTok/Reels/Shorts)**.
 
 ---
 
@@ -19,7 +19,7 @@ Complete launch content and copy kit for shipping **TabMaka** across **Product H
 ## 1. Product Hunt Launch Kit
 
 ### 🏷️ Product Metadata
-- **Product Name**: `TabMaka`
+- **Product Name**: `Pondie Tab`
 - **Tagline (Max 60 chars)**:
   - *Option 1 (Cozy & Cute)*: `A cozy, interactive frog companion on your new tab 🐸` (58 chars)
   - *Option 2 (Performance & Minimal)*: `Cozy new tab pet with ~0% CPU and zero tracking 🐸` (52 chars)
@@ -31,7 +31,7 @@ Complete launch content and copy kit for shipping **TabMaka** across **Product H
 ---
 
 ### 📝 Short Description (Max 260 chars)
-> TabMaka is a lightweight, cozy new-tab companion. Meet a procedural kawaii frog that follows your cursor, hops across your screen, and brings calm to your browser. 100% local, zero tracking, ~0% idle CPU, and only 15KB.
+> Pondie Tab is a lightweight, cozy new-tab companion. Meet a procedural kawaii frog that follows your cursor, hops across your screen, and brings calm to your browser. 100% local, zero tracking, ~0% idle CPU, and only 15KB.
 
 ---
 
@@ -40,13 +40,13 @@ Complete launch content and copy kit for shipping **TabMaka** across **Product H
 
 > Hey Product Hunt community! 👋
 >
-> I'm excited to introduce **TabMaka** 🐸✨
+> I'm excited to introduce **Pondie Tab** 🐸✨
 >
 > Most new-tab extensions fall into two extremes: either they are completely static, or they are bloated with corporate widgets, crypto tickers, heavy feeds, and analytics that slow down every single tab you open.
 >
 > I wanted something completely different: **a tiny, delightful moment of calm in the middle of a busy workday.**
 >
-> ### 🌟 What is TabMaka?
+> ### 🌟 What is Pondie Tab?
 > It's an interactive frog companion that lives on your new tab. It watches your cursor, reacts to pokes, hops around with bouncy physics, and chills with you while you work.
 >
 > ### ⚡ Built for Delight without the Bloat:
@@ -64,13 +64,13 @@ Complete launch content and copy kit for shipping **TabMaka** across **Product H
 ---
 
 ### 🖼️ Gallery Media Plan & Copy
-1. **Slide 1 (Hero)**: Clean screenshot of TabMaka in center with pastel background.
+1. **Slide 1 (Hero)**: Clean screenshot of Pondie Tab in center with pastel background.
    - *Overlay text*: "Your cozy new-tab companion 🐸"
 2. **Slide 2 (Interactions)**: Split-view or GIF showing eye tracking + drag & drop + jump hop.
    - *Overlay text*: "Follows your cursor, hops & reacts to your clicks"
 3. **Slide 3 (Themes & Customization)**: Showcase color palette switcher & clock styles.
    - *Overlay text*: "Pastel ambient palettes & offline clock typography"
-4. **Slide 4 (Performance & Privacy)**: Diagram / bullet points comparing bloated new tabs vs TabMaka.
+4. **Slide 4 (Performance & Privacy)**: Diagram / bullet points comparing bloated new tabs vs Pondie Tab.
    - *Overlay text*: "~0% Idle CPU • 15KB bundle • Zero tracking • Open Source"
 
 ---
@@ -78,14 +78,14 @@ Complete launch content and copy kit for shipping **TabMaka** across **Product H
 ## 2. Hacker News (Show HN)
 
 ### 📌 Title Ideas:
-- `Show HN: TabMaka – Cozy procedural frog companion for new tabs (~0% idle CPU)`
-- `Show HN: TabMaka – A 15KB, zero-telemetry interactive new-tab companion`
+- `Show HN: Pondie Tab – Cozy procedural frog companion for new tabs (~0% idle CPU)`
+- `Show HN: Pondie Tab – A 15KB, zero-telemetry interactive new-tab companion`
 
 ### 📄 HN Post Body:
 ```text
 Hi HN,
 
-I built TabMaka (https://github.com/jayll1303/TabMaka), an open-source (MIT) new-tab Chrome/Edge extension featuring an interactive frog companion.
+I built Pondie Tab (https://github.com/jayll1303/TabMaka), an open-source (MIT) new-tab Chrome/Edge extension featuring an interactive frog companion.
 
 Most new-tab extensions load heavy telemetry scripts, news feeds, or several megabytes of JS bundle. I wanted a cozy, minimalist page that felt alive without wasting system resources.
 
@@ -122,7 +122,7 @@ Hey everyone!
 
 I got tired of bloated new-tab extensions that take 2 seconds to load and track everything you do. I wanted something simple, cozy, and cute that gives you a quick smile when opening a tab.
 
-So I built **TabMaka** — a lightweight new-tab companion.
+So I built **Pondie Tab** — a lightweight new-tab companion.
 
 ✨ **Key Highlights**:
 - 🐸 **Interactive Frog**: Tracks your cursor with its eyes, hops across the screen when clicked, and can be dragged anywhere.
@@ -154,7 +154,7 @@ I'd love for you to try it out and let me know what you think!
 ```markdown
 Hi cozy friends! 🌿
 
-If you spend a lot of time working on your computer and want a little touch of coziness, I made a free extension called **TabMaka**.
+If you spend a lot of time working on your computer and want a little touch of coziness, I made a free extension called **Pondie Tab**.
 
 Every time you open a new tab, you're greeted by a cute little frog loaf that follows your mouse, blinks, breathes, and hops around if you click it. You can pick your favorite pastel background color and set a gentle greeting.
 
@@ -171,7 +171,7 @@ Hope it brings a smile to your workday! 💚
 ### 🧵 Tweet 1 (Hook + Video/GIF)
 > Stop opening boring, cluttered new tabs.
 > 
-> Meet TabMaka 🐸 — a cozy, interactive frog companion that lives on your new tab, tracks your cursor, and brings calm to your day.
+> Meet Pondie Tab 🐸 — a cozy, interactive frog companion that lives on your new tab, tracks your cursor, and brings calm to your day.
 > 
 > ⚡ ~0% idle CPU
 > 🛡️ 100% local & private
@@ -193,7 +193,7 @@ Hope it brings a smile to your workday! 💚
 > 
 > Most extensions load megabytes of JS and kill battery life. 
 > 
-> TabMaka is built with vanilla TypeScript + Canvas 2D. Its animation loop completely sleeps when idle or hidden. ~0% CPU usage.
+> Pondie Tab is built with vanilla TypeScript + Canvas 2D. Its animation loop completely sleeps when idle or hidden. ~0% CPU usage.
 
 ### 🧵 Tweet 4 (CTA & Product Hunt)
 > We're live on Product Hunt today! 🚀
@@ -220,7 +220,7 @@ Chào anh em,
 
 Nhiều lúc mở tab mới làm việc thấy giao diện mặc định hơi chán, còn cài mấy extension new tab khác thì nặng máy, nhồi nhét cả đống news feed, widget thời tiết với analytics ngầm.
 
-Nên mình tự build một extension nhỏ tên là **TabMaka** — biến mỗi new tab thành một góc làm việc nhẹ nhàng, cozy:
+Nên mình tự build một extension nhỏ tên là **Pondie Tab** — biến mỗi new tab thành một góc làm việc nhẹ nhàng, cozy:
 
 🌟 Điểm nổi bật:
 - 🐸 Bé ếch tương tác: Mắt liếc theo chuột thời gian thực, click để ếch nhảy tưng tưng (physics squash & stretch), kéo thả đi khắp màn hình.
@@ -251,14 +251,14 @@ Cảm ơn mọi người nhiều! ❤️
   - `00:00 - 00:04`: Mở new tab -> Bé ếch xuất hiện nhìn theo chuột.
   - `00:04 - 00:10`: Lấy chuột poke vào ếch -> ếch nhảy sang góc khác, đổi màu nền pastel.
   - `00:10 - 00:15`: Quay đồng hồ tối giản, chuyển font chữ.
-  - `00:15 - 00:20`: Show text *"15KB, no tracking, free on Chrome Store: TabMaka"*.
+  - `00:15 - 00:20`: Show text *"15KB, no tracking, free on Chrome Store: Pondie Tab"*.
 
 ---
 
 ### 🎬 Script 2: "Developer Story / POV"
 - **On-screen Text**: *"I was tired of heavy new-tab extensions slowing down my browser... so I built this in 15KB."*
 - **Visual**: Mở Chrome Task Manager (show 0% CPU), kéo thả bé ếch quanh màn hình.
-- **Voiceover**: *"Meet TabMaka. It's a cozy frog pet for your new tab with zero tracking, ~0% idle CPU, and smooth cursor tracking."*
+- **Voiceover**: *"Meet Pondie Tab. It's a cozy frog pet for your new tab with zero tracking, ~0% idle CPU, and smooth cursor tracking."*
 
 ---
 

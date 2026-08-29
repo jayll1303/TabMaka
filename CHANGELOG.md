@@ -1,9 +1,14 @@
 # Changelog
 
-All notable changes to TabMaka will be documented in this file.
+All notable changes to Pondie Tab will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Changed
+- **Brand**: Rebranded the product and promo assets from TabMaka to Pondie Tab while keeping the existing settings storage key for upgrade compatibility.
 
 ## [0.2.3] - 2026-08-28
 

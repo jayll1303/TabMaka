@@ -1,4 +1,4 @@
-# How I built TabMaka: an interactive new-tab companion at ~0% idle CPU
+# How I built Pondie Tab: an interactive new-tab companion at ~0% idle CPU
 
 _Draft. Part build log, part portfolio piece._
 

@@ -404,7 +404,7 @@ export const YouTubeMockup: React.FC<YouTubeMockupProps> = ({
           {[
             { user: "RickRollLegend", text: "Never gonna give you up! 🕺✨" },
             { user: "MusicFan2026", text: "Classic timeless masterpiece 🔥" },
-            { user: "TabMaka_User", text: "Best cozy pet extension 🐸" },
+            { user: "Pondie_Tab_User", text: "Best cozy pet extension 🐸" },
             { user: "CodeVibe", text: "Coding with Rick Astley = 10x 🎧" },
           ].map((item, i) => (
             <div
