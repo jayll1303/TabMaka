@@ -8,10 +8,10 @@ export interface ThemePreset {
 }
 
 export const THEME_PRESETS: ThemePreset[] = [
-  { id: "oat-cream", name: "Kem", color: "#FAF6EE" },
+  { id: "oat-cream", name: "Cream", color: "#FAF6EE" },
   { id: "matcha-mist", name: "Matcha", color: "#EAF0E6" },
   { id: "lavender-mist", name: "Lavender", color: "#EDE8F5" },
-  { id: "dark-slate", name: "Đêm", color: "#0F1117" },
+  { id: "dark-slate", name: "Night", color: "#0F1117" },
 ];
 
 export const DEFAULT_BG = "#FAF6EE";
@@ -84,7 +84,7 @@ export function initAmbientPalette(
   const container = document.createElement("div");
   container.className = "ambient-color-bar";
   container.setAttribute("role", "toolbar");
-  container.setAttribute("aria-label", "Chọn màu nền");
+  container.setAttribute("aria-label", "Choose background color");
 
   const swatchesHtml = THEME_PRESETS.map((p) => {
     const isSelected =
@@ -107,7 +107,7 @@ export function initAmbientPalette(
 
   container.innerHTML = `
     ${swatchesHtml}
-    <label class="color-swatch custom-picker ${isCustom ? "active" : ""}" title="Tùy chọn màu" aria-label="Tùy chọn màu" ${isCustom ? `style="background-color: ${settings.bg};"` : ""}>
+    <label class="color-swatch custom-picker ${isCustom ? "active" : ""}" title="Custom color" aria-label="Custom color" ${isCustom ? `style="background-color: ${settings.bg};"` : ""}>
       <input type="color" id="custom-bg-input" value="${settings.bg || "#FAF6EE"}" />
       <svg class="custom-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>

@@ -4,18 +4,18 @@ import { saveSettings } from "../storage";
 let timer: number | undefined;
 
 export const CLOCK_STYLES: { id: ClockStyle; name: string; desc: string }[] = [
-  { id: "minimal", name: "Minimal Digital", desc: "Chữ số hiện đại tối giản" },
+  { id: "minimal", name: "Minimal Digital", desc: "Clean modern digits" },
   {
     id: "pixel-box",
     name: "Pixel Arcade",
-    desc: "Font pixel 8-bit khung retro",
+    desc: "8-bit pixel font in a retro frame",
   },
   {
     id: "cozy-hand",
     name: "Cozy Handwritten",
-    desc: "Font nét viết tay ấm áp",
+    desc: "Warm handwritten font",
   },
-  { id: "analog-round", name: "Analog Dial", desc: "Đồng hồ kim tròn cổ điển" },
+  { id: "analog-round", name: "Analog Dial", desc: "Classic round analog dial" },
 ];
 
 function formatDigitalTime(
@@ -172,9 +172,9 @@ export function initClockToggle(
       btn.classList.add("mode-off");
       btn.setAttribute(
         "title",
-        `Đồng hồ: Đang tắt (Click để bật ${CLOCK_STYLES[0].name} • Chuột phải đổi 12/24h)`,
+        `Clock: off (Click to show ${CLOCK_STYLES[0].name} • Right-click to switch 12/24h)`,
       );
-      btn.setAttribute("aria-label", "Bật đồng hồ");
+      btn.setAttribute("aria-label", "Turn clock on");
       btn.innerHTML = getStyleIcon("minimal", true);
       return;
     }
@@ -187,14 +187,14 @@ export function initClockToggle(
     const nextItem =
       currentIndex >= 0 && currentIndex < CLOCK_STYLES.length - 1
         ? CLOCK_STYLES[currentIndex + 1].name
-        : "Tắt đồng hồ";
+        : "Clock off";
 
     const formatStr = settings.hour12 ? "12h" : "24h";
     btn.setAttribute(
       "title",
-      `Đồng hồ: ${currentName} (${formatStr})\nClick: Chuyển sang ${nextItem}\nChuột phải: Đổi 12h/24h`,
+      `Clock: ${currentName} (${formatStr})\nClick: Switch to ${nextItem}\nRight-click: Switch 12h/24h`,
     );
-    btn.setAttribute("aria-label", `Chuyển style đồng hồ từ ${currentName}`);
+    btn.setAttribute("aria-label", `Change clock style (current: ${currentName})`);
     btn.innerHTML = getStyleIcon(currentStyle, false);
   }
 

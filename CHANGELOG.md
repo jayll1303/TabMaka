@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Calmer idle**: Once the frog falls asleep it is drawn at 20fps instead of the full display rate, and returns to full speed on the next input.
+- **English UI text**: Clock and background-palette tooltips, labels, and theme names are now English throughout.
+
 ## [0.2.5] - 2026-10-12
 
 ### Changed
@@ -53,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Bongo Hacker Frog Typing Animation**: Maka wears cool hacker sunglasses and types along on a mini laptop whenever you press keys on your keyboard! Uses 4 custom keyframe sprites (`type_0_idle`, `type_1_left`, `type_2_right`, `type_3_both`) with continuous rapid paw flutter, energetic head bounce, space/enter smash accents, and 1:1 pixel-perfect body scaling.
 - **Entrance Jump Animation**: Maka the frog now joyfully leaps into the viewport from off-screen on every new tab with realistic parabolic arc, dynamic squash-and-stretch poses, and responsive ground shadow.
-- **Manual Entrance Shortcut (`E`)**: Press `E` anytime to replay the entrance leap animation.
+- **Manual Entrance Shortcut (`E`)**: Press `E` anytime to replay the entrance leap animation. _(Shortcut later removed.)_
 
 ### Fixed
 - **Reduced Motion Loop Autostart**: Ensured render loop runs and completes keyframe animations before settling to prevent freezes on systems with reduced-motion preferences.
@@ -64,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Music & Audio Vibe Mode**: TabMaka now detects whenever audio/music is playing in any browser tab. The frog dynamically sways and bops its head with happy expressions while listening to music.
 - **Floating Musical Note & Sparkle Particles**: Emits cheerful floating musical notes (`♪`, `♫`, `♩`, `♬`) and glowing sparkles around your companion during audio playback.
-- **Manual Vibe Shortcut (`M`)**: Press `M` anytime to instantly toggle and preview the music vibe animation.
+- **Manual Vibe Shortcut (`M`)**: Press `M` anytime to instantly toggle and preview the music vibe animation. _(Shortcut later removed.)_
 - **Remotion Video Pipeline**: Motion graphics suite for automated promotional and social preview video generation.
 
 ### Fixed

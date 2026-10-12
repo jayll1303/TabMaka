@@ -21,6 +21,9 @@ const clockControlEl = document.getElementById("clock-control");
 const ambientPaletteEl = document.getElementById("ambient-palette");
 const onboardingEl = document.getElementById("onboarding");
 
+/** Frame rate while the frog sleeps: enough for breathing and floating Zzz. */
+const IDLE_FPS = 20;
+
 async function main(): Promise<void> {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
@@ -44,14 +47,19 @@ async function main(): Promise<void> {
     mascot.draw(ctx!, size);
 
     // Reduced motion: once settled, stop the loop (no perpetual animation).
-    if (reduced && mascot.isSettled()) {
+    // Otherwise a settled (sleeping) frog only needs a slow idle frame rate.
+    const settled = mascot.isSettled();
+    if (reduced && settled) {
       loop.stop();
+    } else {
+      loop.maxFps = settled ? IDLE_FPS : null;
     }
   }
 
   const loop = new Loop(drawFrame);
 
   function wake(): void {
+    loop.maxFps = null;
     if (!loop.isRunning && !document.hidden) loop.start();
   }
 

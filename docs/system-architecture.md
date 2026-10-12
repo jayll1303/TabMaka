@@ -25,7 +25,8 @@ mental model.
   `devicePixelRatio`.
 - **Performance is a constraint, not a feature.** The rAF loop stops when the
   tab is hidden, and under reduced motion once the mascot settles. With motion
-  enabled, idle breathing keeps the loop running while the tab is visible.
+  enabled, a sleeping frog is drawn at 20fps (breathing and Zzz only) until
+  the next input.
 - **Accessibility is a constraint.** Honor `prefers-reduced-motion`: settle to a
   static frame and stop the loop.
 - **Privacy is a constraint.** No analytics, telemetry, accounts, or network
@@ -81,8 +82,9 @@ scripts/               # Asset tooling (optimize-sprites.mjs, icon generation)
 5. Input listeners (pointer move/down/up, dblclick, keydown, audio) call mascot
    methods and `wake()` the loop.
 6. When the tab is hidden the loop stops and the audio detector pauses its
-   poll; both resume when it is visible again. Under reduced motion the loop
-   also stops once the mascot `isSettled()`.
+   poll; both resume when it is visible again. Once the mascot `isSettled()`
+   (asleep, nothing animating) the loop stops under reduced motion, and is
+   otherwise capped to `IDLE_FPS` until `wake()` lifts the cap.
 
 ## The Mascot contract
 
@@ -142,8 +144,8 @@ a no-op outside the extension (e.g. Vite dev, tests).
 
 ## Performance & accessibility
 
-- **`perf/loop.ts`** — pausable rAF loop; normalizes delta to `dtScale` (1 at
-  60fps, clamped to 3 after long pauses).
+- **`perf/loop.ts`** — pausable rAF loop with an optional `maxFps` cap;
+  normalizes delta to `dtScale` (1 at 60fps, clamped to 3 after long pauses).
 - **`perf/visibility.ts`** — stops the loop when the tab is hidden.
 - **`perf/reduced-motion.ts`** — reports `prefers-reduced-motion`; under reduced
   motion `update()` snaps rather than eases and the loop stops once settled.
