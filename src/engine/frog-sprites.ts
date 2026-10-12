@@ -6,9 +6,13 @@ import type { Expression } from "./mood";
  * This module owns all static art assets and their pixel geometry so the
  * mascot class and renderer stay focused on state and drawing. All sprites are
  * bundled locally under `public/sprites/frog/` (no network access).
+ *
+ * The shipped WebP files are downscaled builds of the PNG masters in
+ * `art/sprites/frog/` (see scripts/optimize-sprites.mjs). Every `nat*` size
+ * and anchor below is in master pixels; the renderer only uses them as ratios.
  */
 
-/** Natural pixel dimensions of the base body sprite (`frog_body.png`). */
+/** Master pixel dimensions of the base body sprite (`frog_body.png`). */
 export const BODY_NAT = { w: 566, h: 450 };
 
 /** Body width as a multiple of the config `size` baseline. */
@@ -36,10 +40,16 @@ export function createImage(src: string): HTMLImageElement {
   } as HTMLImageElement;
 }
 
+/** Defer building a sprite set (and its image requests) until first use. */
+function lazy<T>(build: () => T): () => T {
+  let value: T | undefined;
+  return () => (value ??= build());
+}
+
 // Base body sprite. The baked-in black eye bead has been removed from the
 // source PNG (see scripts/clean-frog-eye.mjs); the eye is drawn entirely in
 // code so the mood system has full control (blink, wide, sleepy, closed, ...).
-export const bodyImg = createImage("./sprites/frog/frog_body.png");
+export const bodyImg = createImage("./sprites/frog/frog_body.webp");
 
 /** Natural eye geometry on the 566x450 body sprite. */
 export const EYE_NAT = { x: 313.3, y: 85.8, r: 38.8 };
@@ -67,7 +77,7 @@ function loadJumpFrame(
 export const jumpFrames: JumpFrame[] = [
   // 0: Crouch / Anticipation (637x329)
   loadJumpFrame(
-    "jump_1_crouch.png",
+    "jump_1_crouch.webp",
     637,
     329,
     { x: 370, y: 110, r: 36 },
@@ -75,7 +85,7 @@ export const jumpFrames: JumpFrame[] = [
   ),
   // 1: Launch / Takeoff (571x511)
   loadJumpFrame(
-    "jump_2_launch.png",
+    "jump_2_launch.webp",
     571,
     511,
     { x: 465, y: 125, r: 34 },
@@ -83,7 +93,7 @@ export const jumpFrames: JumpFrame[] = [
   ),
   // 2: Apex Peak Flight (473x397)
   loadJumpFrame(
-    "jump_3_apex.png",
+    "jump_3_apex.webp",
     473,
     397,
     { x: 305, y: 85, r: 32 },
@@ -91,7 +101,7 @@ export const jumpFrames: JumpFrame[] = [
   ),
   // 3: Land Impact / Squash (647x304)
   loadJumpFrame(
-    "jump_4_land.png",
+    "jump_4_land.webp",
     647,
     304,
     { x: 410, y: 105, r: 35 },
@@ -119,10 +129,11 @@ function loadVibeFrame(
   return { img, natW, natH, eyeAnchor, mouthAnchor };
 }
 
-export const vibeFrames: VibeFrame[] = [
+// Loaded on first use: most new tabs never play audio.
+export const vibeFrames = lazy((): VibeFrame[] => [
   // 0: Sway / relaxed groove with headphones (529x521)
   loadVibeFrame(
-    "vibe_1_sway.png",
+    "vibe_1_sway.webp",
     529,
     521,
     { x: 315, y: 140, r: 34 },
@@ -130,13 +141,13 @@ export const vibeFrames: VibeFrame[] = [
   ),
   // 1: Up / bouncy stretch groove with headphones (501x487)
   loadVibeFrame(
-    "vibe_2_up.png",
+    "vibe_2_up.webp",
     501,
     487,
     { x: 280, y: 130, r: 32 },
     { x: 325, y: 205 },
   ),
-];
+]);
 
 /** Typing / Hacker laptop animation keyframe specification. */
 export interface TypingFrame {
@@ -170,10 +181,11 @@ function loadTypingFrame(
   };
 }
 
-export const typingFrames: TypingFrame[] = [
+// Loaded on first use: most new tabs never receive a keystroke.
+export const typingFrames = lazy((): TypingFrame[] => [
   // 0: Idle at laptop (1298x921)
   loadTypingFrame(
-    "type_0_idle.png",
+    "type_0_idle.webp",
     1298,
     921,
     { x: 620, y: 420 },
@@ -183,7 +195,7 @@ export const typingFrames: TypingFrame[] = [
   ),
   // 1: Left paw down, right paw up (1295x933)
   loadTypingFrame(
-    "type_1_left.png",
+    "type_1_left.webp",
     1295,
     933,
     { x: 620, y: 420 },
@@ -193,7 +205,7 @@ export const typingFrames: TypingFrame[] = [
   ),
   // 2: Right paw down, left paw up (1300x930)
   loadTypingFrame(
-    "type_2_right.png",
+    "type_2_right.webp",
     1300,
     930,
     { x: 620, y: 420 },
@@ -203,7 +215,7 @@ export const typingFrames: TypingFrame[] = [
   ),
   // 3: Both paws up frenzy (1297x951)
   loadTypingFrame(
-    "type_3_both.png",
+    "type_3_both.webp",
     1297,
     951,
     { x: 620, y: 420 },
@@ -211,7 +223,7 @@ export const typingFrames: TypingFrame[] = [
     815.0,
     768,
   ),
-];
+]);
 
 /** A mouth sprite with its natural pixel dimensions and a target width. */
 export interface MouthSprite {
@@ -234,13 +246,13 @@ function mouth(
 
 // One sprite per expression, keeping each drawing's own aspect ratio.
 export const mouths: Record<Expression, MouthSprite> = {
-  neutral: mouth("mouth_normal.png", 157, 87, 0.14),
-  happy: mouth("mouth_happy.png", 140, 105, 0.16),
-  uwu: mouth("mouth_uwu.png", 123, 50, 0.15),
-  surprised: mouth("mouth_surprised.png", 90, 92, 0.095),
-  sleepy: mouth("mouth_straight.png", 113, 32, 0.12),
-  tongue: mouth("mouth_tongue.png", 135, 71, 0.15),
-  kiss: mouth("mouth_kiss.png", 79, 80, 0.085),
+  neutral: mouth("mouth_normal.webp", 157, 87, 0.14),
+  happy: mouth("mouth_happy.webp", 140, 105, 0.16),
+  uwu: mouth("mouth_uwu.webp", 123, 50, 0.15),
+  surprised: mouth("mouth_surprised.webp", 90, 92, 0.095),
+  sleepy: mouth("mouth_straight.webp", 113, 32, 0.12),
+  tongue: mouth("mouth_tongue.webp", 135, 71, 0.15),
+  kiss: mouth("mouth_kiss.webp", 79, 80, 0.085),
 };
 
 /** How each expression drives the eye. */

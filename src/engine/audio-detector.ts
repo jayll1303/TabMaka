@@ -29,14 +29,27 @@ export class AudioDetector {
   }
 
   private init(): void {
-    this.checkAudibleTabs();
     this.attachChromeListeners();
+    if (typeof document === "undefined" || !document.hidden) this.resume();
+  }
+
+  /** Re-check now and restart the fallback poll (tab became visible). */
+  public resume(): void {
+    this.checkAudibleTabs();
 
     // Secondary periodic poll (every 2.5s) to guarantee resilience
-    if (typeof window !== "undefined") {
+    if (this.timer === null && typeof window !== "undefined") {
       this.timer = window.setInterval(() => {
         this.checkAudibleTabs();
       }, 2500);
+    }
+  }
+
+  /** Stop the fallback poll while nobody can see the mascot (tab hidden). */
+  public pause(): void {
+    if (this.timer !== null && typeof window !== "undefined") {
+      window.clearInterval(this.timer);
+      this.timer = null;
     }
   }
 
@@ -94,10 +107,7 @@ export class AudioDetector {
   }
 
   public destroy(): void {
-    if (this.timer !== null && typeof window !== "undefined") {
-      window.clearInterval(this.timer);
-      this.timer = null;
-    }
+    this.pause();
 
     if (
       this.listenersAttached &&

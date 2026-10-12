@@ -12,10 +12,11 @@ import { fileURLToPath } from "node:url";
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const publicDir = join(root, "public");
 const iconDir = join(publicDir, "icons");
+const artDir = join(root, "art", "sprites", "frog");
 const spritePaths = {
-  body: join(publicDir, "sprites", "frog", "frog_body.png"),
-  eye: join(publicDir, "sprites", "frog", "eye_open.png"),
-  mouth: join(publicDir, "sprites", "frog", "mouth_normal.png"),
+  body: join(artDir, "frog_body.png"),
+  eye: join(artDir, "reference", "eye_open.png"),
+  mouth: join(artDir, "mouth_normal.png"),
 };
 const SPRITES = {
   body: decodePng(readFileSync(spritePaths.body)),

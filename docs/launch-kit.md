@@ -22,7 +22,7 @@ Complete launch content and copy kit for shipping **Pondie Tab** across **Produc
 - **Product Name**: `Pondie Tab`
 - **Tagline (Max 60 chars)**:
   - *Option 1 (Cozy & Cute)*: `A cozy, interactive frog companion on your new tab 🐸` (58 chars)
-  - *Option 2 (Performance & Minimal)*: `Cozy new tab pet with ~0% CPU and zero tracking 🐸` (52 chars)
+  - *Option 2 (Performance & Minimal)*: `A featherweight new-tab frog pet with zero tracking 🐸` (53 chars)
   - *Option 3 (Playful)*: `Turn every new tab into a cozy, calm moment with a pet frog` (60 chars)
 - **Primary Category**: `Productivity`, `Design Tools`, `Fun / Side Projects`
 - **Pricing**: `Free` / `Open Source`
@@ -31,7 +31,7 @@ Complete launch content and copy kit for shipping **Pondie Tab** across **Produc
 ---
 
 ### 📝 Short Description (Max 260 chars)
-> Pondie Tab is a lightweight, cozy new-tab companion. Meet a procedural kawaii frog that follows your cursor, hops across your screen, and brings calm to your browser. 100% local, zero tracking, ~0% idle CPU, and only 15KB.
+> Pondie Tab is a lightweight, cozy new-tab companion. Meet a kawaii frog that follows your cursor, hops across your screen, grooves when music plays, and types along with you. 100% local, zero tracking, under 1 MB.
 
 ---
 
@@ -51,10 +51,10 @@ Complete launch content and copy kit for shipping **Pondie Tab** across **Produc
 >
 > ### ⚡ Built for Delight without the Bloat:
 > - 🐸 **Interactive & Organic**: Real-time cursor tracking, blinking, breathing, drag & drop, and playful hop physics.
-> - ⚡ **~0% Idle CPU**: Built with vanilla TypeScript + Canvas 2D. The animation loop completely sleeps when idle or when the tab is hidden.
-> - 🪶 **Featherweight**: ~15KB production bundle. No React/framework overhead—it loads in the blink of an eye.
+> - ⚡ **Sleeps when hidden**: Built with vanilla TypeScript + Canvas 2D. The animation loop stops completely whenever the tab is hidden.
+> - 🪶 **Featherweight**: ~43KB of JavaScript (14KB gzipped), under 1 MB installed. No React/framework overhead—it loads in the blink of an eye.
 > - 🛡️ **100% Private & Local**: Zero telemetry, zero analytics, zero external API calls. Only uses local storage to remember your settings.
-> - 🎨 **Soothing Aesthetics**: Soft pastel color palettes, customizable clock typography (Retro Serif, Minimal Sans, Digital Mono), and custom greetings.
+> - 🎨 **Soothing Aesthetics**: Soft pastel color palettes, four clock styles (Minimal Digital, Pixel Arcade, Cozy Handwritten, Analog Dial), and custom greetings.
 > - 💻 **100% Open Source (MIT)**.
 >
 > I'd love to hear your thoughts, feedback, and feature requests! What other companions or interactions would you love to see next?
@@ -71,15 +71,15 @@ Complete launch content and copy kit for shipping **Pondie Tab** across **Produc
 3. **Slide 3 (Themes & Customization)**: Showcase color palette switcher & clock styles.
    - *Overlay text*: "Pastel ambient palettes & offline clock typography"
 4. **Slide 4 (Performance & Privacy)**: Diagram / bullet points comparing bloated new tabs vs Pondie Tab.
-   - *Overlay text*: "~0% Idle CPU • 15KB bundle • Zero tracking • Open Source"
+   - *Overlay text*: "Sleeps when hidden • Under 1 MB • Zero tracking • Open Source"
 
 ---
 
 ## 2. Hacker News (Show HN)
 
 ### 📌 Title Ideas:
-- `Show HN: Pondie Tab – Cozy procedural frog companion for new tabs (~0% idle CPU)`
-- `Show HN: Pondie Tab – A 15KB, zero-telemetry interactive new-tab companion`
+- `Show HN: Pondie Tab – A cozy frog companion for new tabs, no tracking`
+- `Show HN: Pondie Tab – A sub-1MB, zero-telemetry interactive new-tab companion`
 
 ### 📄 HN Post Body:
 ```text
@@ -91,14 +91,14 @@ Most new-tab extensions load heavy telemetry scripts, news feeds, or several meg
 
 Some technical details:
 
-1. Procedural rendering over sprites:
-The creature is rendered onto an HTML5 Canvas 2D using inverse kinematics and bezier skinning rather than static sprites. It computes tangent vectors and hull points across joint chains, which enables organic stretching, eye tracking, and directional jumping.
+1. Sprites with a procedural face:
+The body is a handful of hand-drawn keyframes (idle, jump, headphones, laptop) drawn onto a Canvas 2D. The eye is rendered in code so it can track the cursor, blink, and change with mood, and the mouth is swapped by a small expression state machine (neutral, happy, surprised, sleepy, ...).
 
-2. Loop lifecycle & ~0% CPU:
-New-tab pages are opened hundreds of times a day. To avoid battery drain, the requestAnimationFrame loop pauses completely when the creature settles into an idle state and hooks into `visibilitychange` so inactive tabs consume 0 CPU cycles.
+2. Loop lifecycle:
+New-tab pages are opened hundreds of times a day. The requestAnimationFrame loop hooks into `visibilitychange` so hidden tabs do no work, and under `prefers-reduced-motion` it stops as soon as the frog settles.
 
 3. Zero bloat:
-Built with vanilla TypeScript and Vite. No frontend framework runtime. Total bundle size is ~15KB (~5.5KB gzipped).
+Built with vanilla TypeScript and Vite. No frontend framework runtime. ~43KB of JS (~14KB gzipped). Sprites ship as WebP and the rarely used ones load on first use, so the whole extension is under 1 MB.
 
 4. Privacy by design:
 The only permission requested is `storage` (local settings for clock format, theme, and position). Zero network requests, zero analytics, zero external dependencies at runtime.
@@ -114,7 +114,7 @@ Feedback and suggestions are welcome!
 ## 3. Reddit Launch Pack
 
 ### 🟢 Subreddit: `r/SideProject` & `r/IndieBiz`
-**Title**: `I built a cozy new-tab frog companion with ~0% idle CPU and zero tracking 🐸`
+**Title**: `I built a cozy new-tab frog companion with zero tracking and zero bloat 🐸`
 
 **Post Content**:
 ```markdown
@@ -126,10 +126,10 @@ So I built **Pondie Tab** — a lightweight new-tab companion.
 
 ✨ **Key Highlights**:
 - 🐸 **Interactive Frog**: Tracks your cursor with its eyes, hops across the screen when clicked, and can be dragged anywhere.
-- ⚡ **Lightweight & Fast**: Pure TypeScript + Canvas 2D. No heavy UI frameworks. Loads instantly with a ~15KB bundle.
-- 🔋 **Zero Battery Drain**: Pauses the animation loop whenever idle or when the tab is in the background (~0% CPU).
+- ⚡ **Lightweight & Fast**: Pure TypeScript + Canvas 2D. No heavy UI frameworks. Loads instantly; the whole extension is under 1 MB.
+- 🔋 **Easy on the battery**: The animation loop stops whenever the tab is in the background.
 - 🔒 **100% Private**: No analytics, no accounts, no external network calls.
-- 🎨 **Customizable**: Minimalist clock (multiple font styles), custom greeting, and soothing pastel themes.
+- 🎨 **Customizable**: Minimalist clock (four styles), custom greeting, and soothing pastel themes.
 - 💻 **Open Source (MIT)**.
 
 I'd love for you to try it out and let me know what you think! 
@@ -141,9 +141,9 @@ I'd love for you to try it out and let me know what you think!
 ---
 
 ### 🟢 Subreddit: `r/webdev` or `r/javascript`
-**Title**: `How I built an interactive new-tab companion in ~15KB vanilla TypeScript with procedural Canvas 2D math`
+**Title**: `How I built an interactive new-tab companion in vanilla TypeScript + Canvas 2D (no framework, under 1 MB)`
 
-**Post Content**: Focus on procedural spine math, bezier hull skinning, and `visibilitychange` loop management. (Share the GitHub repo link and technical breakdown).
+**Post Content**: Focus on the sprite + procedural-eye renderer, the expression state machine, lazy-loaded WebP sprites, and `visibilitychange` loop management. (Share the GitHub repo link and technical breakdown).
 
 ---
 
@@ -173,9 +173,9 @@ Hope it brings a smile to your workday! 💚
 > 
 > Meet Pondie Tab 🐸 — a cozy, interactive frog companion that lives on your new tab, tracks your cursor, and brings calm to your day.
 > 
-> ⚡ ~0% idle CPU
+> ⚡ Sleeps when the tab is hidden
 > 🛡️ 100% local & private
-> 🪶 15KB bundle
+> 🪶 Under 1 MB
 > 
 > Free & Open Source (MIT) 👇
 > [Attach 5-second aesthetic video/GIF of cursor tracking + hop]
@@ -193,7 +193,7 @@ Hope it brings a smile to your workday! 💚
 > 
 > Most extensions load megabytes of JS and kill battery life. 
 > 
-> Pondie Tab is built with vanilla TypeScript + Canvas 2D. Its animation loop completely sleeps when idle or hidden. ~0% CPU usage.
+> Pondie Tab is built with vanilla TypeScript + Canvas 2D. Its animation loop stops completely when the tab is hidden.
 
 ### 🧵 Tweet 4 (CTA & Product Hunt)
 > We're live on Product Hunt today! 🚀
@@ -212,7 +212,7 @@ Hope it brings a smile to your workday! 💚
 
 ### 📝 Post: J2TEAM / Coder Community
 **Title / Hook**:
-`[Show project] Mình vừa làm một extension new tab nuôi ếch "chữa lành", siêu nhẹ (15KB) và 0% CPU khi idle 🐸✨`
+`[Show project] Mình vừa làm một extension new tab nuôi ếch "chữa lành", siêu nhẹ (dưới 1MB) và không tracking 🐸✨`
 
 **Nội dung bài viết**:
 ```text
@@ -224,8 +224,8 @@ Nên mình tự build một extension nhỏ tên là **Pondie Tab** — biến m
 
 🌟 Điểm nổi bật:
 - 🐸 Bé ếch tương tác: Mắt liếc theo chuột thời gian thực, click để ếch nhảy tưng tưng (physics squash & stretch), kéo thả đi khắp màn hình.
-- ⚡ Siêu nhẹ & mượt: Viết bằng Vanilla TypeScript + Canvas 2D (không React/Vue framework), bundle build ra chỉ ~15KB. Mở tab là hiện ngay tức thì.
-- 🔋 Không tốn pin / CPU: Loop animation tự pause hoàn toàn khi chuột dừng hoặc khi chuyển tab (idle ~0% CPU).
+- ⚡ Siêu nhẹ & mượt: Viết bằng Vanilla TypeScript + Canvas 2D (không React/Vue framework), JS build ra chỉ ~43KB (14KB gzip), cả extension dưới 1MB. Mở tab là hiện ngay tức thì.
+- 🔋 Không tốn pin / CPU: Loop animation tự dừng hoàn toàn khi bạn chuyển sang tab khác.
 - 🛡️ 100% Privacy: Không tracking, không gửi request mạng nào, chạy hoàn toàn offline.
 - 🎨 Tùy biến tone màu pastel dịu mắt, đồng hồ tối giản kèm font offline & lời chào tuỳ chỉnh.
 - 💻 Mã nguồn mở 100% (MIT).
@@ -251,14 +251,14 @@ Cảm ơn mọi người nhiều! ❤️
   - `00:00 - 00:04`: Mở new tab -> Bé ếch xuất hiện nhìn theo chuột.
   - `00:04 - 00:10`: Lấy chuột poke vào ếch -> ếch nhảy sang góc khác, đổi màu nền pastel.
   - `00:10 - 00:15`: Quay đồng hồ tối giản, chuyển font chữ.
-  - `00:15 - 00:20`: Show text *"15KB, no tracking, free on Chrome Store: Pondie Tab"*.
+  - `00:15 - 00:20`: Show text *"Under 1 MB, no tracking, free on Chrome Store: Pondie Tab"*.
 
 ---
 
 ### 🎬 Script 2: "Developer Story / POV"
-- **On-screen Text**: *"I was tired of heavy new-tab extensions slowing down my browser... so I built this in 15KB."*
-- **Visual**: Mở Chrome Task Manager (show 0% CPU), kéo thả bé ếch quanh màn hình.
-- **Voiceover**: *"Meet Pondie Tab. It's a cozy frog pet for your new tab with zero tracking, ~0% idle CPU, and smooth cursor tracking."*
+- **On-screen Text**: *"I was tired of heavy new-tab extensions slowing down my browser... so I built this in under 1 MB."*
+- **Visual**: Chuyển sang tab khác rồi mở Chrome Task Manager (show 0% CPU khi tab ẩn), kéo thả bé ếch quanh màn hình.
+- **Voiceover**: *"Meet Pondie Tab. It's a cozy frog pet for your new tab with zero tracking, no CPU use when hidden, and smooth cursor tracking."*
 
 ---
 

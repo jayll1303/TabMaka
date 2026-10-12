@@ -5,6 +5,20 @@ All notable changes to Pondie Tab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.2.5] - 2026-10-12
+
+### Changed
+- **Much smaller install**: Frog sprites now ship as WebP sized for the way they are drawn, cutting bundled assets from about 5.8 MB to under 1 MB. The typing sprites alone went from 3.5 MB to about 130 KB.
+- **Lazy sprite loading**: The headphone and laptop sprites load the first time they are needed instead of on every new tab.
+- **Quieter in the background**: The audio check that drives the music vibe stops polling while the new tab is hidden and re-checks as soon as it is visible again.
+- **Sprite pipeline**: PNG masters moved to `art/sprites/frog/`; `npm run sprites` regenerates the shipped WebP files.
+
+### Removed
+- **Unused art from the package**: Reference sprites that no code loads (old eye and mouth sprites, the original body, a combined example sheet) are no longer bundled.
+- **Outdated docs**: Removed `docs/blog-technical.md` and the root `plan.md` stub, which described a procedural engine that does not ship. Corrected size and CPU claims in the launch kit, store listing, and README.
+
 ## [0.2.4] - 2026-08-29
 
 ### Changed
@@ -15,8 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Release packaging**: Updated the extension version and release artifact naming for the Pondie Tab Chrome Web Store submission.
-
-## [Unreleased]
 
 ## [0.2.3] - 2026-08-28
 

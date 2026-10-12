@@ -232,7 +232,7 @@ export function drawFrog(ctx: CanvasRenderingContext2D, v: FrogView): void {
       tfIdx = 0; // Both paws resting at laptop
     }
 
-    const frame = typingFrames[tfIdx];
+    const frame = typingFrames()[tfIdx];
 
     // Subtle vertical rhythmic head/body bounce while actively typing
     const isActivelyTapping =
@@ -280,7 +280,7 @@ export function drawFrog(ctx: CanvasRenderingContext2D, v: FrogView): void {
     const yVibe = -Math.sin(u * Math.PI) * (vibeIdx === 0 ? 4 : 8);
     const vibeAngle = (vibeIdx === 0 ? 1 : -1) * Math.sin(u * Math.PI) * 0.04;
 
-    const frame = vibeFrames[vibeIdx];
+    const frame = vibeFrames()[vibeIdx];
     ctx.rotate(vibeAngle);
 
     const curW = bodyW * (frame.natW / 566);

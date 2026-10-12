@@ -23,8 +23,9 @@ mental model.
   must paint instantly.
 - **Canvas 2D**, redrawn each frame from mascot state, scaled for
   `devicePixelRatio`.
-- **Performance is a constraint, not a feature.** The rAF loop must stop when
-  nothing is animating and when the tab is hidden (~0% CPU idle).
+- **Performance is a constraint, not a feature.** The rAF loop stops when the
+  tab is hidden, and under reduced motion once the mascot settles. With motion
+  enabled, idle breathing keeps the loop running while the tab is visible.
 - **Accessibility is a constraint.** Honor `prefers-reduced-motion`: settle to a
   static frame and stop the loop.
 - **Privacy is a constraint.** No analytics, telemetry, accounts, or network
@@ -64,6 +65,9 @@ src/
     theme.ts           # Ambient background palette
     editable.ts        # Inline contenteditable helper (greeting)
   styles/              # CSS
+art/sprites/frog/      # PNG sprite masters (not bundled); reference/ = unshipped
+public/sprites/frog/   # Generated WebP sprites the extension loads
+scripts/               # Asset tooling (optimize-sprites.mjs, icon generation)
 ```
 
 ## Runtime flow
@@ -76,8 +80,9 @@ src/
    `mascot.update(dtScale, reduced)` then `mascot.draw(ctx, size)`.
 5. Input listeners (pointer move/down/up, dblclick, keydown, audio) call mascot
    methods and `wake()` the loop.
-6. The loop stops when the tab is hidden, and (under reduced motion) once the
-   mascot `isSettled()`.
+6. When the tab is hidden the loop stops and the audio detector pauses its
+   poll; both resume when it is visible again. Under reduced motion the loop
+   also stops once the mascot `isSettled()`.
 
 ## The Mascot contract
 
@@ -102,6 +107,8 @@ Any new mascot implements this interface; `main.ts` never changes.
   closed "smile" arc) as pure functions.
 - **`frog-sprites.ts`** — the art catalog: image loading, jump/vibe/typing
   keyframe tables, mouth sprites, expression→eye maps, and `bodyMetrics()`.
+  Body, mouths, and jump frames load at startup (the entrance leap needs them);
+  `vibeFrames()` and `typingFrames()` create their images on first use.
 
 Split rationale: separate mutable state (`face-mascot`) from stateless
 rendering (`frog-render`, `frog-eye`) and static data (`frog-sprites`). The
@@ -122,7 +129,9 @@ further would fragment the render pass or leak mutable state.
 
 `audio-detector.ts` calls `chrome.tabs.query({ audible: true })` and listens to
 `chrome.tabs.onUpdated`/`onRemoved`/`onActivated`, with a 2.5s poll as a
-fallback. When any tab is audible it calls `mascot.setVibing(true)`.
+fallback. When any tab is audible it calls `mascot.setVibing(true)`. The poll
+only runs while the new tab is visible: `main.ts` calls `pause()` on hide and
+`resume()` (immediate re-check + restart) on show.
 
 **No `tabs` permission is needed.** Chrome exposes the `audible` boolean and the
 `onUpdated` event to any extension; the `tabs` permission only gates sensitive
@@ -141,7 +150,7 @@ a no-op outside the extension (e.g. Vite dev, tests).
 
 ## Storage
 
-`storage.ts` persists `Settings` (creatureId, greeting, clock mode, 12/24h,
+`storage.ts` persists `Settings` (creatureId, greeting, clock on/off and style, 12/24h,
 background, normalized position, onboarding flag) to `chrome.storage.local`,
 falling back to `localStorage` when the API is unavailable. Position is stored
 normalized (0..1) so it survives viewport resizes.
@@ -154,11 +163,19 @@ against DOM elements defined in `index.html`.
 
 ## Sprite pipeline
 
-Frog sprites in `public/sprites/frog/` are produced by scripts in `scripts/`
-(`extract_*.py`, `clean-frog-eye.mjs`). The baked eye bead is removed from the
-body PNG so the eye can be drawn in code with full mood control. Pixel anchors
-(eye/mouth positions per keyframe) live in `frog-sprites.ts` and are tied to
-each sprite's natural dimensions.
+PNG masters live in `art/sprites/frog/` and are never bundled. They come from
+`scripts/extract_*.py` and `clean-frog-eye.mjs` (which removes the baked eye
+bead from the body so the eye can be drawn in code with full mood control).
+`art/sprites/frog/reference/` holds source art that does not ship: the original
+body, the eye sprites used by the icon generator, and spare mouths.
+
+`npm run sprites` (`scripts/optimize-sprites.mjs`, uses `sharp`) regenerates
+`public/sprites/frog/*.webp` from the masters, capping width at 650px. Run it
+and commit the output whenever a master changes; the build does not run it.
+
+Pixel anchors (eye/mouth positions per keyframe) and `nat*` sizes in
+`frog-sprites.ts` are in master pixels. The renderer uses them only as ratios,
+so the downscaled WebP needs no anchor changes while the aspect is preserved.
 
 ## Dormant: the procedural spine engine
 

@@ -16,7 +16,7 @@ The extension saves a small set of preferences using `chrome.storage.local`
 - Companion position (`posX`, `posY`)
 - Custom greeting message
 - Background color / ambient theme choice
-- Whether the clock is shown and the 12/24-hour setting
+- Whether the clock is shown, its style, and the 12/24-hour setting
 - Whether you have seen the first-run onboarding
 
 This data never leaves your browser. It is not synced to any account or
@@ -44,4 +44,4 @@ an on-screen animation.
 Questions about privacy can be filed as an issue on the project's GitHub
 repository.
 
-_Last updated: 2026-08-28_
+_Last updated: 2026-10-12_

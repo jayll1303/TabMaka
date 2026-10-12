@@ -8,6 +8,7 @@ describe("AudioDetector", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it("handles initialization without chrome API gracefully", () => {
@@ -39,5 +40,27 @@ describe("AudioDetector", () => {
     detector.destroy();
     // Advance timers, should not throw
     vi.advanceTimersByTime(5000);
+  });
+
+  it("stops polling while paused and re-checks on resume", () => {
+    const query = vi.fn();
+    vi.stubGlobal("window", { setInterval, clearInterval });
+    vi.stubGlobal("chrome", { tabs: { query } });
+
+    const detector = new AudioDetector(vi.fn());
+    expect(query).toHaveBeenCalledTimes(1);
+    vi.advanceTimersByTime(5000);
+    expect(query).toHaveBeenCalledTimes(3);
+
+    detector.pause();
+    vi.advanceTimersByTime(10000);
+    expect(query).toHaveBeenCalledTimes(3);
+
+    detector.resume();
+    expect(query).toHaveBeenCalledTimes(4);
+    vi.advanceTimersByTime(2500);
+    expect(query).toHaveBeenCalledTimes(5);
+
+    detector.destroy();
   });
 });

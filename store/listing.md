@@ -21,15 +21,16 @@ Meet Pondie Tab, an adorable cozy companion that lives on your new-tab page. Des
 What you get:
 - An interactive kawaii frog companion with real-time cursor-following eye tracking, expressive blinking, and breathing animations
 - Drag and drop your companion anywhere on the screen, or poke it for cute playful bounce reactions
+- Plays along with you: it pops on headphones and grooves when any tab plays music, and taps away on a tiny laptop while you type
 - Ambient color palette switcher to easily set your preferred soothing background tone
-- Minimalist clock toggle (12-hour, 24-hour, or hidden) and editable greeting
+- Four clock styles (or hidden), 12/24-hour toggle, and an editable greeting
 - A clean, calm, and distraction-free new-tab experience
 
 Built for people who want a little delight without the bloat:
 - 100% local. No analytics, no telemetry, no network requests, no account required.
 - The only permission requested is storage, used solely to remember your frog's position, custom greeting, background color, and clock preferences.
-- Lightweight and lightning fast. Built with vanilla TypeScript and HTML5 Canvas, no heavy frameworks, loads instantly.
-- Respects system reduced-motion settings and pauses animation when the tab is inactive, costing ~0% CPU.
+- Lightweight and lightning fast. Built with vanilla TypeScript and HTML5 Canvas, no heavy frameworks, under 1 MB installed.
+- Respects system reduced-motion settings and stops animating whenever the tab is hidden.
 
 Open source (MIT). Build it from source or view the code on GitHub.
 

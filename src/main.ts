@@ -180,8 +180,14 @@ async function main(): Promise<void> {
   });
 
   onVisibilityChange(
-    () => loop.stop(),
-    () => wake(),
+    () => {
+      loop.stop();
+      audioDetector.pause();
+    },
+    () => {
+      audioDetector.resume();
+      wake();
+    },
   );
 
   onReducedMotionChange((r) => {

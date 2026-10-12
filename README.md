@@ -13,11 +13,12 @@ Built for Chrome and Edge (Manifest V3). Vanilla TypeScript + Canvas 2D, no runt
 ## Features
 
 - **Interactive Kawaii Frog Mascot**: Doodle loaf with real-time cursor-following eye tracking, expressive blinking, and natural breathing.
-- **Drag & Drop & Poke**: Place your companion anywhere on the screen by dragging, or click/poke for a playful bounce.
+- **Drag & Drop & Poke**: Place your companion anywhere on the screen by dragging, or click/poke for a playful hop.
+- **Music Vibe & Typing**: The frog puts on headphones and grooves when any tab plays audio, and types along on a tiny laptop when you press keys.
 - **Ambient Themes**: Switch between soothing pastel backgrounds via the bottom-left color palette.
-- **Clock & Greeting**: 3-state clock toggle (12h, 24h, hidden) and customizable greeting message.
+- **Clock & Greeting**: Four clock styles (or hidden), 12h/24h toggle, and a customizable greeting message.
 - **Privacy First**: 100% local. Settings persisted to `chrome.storage.local` (with `localStorage` fallback). No analytics, telemetry, or network calls.
-- **Accessible & Efficient**: Respects `prefers-reduced-motion` and pauses the animation loop when the tab is hidden, costing ~0% CPU when idle.
+- **Accessible & Efficient**: Respects `prefers-reduced-motion` and stops the animation loop (and the audio check) when the tab is hidden. Under 1 MB installed.
 
 ## Development
 
@@ -30,6 +31,7 @@ npm test         # run Vitest unit suite
 npm run build    # type-check + production build into dist/
 npm run lint     # eslint
 npm run format   # prettier
+npm run sprites  # rebuild public/sprites/ (WebP) from the PNG masters in art/
 ```
 
 ### Load the unpacked extension

@@ -112,8 +112,8 @@ function encode(width, height, rgba) {
 }
 
 // --- Repaint the baked black eye bead with body green ---
-const FILE = "public/sprites/frog/frog_body.png";
-const BACKUP = "public/sprites/frog/frog_body.original.png";
+const FILE = "art/sprites/frog/frog_body.png";
+const BACKUP = "art/sprites/frog/reference/frog_body.original.png";
 const BODY_GREEN = [0x82, 0xc3, 0x55]; // palette.body #82c355
 const EYE = { x: 313.3, y: 85.8, r: 38.8 };
 
